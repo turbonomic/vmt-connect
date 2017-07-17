@@ -9,7 +9,17 @@ import requests
 from urllib.parse import urlunparse, urlencode
 
 
-__version__ = '0.0.0.dev'
+__version__ = '1.0.0'
+__all__ = [
+    'VMTConnectionError',
+    'VMTSessionError',
+    'HTTPError',
+    'HTTP500Error',
+    'HTTP502Error',
+    'HTTPWarn',
+    'VMTConnection',
+    'VMTSession'
+]
 
 
 
