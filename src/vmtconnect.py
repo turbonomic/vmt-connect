@@ -9,7 +9,17 @@ import requests
 from urllib.parse import urlunparse, urlencode
 
 
-__version__ = '0.0.0.dev'
+__version__ = '1.0.0.dev'
+__all__ = [
+    'VMTConnectionError',
+    'VMTSessionError',
+    'HTTPError',
+    'HTTP500Error',
+    'HTTP502Error',
+    'HTTPWarn',
+    'VMTConnection',
+    'VMTSession'
+]
 
 
 
@@ -132,10 +142,10 @@ class VMTSession(VMTConnection):
     def get_markets(self, uuid=None):
         return self.request('markets', uuid=uuid)
 
-    def get_market_state(self, uuid):
+    def get_market_state(self, uuid='Market'):
         return self.get_markets(uuid)['state']
 
-    def get_market_stats(self, uuid):
+    def get_market_stats(self, uuid='Market'):
         return self.request('markets/{}/stats'.format(uuid))
 
     def get_entities(self, type=None, uuid=None, market='Market'):
