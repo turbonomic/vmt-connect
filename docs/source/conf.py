@@ -18,7 +18,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../src'))
+sys.path.insert(0, os.path.abspath('../../vmtconnect'))
 
 
 # -- General configuration ------------------------------------------------
@@ -33,7 +33,22 @@ sys.path.insert(0, os.path.abspath('../src'))
 extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.coverage',
-    'sphinx.ext.githubpages']
+    'sphinx.ext.githubpages',
+    'sphinx.ext.napoleon']
+
+# Napoleon settings
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False
+napoleon_include_init_with_doc = False
+napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = False
+napoleon_use_admonition_for_examples = False
+napoleon_use_admonition_for_notes = False
+napoleon_use_admonition_for_references = False
+napoleon_use_ivar = False
+napoleon_use_param = True
+napoleon_use_rtype = True
+napoleon_use_keyword = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -86,12 +101,14 @@ todo_include_todos = False
 # a list of builtin themes.
 #
 html_theme = 'alabaster'
+#html_theme = 'nature'
+#html_theme = 'classic'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {'show_related': True}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -105,11 +122,11 @@ html_static_path = ['_static']
 # refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
 html_sidebars = {
     '**': [
-        'about.html',
+        #'about.html',
         'navigation.html',
         'relations.html',  # needs 'show_related': True theme option to display
         'searchbox.html',
-        'donate.html',
+        #'donate.html',
     ]
 }
 
@@ -174,4 +191,7 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/', None),
+    'requests': ('http://docs.python-requests.org/en/latest/', None)
+  }
