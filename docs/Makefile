@@ -6,7 +6,7 @@ SPHINXOPTS    = -v
 SPHINXBUILD   = python -msphinx
 SPHINXPROJ    = vmt-connect
 SOURCEDIR     = source
-BUILDDIR      = build
+BUILDDIR      = ../vmt-connect-docs
 
 # Put it first so that "make" without argument is like "make help".
 help:
