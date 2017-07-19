@@ -1,3 +1,11 @@
+.. # Links
+.. _CPython: http://www.python.org/
+.. _PyPy: http://pypy.org/
+.. _Requests: http://docs.python-requests.org/en/master/
+.. _IronPython: http://http://ironpython.net/
+.. _repository: https://github.com/rastern/vmt-connect
+.. _releases: https://github.com/rastern/vmt-connect/releases
+
 Installation
 ============
 
@@ -17,11 +25,6 @@ Python, and install the Requests_ module.
   - CPython_ >= 2.7 or >= 3.3
 
 * Requests_ >= 2.10.0
-
-.. _CPython: http://www.python.org/
-.. _PyPy: http://pypy.org/
-.. _Requests: http://docs.python-requests.org/en/master/
-.. _IronPython: http://http://ironpython.net/
 
 
 Importing
@@ -59,6 +62,6 @@ GitHub Source
 
 The source code for vmt-connect is provided via a read-only GitHub repository_.
 
-.. _repository: https://github.com/rastern/vmt-connect
+Individual release archives may be found `here`__.
 
-Individual release archives may be found `here <https://github.com/rastern/vmt-connect/releases>`_.
+__ releases_
