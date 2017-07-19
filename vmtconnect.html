@@ -1,0 +1,469 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>vmtconnect — Developer Interfaces &#8212; vmt-connect 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Quickstart Guide" href="quickstart.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-vmtconnect">
+<span id="vmtconnect-developer-interfaces"></span><h1><a class="reference internal" href="#module-vmtconnect" title="vmtconnect"><code class="xref py py-mod docutils literal"><span class="pre">vmtconnect</span></code></a> — Developer Interfaces<a class="headerlink" href="#module-vmtconnect" title="Permalink to this headline">¶</a></h1>
+<p>vmt-connect provides two connection interface classes, and several exceptions
+for communicating with Turbonomic instances.</p>
+<div class="section" id="connections">
+<h2>Connections<a class="headerlink" href="#connections" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="vmtconnect.VMTConnection">
+<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">VMTConnection</code><span class="sig-paren">(</span><em>host=None</em>, <em>username=None</em>, <em>password=None</em>, <em>auth=None</em>, <em>base_url=None</em>, <em>ssl=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#vmtconnect.VMTRawConnection" title="vmtconnect.VMTRawConnection"><code class="xref py py-class docutils literal"><span class="pre">vmtconnect.VMTRawConnection</span></code></a></p>
+<p>A wrapper for <a class="reference internal" href="#vmtconnect.VMTRawConnection" title="vmtconnect.VMTRawConnection"><code class="xref py py-class docutils literal"><span class="pre">VMTRawConnection</span></code></a> with additional helper methods.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>host</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – The hostname or IP address to connect to. (default:
+<cite>localhost</cite>)</li>
+<li><strong>username</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Username to authenticate with.</li>
+<li><strong>password</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Password to authenticate with.</li>
+<li><strong>auth</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Pre-encded ‘Basic Authentication’ string which
+may be used in place of a <code class="docutils literal"><span class="pre">username</span></code> and <code class="docutils literal"><span class="pre">password</span></code> pair.</li>
+<li><strong>base_url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Base endpoint path to use. (default:
+<cite>/vmturbo/rest/</cite>)</li>
+<li><strong>ssl</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Use SSL or not. (default: <cite>False</cite>)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_datacenters">
+<code class="descname">get_datacenters</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_datacenters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of datacenters in the given market</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</li>
+<li><strong>market</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Market to query. (default: <cite>Market</cite>)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of datacenters in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_datastores">
+<code class="descname">get_datastores</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_datastores" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of datastores in the given market</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</li>
+<li><strong>market</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Market to query. (default: <cite>Market</cite>)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of datastores in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_entities">
+<code class="descname">get_entities</code><span class="sig-paren">(</span><em>type=None</em>, <em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_entities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of entities in the given market.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_group_by_name">
+<code class="descname">get_group_by_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_group_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the first group that match <cite>name</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing one group in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_group_stats">
+<code class="descname">get_group_stats</code><span class="sig-paren">(</span><em>uuid</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_group_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the aggregated statistics for a group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Specific group UUID to lookup.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing the group stats in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_groups">
+<code class="descname">get_groups</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of groups in the given market</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of groups in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_market_state">
+<code class="descname">get_market_state</code><span class="sig-paren">(</span><em>uuid='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_market_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the state of a market.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Market UUID. (default: <cite>Market</cite>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A string representation of the market state.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_market_stats">
+<code class="descname">get_market_stats</code><span class="sig-paren">(</span><em>uuid='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_market_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of market statistics.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Market UUID. (default: <cite>Market</cite>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of stat objects in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_markets">
+<code class="descname">get_markets</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_markets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of markets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of markets in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_physicalmachines">
+<code class="descname">get_physicalmachines</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_physicalmachines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of hosts in the given market</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</li>
+<li><strong>market</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Market to query. (default: <cite>Market</cite>)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of hosts in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_template_by_name">
+<code class="descname">get_template_by_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_template_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a template by name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Name of the template.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing the template in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_templates">
+<code class="descname">get_templates</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_templates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of templates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing templates in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_users">
+<code class="descname">get_users</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of users.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of user objects in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_virtualmachines">
+<code class="descname">get_virtualmachines</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_virtualmachines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of virtual machines in the given market</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</li>
+<li><strong>market</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Market to query. (default: <cite>Market</cite>)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of virtual machines in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.request">
+<code class="descname">request</code><span class="sig-paren">(</span><em>path</em>, <em>method='GET'</em>, <em>query=''</em>, <em>dto=None</em>, <em>uuid=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the same functionality as <code class="xref py py-meth docutils literal"><span class="pre">VMTRawConnection.request()</span></code>
+with error checking and output deserialization.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="vmtconnect.VMTRawConnection">
+<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">VMTRawConnection</code><span class="sig-paren">(</span><em>host=None</em>, <em>username=None</em>, <em>password=None</em>, <em>auth=None</em>, <em>base_url=None</em>, <em>ssl=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTRawConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>A basic stateless connection to a Turbonomic instance. This connection
+returns the whole <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response" title="(in Requests v2.18.1)"><code class="xref py py-class docutils literal"><span class="pre">requests.Response</span></code></a> object, without post-processing.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>host</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – The hostname or IP address to connect to. (default:
+<cite>localhost</cite>)</li>
+<li><strong>username</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Username to authenticate with.</li>
+<li><strong>password</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Password to authenticate with.</li>
+<li><strong>auth</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Pre-encded ‘Basic Authentication’ string which
+may be used in place of a <code class="docutils literal"><span class="pre">username</span></code> and <code class="docutils literal"><span class="pre">password</span></code> pair.</li>
+<li><strong>base_url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Base endpoint path to use. (default:
+<cite>/vmturbo/rest/</cite>)</li>
+<li><strong>ssl</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Use SSL or not. (default: <cite>False</cite>)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="vmtconnect.VMTRawConnection.host">
+<code class="descname">host</code><a class="headerlink" href="#vmtconnect.VMTRawConnection.host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hostname or IP address connected to.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.VMTRawConnection.base_url">
+<code class="descname">base_url</code><a class="headerlink" href="#vmtconnect.VMTRawConnection.base_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base endpoint path used.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.VMTRawConnection.response">
+<code class="descname">response</code><a class="headerlink" href="#vmtconnect.VMTRawConnection.response" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response" title="(in Requests v2.18.1)"><code class="xref py py-obj docutils literal"><span class="pre">requests.Response</span></code></a> object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.VMTRawConnection.headers">
+<code class="descname">headers</code><a class="headerlink" href="#vmtconnect.VMTRawConnection.headers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of headers to send with each request.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.VMTRawConnection.protocol">
+<code class="descname">protocol</code><a class="headerlink" href="#vmtconnect.VMTRawConnection.protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Service protocol to use (HTTP, or HTTPS).</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="exceptions">
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="vmtconnect.VMTConnectionError">
+<em class="property">exception </em><code class="descclassname">vmtconnect.</code><code class="descname">VMTConnectionError</code><a class="headerlink" href="#vmtconnect.VMTConnectionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base connection exception class.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="vmtconnect.VMTSessionError">
+<em class="property">exception </em><code class="descclassname">vmtconnect.</code><code class="descname">VMTSessionError</code><a class="headerlink" href="#vmtconnect.VMTSessionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base session exception class.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="vmtconnect.HTTPError">
+<em class="property">exception </em><code class="descclassname">vmtconnect.</code><code class="descname">HTTPError</code><a class="headerlink" href="#vmtconnect.HTTPError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when an blocking or unknown HTTP error is returned.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="vmtconnect.HTTP500Error">
+<em class="property">exception </em><code class="descclassname">vmtconnect.</code><code class="descname">HTTP500Error</code><a class="headerlink" href="#vmtconnect.HTTP500Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when an HTTP 500 error returned.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="vmtconnect.HTTP502Error">
+<em class="property">exception </em><code class="descclassname">vmtconnect.</code><code class="descname">HTTP502Error</code><a class="headerlink" href="#vmtconnect.HTTP502Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when an HTTP 502 Bad Gateway error is returned. In most cases this
+indicates a timeout issue with synchronous calls to Turbonomic and can be
+safely ignored.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="vmtconnect.HTTPWarn">
+<em class="property">exception </em><code class="descclassname">vmtconnect.</code><code class="descname">HTTPWarn</code><a class="headerlink" href="#vmtconnect.HTTPWarn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when an HTTP error can always be safely ignored.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#"><code class="docutils literal"><span class="pre">vmtconnect</span></code> — Developer Interfaces</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#connections">Connections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#exceptions">Exceptions</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="quickstart.html" title="previous chapter">Quickstart Guide</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, R.A. Stern.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/vmtconnect.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
