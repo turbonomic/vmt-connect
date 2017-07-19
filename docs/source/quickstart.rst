@@ -45,7 +45,7 @@ deserialized into Python objects and can be accessed directly. Turbonomic most
 commonly returns a list of entities, even for single items, so we are often
 working with a list of dictionaries.
 
-Displaying which host a VM lives on.
+Using the deserialized objects, we can easily displaying which host a VM lives on.
 
 .. code:: python
 
@@ -58,3 +58,6 @@ Displaying which host a VM lives on.
                    print(vm['displayName'], 'resides on', x['displayName'])
        except KeyError:
            print(vm['displayName'], 'is powered off')
+
+For more details on the exact data structure of each Turbonomic entity, see the
+`API`_ documentation.
