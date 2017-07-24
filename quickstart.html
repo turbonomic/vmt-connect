@@ -72,7 +72,7 @@ vCenter instance.</p>
 deserialized into Python objects and can be accessed directly. Turbonomic most
 commonly returns a list of entities, even for single items, so we are often
 working with a list of dictionaries.</p>
-<p>Displaying which host a VM lives on.</p>
+<p>Using the deserialized objects, we can easily displaying which host a VM lives on.</p>
 <div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">vms</span> <span class="o">=</span> <span class="n">vmt</span><span class="o">.</span><span class="n">get_virtualmachines</span><span class="p">()</span>
 
 <span class="k">for</span> <span class="n">vm</span> <span class="ow">in</span> <span class="n">vms</span><span class="p">:</span>
@@ -84,6 +84,8 @@ working with a list of dictionaries.</p>
         <span class="nb">print</span><span class="p">(</span><span class="n">vm</span><span class="p">[</span><span class="s1">&#39;displayName&#39;</span><span class="p">],</span> <span class="s1">&#39;is powered off&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>For more details on the exact data structure of each Turbonomic entity, see the
+<a class="reference external" href="https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf">API</a> documentation.</p>
 </div>
 </div>
 
