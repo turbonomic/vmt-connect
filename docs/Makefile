@@ -6,7 +6,7 @@ SPHINXOPTS    = -v
 SPHINXBUILD   = python -msphinx
 SPHINXPROJ    = vmt-connect
 SOURCEDIR     = source
-BUILDDIR      = ../vmt-connect-docs
+BUILDDIR      = ../../vmt-connect-docs
 #PYTHONPATH    = ../
 
 #export PYTHONPATH
