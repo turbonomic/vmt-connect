@@ -7,10 +7,9 @@
 vmt-connect Documentation Contents
 ==================================
 
-The vmt-connect module provides a set of wrapper classes and utility methods
-used to handle connecting to the Turbonomic `API 2.0`_.
-
-
+vmt-connect encompases a single Python module called ``vmtconnect``. This module
+provides a set of wrapper classes and utility methods used to handle connecting
+to the Turbonomic `API 2.0`_.
 
 
 .. toctree::

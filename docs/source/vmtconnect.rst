@@ -21,7 +21,6 @@ Exceptions
 ----------
 
 .. autoexception:: vmtconnect.VMTConnectionError
-.. autoexception:: vmtconnect.VMTSessionError
 .. autoexception:: vmtconnect.HTTPError
 .. autoexception:: vmtconnect.HTTP500Error
 .. autoexception:: vmtconnect.HTTP502Error
