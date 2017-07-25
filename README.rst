@@ -1,3 +1,5 @@
+.. _installation: https://rastern.github.io/vmt-connect/install.html
+
 vmt-connect: Turbonomic API Connection Wrapper
 ==============================================
 
@@ -7,7 +9,9 @@ vmt-connect is a single file Python module that provides a more user-friendly wr
 Installation
 ------------
 
-To install vmt-connect, copy the *vmtconnect.py* file to your project folder, or alternatively, manually install it in your python modules path.
+To install vmt-connect, copy the *vmtconnect.py* file to your project folder, or
+alternatively, manually install it in your python modules path. For detailed
+instructions please see the `installation`_ section of the documentation.
 
 vmt-connect does not support PyPi installation via pip or setuputils.
 
@@ -17,29 +21,20 @@ Usage
 
 Basic Connection
 ''''''''''''''''
+
 .. code-block:: python
 
    import vmtconnect as vcon
    
    conn = vcon.VMTConnection('localhost', 'administrator', '<password>')
-   entities = conn.request('entities')
-   print(entities)
-
-Basic Session
-'''''''''''''
-.. code-block:: python
-
-   import vmtconnect as vcon
-
-   # get all VMs
-   sess = vcon.VMTSession('localhost', 'administrator', '<password>')
-   vms = sess.get_virtualmachines()
+   vms = conn.get_virtualmachines()
    print(vms)
+
 
 Documentation
 -------------
 
-Detailed documentation is available `here <https://github.com/rastern/vmt-connect/tree/master/src/docs/index.rst>`_.
+Detailed documentation is available `here <https://rastern.github.io/vmt-connect>`_.
 
 
 How to Contribute
