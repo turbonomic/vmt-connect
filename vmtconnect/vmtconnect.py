@@ -159,7 +159,7 @@ class VMTConnection(VMTRawConnection):
             `localhost`)
         username (str, optional): Username to authenticate with.
         password (str, optional): Password to authenticate with.
-        auth (str, optional): Pre-encded 'Basic Authentication' string which
+        auth (str, optional): Pre-encoded 'Basic Authentication' string which
             may be used in place of a ``username`` and ``password`` pair.
         base_url (str, optional): Base endpoint path to use. (default:
             `/vmturbo/rest/`)
