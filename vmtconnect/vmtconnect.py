@@ -2,8 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-
-import base64, json
+import base64
+import json
 import requests
 
 try:
@@ -12,47 +12,90 @@ except:
   from urlparse import urlunparse
 
 
-__version__ = '1.0.0.dev'
+__version__ = '1.1.0.dev'
 __all__ = [
     'VMTConnectionError',
-    'VMTSessionError',
     'HTTPError',
     'HTTP500Error',
     'HTTP502Error',
     'HTTPWarn',
-    'VMTConnection',
-    'VMTSession'
+    'VMTRawConnection',
+    'VMTConnection'
 ]
+
+_entity_filter_class = {
+    'application': 'Application',
+    'applicationserver': 'ApplicationServer',
+    'database': 'Database',
+    'db': 'Database',                       # for convenience
+    'ds': 'Storage',                        # for convenience
+    'diskarray': 'DiskArray',
+    'cluster': 'Cluster',
+    'group': 'Group',
+    'physicalmachine': 'PhysicalMachine',
+    'pm': 'PhysicalMachine',                # for convenience
+    'storage': 'Storage',
+    'storagecluster': 'StorageCluster',
+    'storagecontroller': 'StorageController',
+    'switch': 'Switch',
+    'vdc': 'VirtualDataCenter',             # for convenience
+    'virtualapplication': 'VirtualApplication',
+    'virtualdatacenter': 'VirtualDataCenter',
+    'virtualmachine': 'VirtualMachine',
+    'vm': 'VirtualMachine'                  # for convenience
+}
+
+_class_filter_prefix = {
+    'Application': 'apps',
+    'ApplicationServer': 'appSrvs',
+    'Database': 'database',
+    'DiskArray': 'diskarray',
+    'Cluster': 'clusters',
+    'Group': 'groups',
+    'PhysicalMachine': 'pms',
+    'Storage': 'storage',
+    'StorageCluster': 'storageClusters',
+    'StorageController': 'storagecontroller',
+    'Switch': 'switch',
+    'VirtualApplication': 'vapps',
+    'VirtualDataCenter': 'vdcs',
+    'VirtualMachine': 'vms',
+}
+
+_exp_type = {
+    '=': 'EQ',
+    '!=': 'NEQ',
+    '<>': 'NEQ',
+    '>': 'GT',
+    '>=': 'GTE',
+    '<': 'LT',
+    '<=': 'LTE'
+}
+
 
 
 ## ----------------------------------------------------
 ##  Error Classes
 ## ----------------------------------------------------
-# base exception class
 class VMTConnectionError(Exception):
     """Base connection exception class."""
     pass
 
 
-# session handling error
-class VMTSessionError(Exception):
-    """Base session exception class."""
-    pass
-
-
-# connection issue
 class HTTPError(Exception):
     """Raised when an blocking or unknown HTTP error is returned."""
     pass
 
 
-# server error
+class HTTP404Error(HTTPError):
+    """Raised when a requested resource cannot be located."""
+    pass
+
 class HTTP500Error(HTTPError):
     """Raised when an HTTP 500 error returned."""
     pass
 
 
-# bad gateway (ignorable due to sync issues)
 class HTTP502Error(HTTP500Error):
     """Raised when an HTTP 502 Bad Gateway error is returned. In most cases this
     indicates a timeout issue with synchronous calls to Turbonomic and can be
@@ -60,7 +103,6 @@ class HTTP502Error(HTTP500Error):
     pass
 
 
-# for non-breaking errors
 class HTTPWarn(Exception):
     """Raised when an HTTP error can always be safely ignored."""
     pass
@@ -70,7 +112,6 @@ class HTTPWarn(Exception):
 # ----------------------------------------------------
 #  API Wrapper Classes
 # ----------------------------------------------------
-# base vmturbo conneciton class
 class VMTRawConnection(object):
     """A basic stateless connection to a Turbonomic instance. This connection
     returns the whole :class:`requests.Response` object, without post-processing.
@@ -184,13 +225,33 @@ class VMTConnection(VMTRawConnection):
         response = super(VMTConnection, self).request(resource=path, method=method, query=query, dto=dto, *args, **kwargs)
 
         if response.status_code == 502:
-            raise HTTP502Error('(API) HTTP 502 returned')
+            raise HTTP502Error('(API) HTTP 502 Bad Gateway returned')
+        elif response.status_code == 404:
+            raise HTTP404Error('(API) HTTP 404 Not Found returned')
         elif response.status_code/100 == 5:
             raise HTTP500Error('(API) HTTP Code %s returned' % (response.status_code))
         elif response.status_code/100 != 2:
             raise HTTPError('(API) HTTP Code %s returned' % (response.status_code))
+        elif response.text == 'true':
+            return True
+        elif response.text == 'false':
+            return False
         else:
             return response.json()
+
+    @staticmethod
+    def _search_criteria(op, value, filter_type, case_sensitive=False):
+        if op in _exp_type:
+            op = _exp_type[op]
+
+        criteria = {
+            'expType': op,
+            'expVal': value,
+            'caseSensitive': case_sensitive,
+            'filterType': filter_type
+        }
+
+        return criteria
 
     def get_users(self, uuid=None):
         """Returns a list of users.
@@ -272,7 +333,7 @@ class VMTConnection(VMTRawConnection):
         Returns:
             A list of virtual machines in :obj:`dict` form.
         """
-        return self.get_entities('VirtualMachine', uuid, market=market)
+        return self.get_entities('VirtualMachine', uuid=uuid, market=market)
 
     def get_physicalmachines(self, uuid=None, market='Market'):
         """Returns a list of hosts in the given market
@@ -284,7 +345,7 @@ class VMTConnection(VMTRawConnection):
         Returns:
             A list of hosts in :obj:`dict` form.
         """
-        return self.get_entities('PhysicalMachine', uuid, market='Market')
+        return self.get_entities('PhysicalMachine', uuid=uuid, market=market)
 
     def get_datacenters(self, uuid=None, market='Market'):
         """Returns a list of datacenters in the given market
@@ -296,7 +357,7 @@ class VMTConnection(VMTRawConnection):
         Returns:
             A list of datacenters in :obj:`dict` form.
         """
-        return self.get_entities('VirtualDataCenter', uuid, market=market)
+        return self.get_entities('VirtualDataCenter', uuid=uuid, market=market)
 
     def get_datastores(self, uuid=None, market='Market'):
         """Returns a list of datastores in the given market
@@ -308,7 +369,7 @@ class VMTConnection(VMTRawConnection):
         Returns:
             A list of datastores in :obj:`dict` form.
         """
-        return self.get_entities('Storage', uuid, market=market)
+        return self.get_entities('Storage', uuid=uuid, market=market)
 
     def get_groups(self, uuid=None):
         """Returns a list of groups in the given market
@@ -373,3 +434,96 @@ class VMTConnection(VMTRawConnection):
             # not all contain displayName
             if 'displayName' in tpl and tpl['displayName'] == name:
                 return tpl
+
+    def add_group(self, dto):
+        """Raw group creation method.
+
+        Args:
+            dto (str): JSON representation of the GroupApiDTO.
+
+        Returns:
+            Group object :obj:`dict` form.
+
+        See Also:
+            `5.9 REST API Guide (JSON) <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_
+        """
+        return self.request('groups', method='POST', dto=dto)
+
+    def add_static_group(self, name, type, members=[]):
+        """Creates a static group.
+
+        Args:
+            name (str): Group display name.
+            type (str): Group type.
+            members (list): List of member UUIDs.
+
+        Returns:
+            Group object :obj:`dict` form.
+        """
+        dto = {'displayName': name,
+               'isStatic': True,
+               'groupType': type,
+               'memberUuidList': members
+               }
+
+        return self.add_group(dto)
+
+    def del_group(self, uuid):
+        """Removes a group.
+
+        Args:
+            uuid (str): UUID of the group to be removed.
+
+        Returns:
+            True on success, False otherwise.
+        """
+        return self.request('gruops', method='DELETE', uuid=uuid)
+
+    def search(self, dto):
+        """Raw search method.
+
+        Provides a basic interface for issuing direct queries to the Turbonomic
+        search endpoint.
+
+        Args:
+            dto (str): JSON representation of the StatScopesApiInputDTO.
+
+        Returns:
+            A list of search results.
+
+        See Also:
+            `5.9 REST API Guide (JSON) <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_
+            Search criteria list: `http://<host>/vmturbo/rest/search/criteria`_
+        """
+        return self.request('search', method='POST', dto=dto)
+
+    def search_by_name(self, name, type=None, case_sensitive=False):
+        """Searched for an entity by name.
+
+        Args:
+            name (str): Display name of the entity to search for.
+            type (str, optional): An entity classification to aid in searching.
+                If None, all types are searched via consecutive requests.
+            case_sensitive (bool, optional): Search case sensitivity. (default: False)
+
+        Returns:
+            A list of matching results.
+        """
+        results = []
+
+        if type is None:
+            search_classes = set([x for x in _entity_filter_class.values()])
+        else:
+            search_classes = [_entity_filter_class[type.lower()]]
+
+        for fclass in search_classes:
+            try:
+                sfilter = _class_filter_prefix[fclass] + 'ByName'
+                criteria = self._search_criteria('EQ', name, sfilter, case_sensitive)
+                dto = {'className': fclass, 'criteriaList': [criteria]}
+
+                results += self.search(json.dumps(dto))
+            except:
+                pass
+
+        return results
