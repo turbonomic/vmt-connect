@@ -492,7 +492,7 @@ class VMTConnection(VMTRawConnection):
             dto (str): JSON representation of the GroupApiDTO.
 
         Returns:
-            Group object :obj:`dict` form.
+            Group object in :obj:`dict` form.
 
         See Also:
             `5.9 REST API Guide (JSON) <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_
