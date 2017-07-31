@@ -70,6 +70,64 @@ may be used in place of a <code class="docutils literal"><span class="pre">usern
 </tbody>
 </table>
 <dl class="method">
+<dt id="vmtconnect.VMTConnection.add_group">
+<code class="descname">add_group</code><span class="sig-paren">(</span><em>dto</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.add_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raw group creation method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dto</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – JSON representation of the GroupApiDTO.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Group object <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference external" href="https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf">5.9 REST API Guide (JSON)</a></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.add_static_group">
+<code class="descname">add_static_group</code><span class="sig-paren">(</span><em>name</em>, <em>type</em>, <em>members=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.add_static_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a static group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Group display name.</li>
+<li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Group type.</li>
+<li><strong>members</strong> (<em>list</em>) – List of member UUIDs.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Group object <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.del_group">
+<code class="descname">del_group</code><span class="sig-paren">(</span><em>uuid</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.del_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – UUID of the group to be removed.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True on success, False otherwise.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="vmtconnect.VMTConnection.get_datacenters">
 <code class="descname">get_datacenters</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_datacenters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of datacenters in the given market</p>
@@ -118,6 +176,32 @@ may be used in place of a <code class="docutils literal"><span class="pre">usern
 </dd></dl>
 
 <dl class="method">
+<dt id="vmtconnect.VMTConnection.get_entity_stats">
+<code class="descname">get_entity_stats</code><span class="sig-paren">(</span><em>scope</em>, <em>start_date=None</em>, <em>end_date=None</em>, <em>stats=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_entity_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns stats for the specific scope of entities.</p>
+<p>Provides entity level stats with filtering.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>scope</strong> (<em>list</em>) – List of entities to scope to.</li>
+<li><strong>start_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – Unix timestamp in miliseconds. Uses current time
+if blank.</li>
+<li><strong>end_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – Unix timestamp in miliseconds. Uses current time if
+blank.</li>
+<li><strong>stats</strong> (<em>list</em>) – List of stats classes to retrieve.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of stats for all periods between start and end dates.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="vmtconnect.VMTConnection.get_group_by_name">
 <code class="descname">get_group_by_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_group_by_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the first group that match <cite>name</cite>.</p>
@@ -125,7 +209,7 @@ may be used in place of a <code class="docutils literal"><span class="pre">usern
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Group name to lookup.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing one group in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
 </tr>
@@ -134,16 +218,38 @@ may be used in place of a <code class="docutils literal"><span class="pre">usern
 </dd></dl>
 
 <dl class="method">
+<dt id="vmtconnect.VMTConnection.get_group_members">
+<code class="descname">get_group_members</code><span class="sig-paren">(</span><em>uuid</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_group_members" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of member entities that belong to the group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Group UUID.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing all members of the group, of the appropriate group
+type.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="vmtconnect.VMTConnection.get_group_stats">
-<code class="descname">get_group_stats</code><span class="sig-paren">(</span><em>uuid</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_group_stats" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_group_stats</code><span class="sig-paren">(</span><em>uuid</em>, <em>stats_filter=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_group_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the aggregated statistics for a group.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Specific group UUID to lookup.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Specific group UUID to lookup.</li>
+<li><strong>stats_filter</strong> (<em>list</em>) – List of filters to apply.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing the group stats in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list containing the group stats in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -308,6 +414,52 @@ may be used in place of a <code class="docutils literal"><span class="pre">usern
 <code class="descname">request</code><span class="sig-paren">(</span><em>path</em>, <em>method='GET'</em>, <em>query=''</em>, <em>dto=None</em>, <em>uuid=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides the same functionality as <code class="xref py py-meth docutils literal"><span class="pre">VMTRawConnection.request()</span></code>
 with error checking and output deserialization.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>dto</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raw search method.</p>
+<p>Provides a basic interface for issuing direct queries to the Turbonomic
+search endpoint.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dto</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – JSON representation of the StatScopesApiInputDTO.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of search results.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference external" href="https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf">5.9 REST API Guide (JSON)</a>
+Search criteria list: <a href="#id2"><span class="problematic" id="id3">`http://&lt;host&gt;/vmturbo/rest/search/criteria`_</span></a></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.search_by_name">
+<code class="descname">search_by_name</code><span class="sig-paren">(</span><em>name</em>, <em>type=None</em>, <em>case_sensitive=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.search_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Searches for an entity by name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Display name of the entity to search for.</li>
+<li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – An entity classification to aid in searching.
+If None, all types are searched via consecutive requests.</li>
+<li><strong>case_sensitive</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Search case sensitivity. (default: False)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of matching results.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
