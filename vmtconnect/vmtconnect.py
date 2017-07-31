@@ -253,6 +253,14 @@ class VMTConnection(VMTRawConnection):
 
         return criteria
 
+    @staticmethod
+    def _stats_filter(stats):
+        statistics = []
+        for stat in stats:
+            statistics += [{'name': stat}]
+
+        return statistics
+
     def get_users(self, uuid=None):
         """Returns a list of users.
 
@@ -263,17 +271,6 @@ class VMTConnection(VMTRawConnection):
             A list of user objects in :obj:`dict` form.
         """
         return self.request('users', uuid=uuid)
-
-    def get_templates(self, uuid=None):
-        """Returns a list templates.
-
-        Args:
-            uuid (str, optional): Specific UUID to lookup.
-
-        Returns:
-            A list of templates in :obj:`dict` form.
-        """
-        return self.request('templates', uuid=uuid)
 
     def get_markets(self, uuid=None):
         """Returns a list of markets.
@@ -371,6 +368,40 @@ class VMTConnection(VMTRawConnection):
         """
         return self.get_entities('Storage', uuid=uuid, market=market)
 
+    def get_entity_stats(self, scope, start_date=None, end_date=None,
+                         stats=None):
+        """Returns stats for the specific scope of entities.
+
+        Provides entity level stats with filtering.
+
+        Args:
+            scope (list): List of entities to scope to.
+            start_date (int): Unix timestamp in miliseconds. Uses current time
+                if blank.
+            end_date (int): Unix timestamp in miliseconds. Uses current time if
+                blank.
+            stats (list): List of stats classes to retrieve.
+
+        Returns:
+            A list of stats for all periods between start and end dates.
+        """
+        dto = {'scopes': scope}
+
+        period = {}
+        if start_date is not None:
+            period['startDate'] = start_date
+        if end_date is not None:
+            period['endDate'] = end_date
+        if stats is not None:
+            period['statistics'] = self._stats_filter(stats)
+
+        if len(period) > 0:
+            dto['period'] = period
+
+        dto = json.dumps(dto)
+
+        return self.request('stats', method='POST', dto=dto)
+
     def get_groups(self, uuid=None):
         """Returns a list of groups in the given market
 
@@ -386,7 +417,7 @@ class VMTConnection(VMTRawConnection):
         """Returns the first group that match `name`.
 
         Args:
-            uuid (str, optional): Specific UUID to lookup.
+            name (str): Group name to lookup.
 
         Returns:
             A list containing one group in :obj:`dict` form.
@@ -397,16 +428,34 @@ class VMTConnection(VMTRawConnection):
             if grp['displayName'] == name:
                 return grp
 
-    def get_group_stats(self, uuid):
+    def get_group_members(self, uuid):
+        """Returns a list of member entities that belong to the group.
+
+        Args:
+            uuid (str): Group UUID.
+
+        Returns:
+            A list containing all members of the group, of the appropriate group
+            type.
+        """
+        return self.request('groups/{}/members'.format(uuid))
+
+    def get_group_stats(self, uuid, stats_filter=None):
         """Returns the aggregated statistics for a group.
 
         Args:
             uuid (str): Specific group UUID to lookup.
+            stats_filter (list): List of filters to apply.
 
         Returns:
             A list containing the group stats in :obj:`dict` form.
         """
-        return self.request('groups/{}/stats'.format(uuid))
+        if stats_filter is None:
+            return self.request('groups/{}/stats'.format(uuid))
+
+        dto = json.dumps({'statistics': self._stats_filter(stats_filter)})
+
+        return self.request('groups/{}/stats'.format(uuid), method='POST', dto=dto)
 
     def get_templates(self, uuid=None):
         """Returns a list of templates.
@@ -498,7 +547,7 @@ class VMTConnection(VMTRawConnection):
         return self.request('search', method='POST', dto=dto)
 
     def search_by_name(self, name, type=None, case_sensitive=False):
-        """Searched for an entity by name.
+        """Searches for an entity by name.
 
         Args:
             name (str): Display name of the entity to search for.
