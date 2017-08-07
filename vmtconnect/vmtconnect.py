@@ -12,7 +12,7 @@ except:
   from urlparse import urlunparse
 
 
-__version__ = '1.1.0.dev'
+__version__ = '1.1.1.dev'
 __all__ = [
     'VMTConnectionError',
     'HTTPError',
@@ -527,7 +527,7 @@ class VMTConnection(VMTRawConnection):
         Returns:
             True on success, False otherwise.
         """
-        return self.request('gruops', method='DELETE', uuid=uuid)
+        return self.request('groups', method='DELETE', uuid=uuid)
 
     def search(self, dto):
         """Raw search method.
