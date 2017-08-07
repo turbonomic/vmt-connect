@@ -12,10 +12,11 @@ except:
   from urlparse import urlunparse
 
 
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 __all__ = [
     'VMTConnectionError',
     'HTTPError',
+    'HTTP404Error',
     'HTTP500Error',
     'HTTP502Error',
     'HTTPWarn',
@@ -491,7 +492,7 @@ class VMTConnection(VMTRawConnection):
             dto (str): JSON representation of the GroupApiDTO.
 
         Returns:
-            Group object :obj:`dict` form.
+            Group object in :obj:`dict` form.
 
         See Also:
             `5.9 REST API Guide (JSON) <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_
@@ -526,7 +527,7 @@ class VMTConnection(VMTRawConnection):
         Returns:
             True on success, False otherwise.
         """
-        return self.request('gruops', method='DELETE', uuid=uuid)
+        return self.request('groups', method='DELETE', uuid=uuid)
 
     def search(self, dto):
         """Raw search method.
