@@ -21,7 +21,9 @@ __all__ = [
     'HTTP502Error',
     'HTTPWarn',
     'VMTRawConnection',
-    'VMTConnection'
+    'VMTConnection',
+    'VMTVersionWarn',
+    'VMTVersionError'
 ]
 
 _entity_filter_class = {
@@ -80,6 +82,16 @@ _exp_type = {
 ## ----------------------------------------------------
 class VMTConnectionError(Exception):
     """Base connection exception class."""
+    pass
+
+
+class VMTVersionWarn(Exception):
+    """Version Warning"""
+    pass
+
+
+class VMTVersionError(Exception):
+    """Versions Error"""
     pass
 
 
