@@ -261,7 +261,8 @@ class VMTRawConnection(object):
 
         # set auth encoding
         if not self.__basic_auth and (self.__username and self.__password):
-            self.__basic_auth = base64.b64encode('{}:{}'.format(self.__username, self.__password).encode())
+            self.__basic_auth = base64.b64encode('{}:{}'.format(self.__username,
+                                                                self.__password).encode())
 
         self.__username = self.__password = None
         self.headers = {'Authorization': u'Basic {}'.format(self.__basic_auth.decode())}
@@ -269,7 +270,7 @@ class VMTRawConnection(object):
         if ssl:
             self.protocol = 'https'
 
-    def request(self, resource, method='GET', query='', dto=None, *args, **kwargs):
+    def request(self, resource, method='GET', query='', dto=None, **kwargs):
         """Constructs and sends an appropriate HTTP request.
 
         Args:
@@ -277,7 +278,6 @@ class VMTRawConnection(object):
             method (str, optional): HTTP method to use for the request. (default: GET)
             query (str, optional): Query string to use.
             dto (str, optional): Data transfer object to send to the server.
-            *args: Variable length argument list.
             **kwargs: Arbitrary keyword arguments.
         """
         if 'headers' in kwargs:
@@ -293,17 +293,17 @@ class VMTRawConnection(object):
                 if 'Content-Type' not in kwargs['headers']:
                     kwargs['headers'].update({'Content-Type': 'application/json'})
 
-                self.response = requests.post(url, data=dto, *args, **kwargs)
+                self.response = requests.post(url, data=dto, **kwargs)
                 break
             if case == 'PUT':
-                self.response = requests.put(url, *args, **kwargs)
+                self.response = requests.put(url, **kwargs)
                 break
             if case == 'DELETE':
-                self.response = requests.delete(url, *args, **kwargs)
+                self.response = requests.delete(url, **kwargs)
                 break
 
             # default is GET
-            self.response = requests.get(url, *args, **kwargs)
+            self.response = requests.get(url, **kwargs)
 
         return self.response
 
@@ -335,7 +335,7 @@ class VMTConnection(VMTRawConnection):
         self.__req_ver = versions or VMTVersion()
         self.__req_ver.check(self.version)
 
-    def request(self, path, method='GET', query='', dto=None, uuid=None, *args, **kwargs):
+    def request(self, path, method='GET', query='', dto=None, uuid=None, **kwargs):
         """Provides the same functionality as :meth:`VMTRawConnection.request`
         with error checking and output deserialization.
         """
@@ -346,7 +346,11 @@ class VMTConnection(VMTRawConnection):
         if dto is not None and method == 'GET':
             method = 'POST'
 
-        response = super(VMTConnection, self).request(resource=path, method=method, query=query, dto=dto, *args, **kwargs)
+        response = super(VMTConnection, self).request(resource=path,
+                                                      method=method,
+                                                      query=query,
+                                                      dto=dto,
+                                                      **kwargs)
 
         if response.status_code == 502:
             raise HTTP502Error('(API) HTTP 502 - Bad Gateway')
@@ -363,7 +367,8 @@ class VMTConnection(VMTRawConnection):
         elif response.text == 'false':
             return False
         else:
-            return response.json()
+            res = response.json()
+            return [res] if isinstance(res, dict) else res
 
     @staticmethod
     def _search_criteria(op, value, filter_type, case_sensitive=False):
@@ -395,7 +400,7 @@ class VMTConnection(VMTRawConnection):
         return self.__version
 
     def _get_ver(self):
-        res = self.request('admin/versions')
+        res = self.request('admin/versions')[0]
         try:
             return re.search('Manager (\d+\.\d+\.\d+) \(Build \d+\)',
                              res['versionInfo']).group(1)
@@ -561,13 +566,13 @@ class VMTConnection(VMTRawConnection):
             name (str): Group name to lookup.
 
         Returns:
-            A list containing one group in :obj:`dict` form.
+            A list containing the group in :obj:`dict` form.
         """
         groups = self.get_groups()
 
         for grp in groups:
             if grp['displayName'] == name:
-                return grp
+                return [grp]
 
     def get_group_members(self, uuid):
         """Returns a list of member entities that belong to the group.
@@ -623,7 +628,7 @@ class VMTConnection(VMTRawConnection):
         for tpl in templates:
             # not all contain displayName
             if 'displayName' in tpl and tpl['displayName'] == name:
-                return tpl
+                return [tpl]
 
     def add_group(self, dto):
         """Raw group creation method.
