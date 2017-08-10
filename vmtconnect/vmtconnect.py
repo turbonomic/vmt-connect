@@ -24,8 +24,8 @@ __all__ = [
     'HTTPWarn',
     'VMTRawConnection',
     'VMTConnection',
-    'VMTVersionWarn',
-    'VMTVersionError'
+    'VMTVersionError',
+    'VMTFormatError'
 ]
 
 _entity_filter_class = {
