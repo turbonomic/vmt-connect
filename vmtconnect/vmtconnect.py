@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import re
+import warnings
 import base64
 import json
 import requests
@@ -12,7 +14,7 @@ except:
   from urlparse import urlunparse
 
 
-__version__ = '1.1.1'
+__version__ = '1.2.0'
 __all__ = [
     'VMTConnectionError',
     'HTTPError',
@@ -21,7 +23,9 @@ __all__ = [
     'HTTP502Error',
     'HTTPWarn',
     'VMTRawConnection',
-    'VMTConnection'
+    'VMTConnection',
+    'VMTVersionError',
+    'VMTFormatError'
 ]
 
 _entity_filter_class = {
@@ -83,8 +87,27 @@ class VMTConnectionError(Exception):
     pass
 
 
+class VMTVersionError(Exception):
+    """Versions Error"""
+    def __init__(self, message=None):
+        if message is None:
+            message = 'Your version of Turbonomic does not meet the minimum ' \
+                      'required version for this program to run.'
+        super(VMTVersionError, self).__init__(message)
+
+
+class VMTFormatError(Exception):
+    """Generic format error"""
+    pass
+
+
 class HTTPError(Exception):
     """Raised when an blocking or unknown HTTP error is returned."""
+    pass
+
+
+class HTTP401Error(HTTPError):
+    """Raised when access fails, due to bad login or insufficient permissions."""
     pass
 
 
@@ -113,6 +136,97 @@ class HTTPWarn(Exception):
 # ----------------------------------------------------
 #  API Wrapper Classes
 # ----------------------------------------------------
+class VMTVersion(object):
+    """Turbonomic version specification object
+
+    The :class:`~VMTVersion` object contains version compatibility and
+    requirements information. Versions must be in three-dotted semantic format,
+    and may optionally have a '+' postfix to indicate versions greater than or
+    equal to are acceptable. If using '+', you only need to specify the minimum
+    version required, as all later versions will be accepted independent of minor
+    release branch. E.g. 5.7.0+ includes 5.8 and 5.9 branches.
+
+    Examples:
+        VMTVersion(['5.7.0+'], exclude=['5.7.5', '5.8.0', '5.8.1', '5.9.0'])
+
+    Args:
+        versions (list, optional): A list of acceptable versions.
+        exclude (list, optional): A list of versions to explicitly exclude.
+        require (bool, optional): If set to True, an error is thrown if no
+            matching version is found when :method:`~VMTVersion.check` is run.
+    """
+    def __init__(self, versions=None, exclude=None, require=True):
+        self.versions = versions or ['5.7.0+']  # API 2
+        self.exclude = exclude or []
+        self.require = require
+
+        self.versions.sort()
+
+    @staticmethod
+    def str_to_ver(string):
+        string = string.strip('+')
+
+        if string.count('.') != 2 or string.count('-') > 0 \
+           or not string.replace('.', '').isdigit():
+            raise VMTFormatError('Incorrect version format')
+
+        return string.split('.')
+
+    @staticmethod
+    def cmp_ver(a, b):
+        a1 = VMTVersion.str_to_ver(a)
+        b1 = VMTVersion.str_to_ver(b)
+
+        for x in range(0, 3):
+            if int(a1[x]) > int(b1[x]):
+                return 1
+            elif int(a1[x]) < int(b1[x]):
+                return -1
+
+        return 0
+
+    @staticmethod
+    def _check(current, versions, require=True, warn=True):
+        for v in versions:
+            res = VMTVersion.cmp_ver(current, v)
+
+            if (res > 0 and v[-1] == '+') or res == 0:
+                return True
+
+        if require:
+            raise VMTVersionError()
+        elif warn:
+            warnings.warn('Your version of Turbonomic does not meet the ' \
+                          ' minimum recommended version. You may experience ' \
+                          'unexpected errors, and are strongly encouraged to ' \
+                          'upgrade.')
+
+        return False
+
+    def min(self):
+        return self.versions[0].strip('+')
+
+    def check(self, version):
+        """Checks a version number for validity
+
+        Args:
+            version (str): The version to check.
+
+        Returns:
+            True if valid, False if the version is excluded or not found.
+
+        Exceptions:
+            Raises :class:`VMTVersionError` if version requirement is not met.
+        """
+        if self._check(version, self.exclude, require=False, warn=False):
+            return False
+
+        if self._check(version, self.versions, require=self.require):
+            return True
+
+        return False
+
+
 class VMTRawConnection(object):
     """A basic stateless connection to a Turbonomic instance. This connection
     returns the whole :class:`requests.Response` object, without post-processing.
@@ -147,7 +261,8 @@ class VMTRawConnection(object):
 
         # set auth encoding
         if not self.__basic_auth and (self.__username and self.__password):
-            self.__basic_auth = base64.b64encode('{}:{}'.format(self.__username, self.__password).encode())
+            self.__basic_auth = base64.b64encode('{}:{}'.format(self.__username,
+                                                                self.__password).encode())
 
         self.__username = self.__password = None
         self.headers = {'Authorization': u'Basic {}'.format(self.__basic_auth.decode())}
@@ -155,7 +270,7 @@ class VMTRawConnection(object):
         if ssl:
             self.protocol = 'https'
 
-    def request(self, resource, method='GET', query='', dto=None, *args, **kwargs):
+    def request(self, resource, method='GET', query='', dto=None, **kwargs):
         """Constructs and sends an appropriate HTTP request.
 
         Args:
@@ -163,7 +278,6 @@ class VMTRawConnection(object):
             method (str, optional): HTTP method to use for the request. (default: GET)
             query (str, optional): Query string to use.
             dto (str, optional): Data transfer object to send to the server.
-            *args: Variable length argument list.
             **kwargs: Arbitrary keyword arguments.
         """
         if 'headers' in kwargs:
@@ -171,24 +285,25 @@ class VMTRawConnection(object):
         else:
             kwargs['headers'] = self.headers
 
-        url = urlunparse((self.protocol, self.host, self.base_path+resource.lstrip('/'), '', query, ''))
+        url = urlunparse((self.protocol, self.host,
+                          self.base_path + resource.lstrip('/'), '', query, ''))
 
         for case in [method.upper()]:
             if case == 'POST':
                 if 'Content-Type' not in kwargs['headers']:
                     kwargs['headers'].update({'Content-Type': 'application/json'})
 
-                self.response = requests.post(url, data=dto, *args, **kwargs)
+                self.response = requests.post(url, data=dto, **kwargs)
                 break
             if case == 'PUT':
-                self.response = requests.put(url, *args, **kwargs)
+                self.response = requests.put(url, **kwargs)
                 break
             if case == 'DELETE':
-                self.response = requests.delete(url, *args, **kwargs)
+                self.response = requests.delete(url, **kwargs)
                 break
 
             # default is GET
-            self.response = requests.get(url, *args, **kwargs)
+            self.response = requests.get(url, **kwargs)
 
         return self.response
 
@@ -206,13 +321,21 @@ class VMTConnection(VMTRawConnection):
         base_url (str, optional): Base endpoint path to use. (default:
             `/vmturbo/rest/`)
         ssl (bool, optional): Use SSL or not. (default: `False`)
+        version (:class:`VMTVersion`, optional): Versions requirements object.
+
+    Attributes:
+        version (str): Turbonomic instance version.
     """
     def __init__(self, host=None, username=None, password=None, auth=None,
-                 base_url=None, ssl=False):
+                 base_url=None, ssl=False, versions=None):
         super(VMTConnection, self).__init__(host, username, password, auth,
               base_url=base_url, ssl=ssl)
 
-    def request(self, path, method='GET', query='', dto=None, uuid=None, *args, **kwargs):
+        self.__version = None
+        self.__req_ver = versions or VMTVersion()
+        self.__req_ver.check(self.version)
+
+    def request(self, path, method='GET', query='', dto=None, uuid=None, **kwargs):
         """Provides the same functionality as :meth:`VMTRawConnection.request`
         with error checking and output deserialization.
         """
@@ -223,14 +346,20 @@ class VMTConnection(VMTRawConnection):
         if dto is not None and method == 'GET':
             method = 'POST'
 
-        response = super(VMTConnection, self).request(resource=path, method=method, query=query, dto=dto, *args, **kwargs)
+        response = super(VMTConnection, self).request(resource=path,
+                                                      method=method,
+                                                      query=query,
+                                                      dto=dto,
+                                                      **kwargs)
 
         if response.status_code == 502:
-            raise HTTP502Error('(API) HTTP 502 Bad Gateway returned')
+            raise HTTP502Error('(API) HTTP 502 - Bad Gateway')
+        elif response.status_code == 401:
+            raise HTTP401Error('(API) HTTP 401 - Unauthorized (bad login or no permissions to resource)')
         elif response.status_code == 404:
-            raise HTTP404Error('(API) HTTP 404 Not Found returned')
+            raise HTTP404Error('(API) HTTP 404 - Resource Not Found')
         elif response.status_code/100 == 5:
-            raise HTTP500Error('(API) HTTP Code %s returned' % (response.status_code))
+            raise HTTP500Error('(API) HTTP %s - Server Error' % (response.status_code))
         elif response.status_code/100 != 2:
             raise HTTPError('(API) HTTP Code %s returned' % (response.status_code))
         elif response.text == 'true':
@@ -238,7 +367,8 @@ class VMTConnection(VMTRawConnection):
         elif response.text == 'false':
             return False
         else:
-            return response.json()
+            res = response.json()
+            return [res] if isinstance(res, dict) else res
 
     @staticmethod
     def _search_criteria(op, value, filter_type, case_sensitive=False):
@@ -261,6 +391,21 @@ class VMTConnection(VMTRawConnection):
             statistics += [{'name': stat}]
 
         return statistics
+
+    @property
+    def version(self):
+        if self.__version is None:
+            self.__version = self._get_ver()
+
+        return self.__version
+
+    def _get_ver(self):
+        res = self.request('admin/versions')[0]
+        try:
+            return re.search('Manager (\d+\.\d+\.\d+) \(Build \d+\)',
+                             res['versionInfo']).group(1)
+        except:
+            return None
 
     def get_users(self, uuid=None):
         """Returns a list of users.
@@ -393,7 +538,7 @@ class VMTConnection(VMTRawConnection):
             period['startDate'] = start_date
         if end_date is not None:
             period['endDate'] = end_date
-        if stats is not None:
+        if stats is not None and len(stats) > 0:
             period['statistics'] = self._stats_filter(stats)
 
         if len(period) > 0:
@@ -421,13 +566,13 @@ class VMTConnection(VMTRawConnection):
             name (str): Group name to lookup.
 
         Returns:
-            A list containing one group in :obj:`dict` form.
+            A list containing the group in :obj:`dict` form.
         """
         groups = self.get_groups()
 
         for grp in groups:
             if grp['displayName'] == name:
-                return grp
+                return [grp]
 
     def get_group_members(self, uuid):
         """Returns a list of member entities that belong to the group.
@@ -483,7 +628,7 @@ class VMTConnection(VMTRawConnection):
         for tpl in templates:
             # not all contain displayName
             if 'displayName' in tpl and tpl['displayName'] == name:
-                return tpl
+                return [tpl]
 
     def add_group(self, dto):
         """Raw group creation method.
