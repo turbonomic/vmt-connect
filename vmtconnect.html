@@ -47,7 +47,7 @@ for communicating with Turbonomic instances.</p>
 <h2>Connections<a class="headerlink" href="#connections" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="vmtconnect.VMTConnection">
-<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">VMTConnection</code><span class="sig-paren">(</span><em>host=None</em>, <em>username=None</em>, <em>password=None</em>, <em>auth=None</em>, <em>base_url=None</em>, <em>ssl=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">VMTConnection</code><span class="sig-paren">(</span><em>host=None</em>, <em>username=None</em>, <em>password=None</em>, <em>auth=None</em>, <em>base_url=None</em>, <em>ssl=False</em>, <em>versions=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#vmtconnect.VMTRawConnection" title="vmtconnect.VMTRawConnection"><code class="xref py py-class docutils literal"><span class="pre">vmtconnect.VMTRawConnection</span></code></a></p>
 <p>A wrapper for <a class="reference internal" href="#vmtconnect.VMTRawConnection" title="vmtconnect.VMTRawConnection"><code class="xref py py-class docutils literal"><span class="pre">VMTRawConnection</span></code></a> with additional helper methods.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -64,11 +64,18 @@ may be used in place of a <code class="docutils literal"><span class="pre">usern
 <li><strong>base_url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Base endpoint path to use. (default:
 <cite>/vmturbo/rest/</cite>)</li>
 <li><strong>ssl</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Use SSL or not. (default: <cite>False</cite>)</li>
+<li><strong>version</strong> (<code class="xref py py-class docutils literal"><span class="pre">VMTVersion</span></code>, optional) – Versions requirements object.</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="vmtconnect.VMTConnection.version">
+<code class="descname">version</code><a class="headerlink" href="#vmtconnect.VMTConnection.version" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – Turbonomic instance version.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="vmtconnect.VMTConnection.add_group">
 <code class="descname">add_group</code><span class="sig-paren">(</span><em>dto</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.add_group" title="Permalink to this definition">¶</a></dt>
@@ -79,7 +86,7 @@ may be used in place of a <code class="docutils literal"><span class="pre">usern
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dto</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – JSON representation of the GroupApiDTO.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Group object <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Group object in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
 </tr>
 </tbody>
 </table>
@@ -211,7 +218,7 @@ blank.</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Group name to lookup.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing one group in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing the group in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
 </tr>
 </tbody>
 </table>
@@ -411,7 +418,7 @@ type.</td>
 
 <dl class="method">
 <dt id="vmtconnect.VMTConnection.request">
-<code class="descname">request</code><span class="sig-paren">(</span><em>path</em>, <em>method='GET'</em>, <em>query=''</em>, <em>dto=None</em>, <em>uuid=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.request" title="Permalink to this definition">¶</a></dt>
+<code class="descname">request</code><span class="sig-paren">(</span><em>path</em>, <em>method='GET'</em>, <em>query=''</em>, <em>dto=None</em>, <em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides the same functionality as <code class="xref py py-meth docutils literal"><span class="pre">VMTRawConnection.request()</span></code>
 with error checking and output deserialization.</p>
 </dd></dl>
@@ -468,7 +475,7 @@ If None, all types are searched via consecutive requests.</li>
 <dt id="vmtconnect.VMTRawConnection">
 <em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">VMTRawConnection</code><span class="sig-paren">(</span><em>host=None</em>, <em>username=None</em>, <em>password=None</em>, <em>auth=None</em>, <em>base_url=None</em>, <em>ssl=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTRawConnection" title="Permalink to this definition">¶</a></dt>
 <dd><p>A basic stateless connection to a Turbonomic instance. This connection
-returns the whole <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response" title="(in Requests v2.18.2)"><code class="xref py py-class docutils literal"><span class="pre">requests.Response</span></code></a> object, without post-processing.</p>
+returns the whole <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response" title="(in Requests v2.18.3)"><code class="xref py py-class docutils literal"><span class="pre">requests.Response</span></code></a> object, without post-processing.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -503,7 +510,7 @@ may be used in place of a <code class="docutils literal"><span class="pre">usern
 <dl class="attribute">
 <dt id="vmtconnect.VMTRawConnection.response">
 <code class="descname">response</code><a class="headerlink" href="#vmtconnect.VMTRawConnection.response" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response" title="(in Requests v2.18.2)"><code class="xref py py-obj docutils literal"><span class="pre">requests.Response</span></code></a> object.</p>
+<dd><p><a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response" title="(in Requests v2.18.3)"><code class="xref py py-obj docutils literal"><span class="pre">requests.Response</span></code></a> object.</p>
 </dd></dl>
 
 <dl class="attribute">
