@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>vmtconnect — Developer Interfaces &#8212; vmt-connect 1.0.0 documentation</title>
+    <title>vmtconnect — Developer Interfaces &#8212; vmt-connect 1.2.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.0.0',
+        VERSION:     '1.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -135,6 +135,43 @@ may be used in place of a <code class="docutils literal"><span class="pre">usern
 </dd></dl>
 
 <dl class="method">
+<dt id="vmtconnect.VMTConnection.del_market">
+<code class="descname">del_market</code><span class="sig-paren">(</span><em>uuid</em>, <em>scenario=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.del_market" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a market, and optionally the associated scenario.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – UUID of the market to be removed.</li>
+<li><strong>scenario</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) – If True will remove the scenario too.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True on success, False otherwise.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.del_scenario">
+<code class="descname">del_scenario</code><span class="sig-paren">(</span><em>uuid</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.del_scenario" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a scenario.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – UUID of the scenario to be removed.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True on success, False otherwise.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="vmtconnect.VMTConnection.get_datacenters">
 <code class="descname">get_datacenters</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_datacenters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of datacenters in the given market</p>
@@ -180,6 +217,22 @@ may be used in place of a <code class="docutils literal"><span class="pre">usern
 <dt id="vmtconnect.VMTConnection.get_entities">
 <code class="descname">get_entities</code><span class="sig-paren">(</span><em>type=None</em>, <em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_entities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of entities in the given market.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_entity_groups">
+<code class="descname">get_entity_groups</code><span class="sig-paren">(</span><em>uuid</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_entity_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of groups the entity belongs to.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Entity UUID.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing groups the entity belongs to.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -296,15 +349,20 @@ type.</td>
 
 <dl class="method">
 <dt id="vmtconnect.VMTConnection.get_market_stats">
-<code class="descname">get_market_stats</code><span class="sig-paren">(</span><em>uuid='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_market_stats" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_market_stats</code><span class="sig-paren">(</span><em>uuid='Market'</em>, <em>filter=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_market_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of market statistics.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Market UUID. (default: <cite>Market</cite>)</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Market UUID. (default: <cite>Market</cite>)</li>
+<li><strong>filter</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a><em>, </em><em>optional</em>) – DTO style filter to limit stats returned.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of stat objects in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of stat objects in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -342,6 +400,22 @@ type.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of hosts in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
 </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_scenarios">
+<code class="descname">get_scenarios</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_scenarios" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of scenarios.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of scenarios in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
 </tr>
 </tbody>
 </table>
@@ -425,7 +499,7 @@ with error checking and output deserialization.</p>
 
 <dl class="method">
 <dt id="vmtconnect.VMTConnection.search">
-<code class="descname">search</code><span class="sig-paren">(</span><em>dto</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.search" title="Permalink to this definition">¶</a></dt>
+<code class="descname">search</code><span class="sig-paren">(</span><em>dto=None</em>, <em>q=None</em>, <em>types=None</em>, <em>scopes=None</em>, <em>state=None</em>, <em>group_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.search" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raw search method.</p>
 <p>Provides a basic interface for issuing direct queries to the Turbonomic
 search endpoint.</p>
@@ -433,9 +507,18 @@ search endpoint.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dto</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – JSON representation of the StatScopesApiInputDTO.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dto</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – JSON representation of the StatScopesApiInputDTO.</li>
+<li><strong>q</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Query string.</li>
+<li><strong>types</strong> (<em>list</em><em>, </em><em>optional</em>) – Types of entities to return.</li>
+<li><strong>scopes</strong> (<em>list</em><em>, </em><em>optional</em>) – Entities to scope to.</li>
+<li><strong>state</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – State filter.</li>
+<li><strong>group_type</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Group type filter.</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of search results.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of search results.</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -475,7 +558,7 @@ If None, all types are searched via consecutive requests.</li>
 <dt id="vmtconnect.VMTRawConnection">
 <em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">VMTRawConnection</code><span class="sig-paren">(</span><em>host=None</em>, <em>username=None</em>, <em>password=None</em>, <em>auth=None</em>, <em>base_url=None</em>, <em>ssl=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTRawConnection" title="Permalink to this definition">¶</a></dt>
 <dd><p>A basic stateless connection to a Turbonomic instance. This connection
-returns the whole <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response" title="(in Requests v2.18.3)"><code class="xref py py-class docutils literal"><span class="pre">requests.Response</span></code></a> object, without post-processing.</p>
+returns the whole <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response" title="(in Requests v2.18.4)"><code class="xref py py-class docutils literal"><span class="pre">requests.Response</span></code></a> object, without post-processing.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -510,7 +593,7 @@ may be used in place of a <code class="docutils literal"><span class="pre">usern
 <dl class="attribute">
 <dt id="vmtconnect.VMTRawConnection.response">
 <code class="descname">response</code><a class="headerlink" href="#vmtconnect.VMTRawConnection.response" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response" title="(in Requests v2.18.3)"><code class="xref py py-obj docutils literal"><span class="pre">requests.Response</span></code></a> object.</p>
+<dd><p><a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response" title="(in Requests v2.18.4)"><code class="xref py py-obj docutils literal"><span class="pre">requests.Response</span></code></a> object.</p>
 </dd></dl>
 
 <dl class="attribute">
