@@ -14,7 +14,7 @@ except:
   from urlparse import urlunparse
 
 
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 __all__ = [
     'VMTConnectionError',
     'HTTPError',
@@ -326,6 +326,12 @@ class VMTConnection(VMTRawConnection):
     Attributes:
         version (str): Turbonomic instance version.
     """
+
+    # system level markets to block certain actions
+    # this is done by name, and subject to breaking if names are abused
+    __system_markets = ['Market', 'Market_Default']
+    __system_market_ids = []
+
     def __init__(self, host=None, username=None, password=None, auth=None,
                  base_url=None, ssl=False, versions=None):
         super(VMTConnection, self).__init__(host, username, password, auth,
@@ -334,6 +340,7 @@ class VMTConnection(VMTRawConnection):
         self.__version = None
         self.__req_ver = versions or VMTVersion()
         self.__req_ver.check(self.version)
+        self.__get_system_markets()
 
     def request(self, path, method='GET', query='', dto=None, uuid=None, **kwargs):
         """Provides the same functionality as :meth:`VMTRawConnection.request`
@@ -407,6 +414,10 @@ class VMTConnection(VMTRawConnection):
         except:
             return None
 
+    def __get_system_markets(self):
+        res = self.get_markets()
+        self.__system_market_ids = [x['uuid'] for x in res if x['displayName'] in self.__system_markets]
+
     def get_users(self, uuid=None):
         """Returns a list of users.
 
@@ -440,15 +451,19 @@ class VMTConnection(VMTRawConnection):
         """
         return self.get_markets(uuid)['state']
 
-    def get_market_stats(self, uuid='Market'):
+    def get_market_stats(self, uuid='Market', filter=None):
         """Returns a list of market statistics.
 
         Args:
             uuid (str, optional): Market UUID. (default: `Market`)
+            filter (dict, optional): DTO style filter to limit stats returned.
 
         Returns:
             A list of stat objects in :obj:`dict` form.
         """
+        if filter is not None:
+            self.request('markets/{}/stats'.format(uuid), method='POST', dto=filter)
+
         return self.request('markets/{}/stats'.format(uuid))
 
     def get_entities(self, type=None, uuid=None, market='Market'):
@@ -500,7 +515,7 @@ class VMTConnection(VMTRawConnection):
         Returns:
             A list of datacenters in :obj:`dict` form.
         """
-        return self.get_entities('VirtualDataCenter', uuid=uuid, market=market)
+        return self.get_entities('DataCenter', uuid=uuid, market=market)
 
     def get_datastores(self, uuid=None, market='Market'):
         """Returns a list of datastores in the given market
@@ -513,6 +528,17 @@ class VMTConnection(VMTRawConnection):
             A list of datastores in :obj:`dict` form.
         """
         return self.get_entities('Storage', uuid=uuid, market=market)
+
+    def get_entity_groups(self, uuid):
+        """Returns a list of groups the entity belongs to.
+
+        Args:
+            uuid (str): Entity UUID.
+
+        Returns:
+            A list containing groups the entity belongs to.
+        """
+        return self.request('entities/{}/groups'.format(uuid))
 
     def get_entity_stats(self, scope, start_date=None, end_date=None,
                          stats=None):
@@ -603,6 +629,18 @@ class VMTConnection(VMTRawConnection):
 
         return self.request('groups/{}/stats'.format(uuid), method='POST', dto=dto)
 
+    def get_scenarios(self, uuid=None):
+        """Returns a list of scenarios.
+
+        Args:
+            uuid (str, optional): Specific UUID to lookup.
+
+        Returns:
+            A list of scenarios in :obj:`dict` form.
+        """
+        return self.request('scenarios', uuid=uuid)
+
+
     def get_templates(self, uuid=None):
         """Returns a list of templates.
 
@@ -674,14 +712,53 @@ class VMTConnection(VMTRawConnection):
         """
         return self.request('groups', method='DELETE', uuid=uuid)
 
-    def search(self, dto):
+    def del_market(self, uuid, scenario=False):
+        """Removes a market, and optionally the associated scenario.
+
+        Args:
+            uuid (str): UUID of the market to be removed.
+            scenario (bool, optional): If True will remove the scenario too.
+
+        Returns:
+            True on success, False otherwise.
+        """
+        if uuid in self.__system_market_ids:
+            return False
+
+        if scenario:
+            try:
+                market = self.get_markets(uuid)
+                self.del_scenario(market['scenario']['uuid'])
+            except Exception as e:
+                pass
+
+        return self.request('markets', method='DELETE', uuid=uuid)
+
+    def del_scenario(self, uuid):
+        """Removes a scenario.
+
+        Args:
+            uuid (str): UUID of the scenario to be removed.
+
+        Returns:
+            True on success, False otherwise.
+        """
+        return self.request('scenarios', method='DELETE', uuid=uuid)
+
+    def search(self, dto=None, q=None, types=None, scopes=None, state=None, group_type=None):
         """Raw search method.
 
         Provides a basic interface for issuing direct queries to the Turbonomic
         search endpoint.
 
         Args:
-            dto (str): JSON representation of the StatScopesApiInputDTO.
+            dto (str, optional): JSON representation of the StatScopesApiInputDTO.
+
+            q (str, optional): Query string.
+            types (list, optional): Types of entities to return.
+            scopes (list, optional): Entities to scope to.
+            state (str, optional): State filter.
+            group_type (str, optional): Group type filter.
 
         Returns:
             A list of search results.
@@ -690,7 +767,20 @@ class VMTConnection(VMTRawConnection):
             `5.9 REST API Guide (JSON) <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_
             Search criteria list: `http://<host>/vmturbo/rest/search/criteria`_
         """
-        return self.request('search', method='POST', dto=dto)
+        if dto is not None:
+            return self.request('search', method='POST', dto=dto)
+
+        query = {}
+        vars = {'q': q, 'types': types, 'scopes': scopes, 'state': state, 'group_type': group_type}
+
+        for v in vars.keys():
+            if vars[v] is not None:
+                if v[-1] == 's':
+                    query[v] = ','.join(vars[v])
+                else:
+                    query[v] = vars[v]
+
+        return self.request('search', query=urlencode(query))
 
     def search_by_name(self, name, type=None, case_sensitive=False):
         """Searches for an entity by name.
