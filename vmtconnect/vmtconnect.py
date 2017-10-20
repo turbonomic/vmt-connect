@@ -14,7 +14,7 @@ except:
   from urlparse import urlunparse
 
 
-__version__ = '1.2.2.dev'
+__version__ = '1.2.2'
 __all__ = [
     'VMTConnectionError',
     'HTTPError',
