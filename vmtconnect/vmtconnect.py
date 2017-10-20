@@ -14,7 +14,7 @@ except:
   from urlparse import urlunparse
 
 
-__version__ = '1.2.1'
+__version__ = '1.2.2'
 __all__ = [
     'VMTConnectionError',
     'HTTPError',
@@ -240,7 +240,8 @@ class VMTRawConnection(object):
             may be used in place of a ``username`` and ``password`` pair.
         base_url (str, optional): Base endpoint path to use. (default:
             `/vmturbo/rest/`)
-        ssl (bool, optional): Use SSL or not. (default: `False`)
+        ssl (bool, optional): Use SSL or not. (default: `None`, auto-negotiate)
+        verify (bool, optional): Sets SSL Certificate verification. (default: 'False')
 
     Attributes:
         host: Hostname or IP address connected to.
@@ -250,13 +251,14 @@ class VMTRawConnection(object):
         protocol: Service protocol to use (HTTP, or HTTPS).
     """
     def __init__(self, host=None, username=None, password=None, auth=None,
-                 base_url=None, ssl=False):
+                 base_url=None, ssl=False, verify=False):
         self.__username = username
         self.__password = password
         self.__basic_auth = auth
         self.host = host or 'localhost'
         self.base_path = base_url or '/vmturbo/rest/'
         self.response = None
+        self.verify = verify
         self.protocol = 'http'
 
         # set auth encoding
@@ -293,17 +295,17 @@ class VMTRawConnection(object):
                 if 'Content-Type' not in kwargs['headers']:
                     kwargs['headers'].update({'Content-Type': 'application/json'})
 
-                self.response = requests.post(url, data=dto, **kwargs)
+                self.response = requests.post(url, data=dto, verify=self.verify, **kwargs)
                 break
             if case == 'PUT':
-                self.response = requests.put(url, **kwargs)
+                self.response = requests.put(url, verify=self.verify, **kwargs)
                 break
             if case == 'DELETE':
-                self.response = requests.delete(url, **kwargs)
+                self.response = requests.delete(url, verify=self.verify, **kwargs)
                 break
 
             # default is GET
-            self.response = requests.get(url, **kwargs)
+            self.response = requests.get(url, verify=self.verify, **kwargs)
 
         return self.response
 
@@ -320,11 +322,17 @@ class VMTConnection(VMTRawConnection):
             may be used in place of a ``username`` and ``password`` pair.
         base_url (str, optional): Base endpoint path to use. (default:
             `/vmturbo/rest/`)
-        ssl (bool, optional): Use SSL or not. (default: `False`)
+        ssl (bool, optional): Use SSL or not. (default: `None`, auto-negotiate)
         version (:class:`VMTVersion`, optional): Versions requirements object.
+        verify (bool, optional): Sets SSL Certificate verification. (default: 'False')
 
     Attributes:
         version (str): Turbonomic instance version.
+
+    Notes:
+        Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS
+        connection. Because of this, vmt-connect will automatically switch the protocol
+        to HTTPS when connecting to this version or higher instance if ``ssl`` is set to `None`.
     """
 
     # system level markets to block certain actions
@@ -333,13 +341,18 @@ class VMTConnection(VMTRawConnection):
     __system_market_ids = []
 
     def __init__(self, host=None, username=None, password=None, auth=None,
-                 base_url=None, ssl=False, versions=None):
+                 base_url=None, ssl=None, versions=None, verify=False):
         super(VMTConnection, self).__init__(host, username, password, auth,
-              base_url=base_url, ssl=ssl)
+              base_url=base_url, ssl=ssl, verify=verify)
 
         self.__version = None
         self.__req_ver = versions or VMTVersion()
         self.__req_ver.check(self.version)
+
+        # kludge for forced/broken ssl setup
+        if self.version >= '6.0.0' and ssl is None:
+            self.protocol = 'https'
+
         self.__get_system_markets()
 
     def request(self, path, method='GET', query='', dto=None, uuid=None, **kwargs):
@@ -359,23 +372,33 @@ class VMTConnection(VMTRawConnection):
                                                       dto=dto,
                                                       **kwargs)
 
+        try:
+            res = response.json()
+
+            if response.status_code/100 != 2:
+                msg = ': [{}]'.format(res['exception'])
+            else:
+                msg = ''
+        except Exception as e:
+            pass
+
         if response.status_code == 502:
-            raise HTTP502Error('(API) HTTP 502 - Bad Gateway')
+            raise HTTP502Error('(API) HTTP 502 - Bad Gateway{}'.format(msg))
         elif response.status_code == 401:
-            raise HTTP401Error('(API) HTTP 401 - Unauthorized (bad login or no permissions to resource)')
+            raise HTTP401Error('(API) HTTP 401 - Unauthorized{}'.format(msg))
         elif response.status_code == 404:
-            raise HTTP404Error('(API) HTTP 404 - Resource Not Found')
+            raise HTTP404Error('(API) HTTP 404 - Resource Not Found{}'.format(msg))
         elif response.status_code/100 == 5:
-            raise HTTP500Error('(API) HTTP %s - Server Error' % (response.status_code))
+            raise HTTP500Error('(API) HTTP {} - Server Error{}'.format(response.status_code, msg))
         elif response.status_code/100 != 2:
-            raise HTTPError('(API) HTTP Code %s returned' % (response.status_code))
+            raise HTTPError('(API) HTTP Code {} returned{}'.format(response.status_code, msg))
         elif response.text == 'true':
             return True
         elif response.text == 'false':
             return False
         else:
-            res = response.json()
             return [res] if isinstance(res, dict) else res
+
 
     @staticmethod
     def _search_criteria(op, value, filter_type, case_sensitive=False):
@@ -678,7 +701,7 @@ class VMTConnection(VMTRawConnection):
             Group object in :obj:`dict` form.
 
         See Also:
-            `5.9 REST API Guide (JSON) <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_
+            REST API Guide `5.9 <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_, `6.0 <https://cdn.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_
         """
         return self.request('groups', method='POST', dto=dto)
 
@@ -764,8 +787,9 @@ class VMTConnection(VMTRawConnection):
             A list of search results.
 
         See Also:
-            `5.9 REST API Guide (JSON) <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_
-            Search criteria list: `http://<host>/vmturbo/rest/search/criteria`_
+            REST API Guide `5.9 <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_, `6.0 <https://cdn.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_
+
+            Search criteria list: `http://<host>/vmturbo/rest/search/criteria`
         """
         if dto is not None:
             return self.request('search', method='POST', dto=dto)
