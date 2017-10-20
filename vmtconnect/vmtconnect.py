@@ -331,8 +331,8 @@ class VMTConnection(VMTRawConnection):
 
     Notes:
         Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS
-    connection. Because of this, vmt-connect will automatically switch the protocol
-    to HTTPS when connecting to this version or higher instance if ''ssl'' is set to 'None'.
+        connection. Because of this, vmt-connect will automatically switch the protocol
+        to HTTPS when connecting to this version or higher instance if ``ssl`` is set to `None`.
     """
 
     # system level markets to block certain actions
@@ -701,9 +701,7 @@ class VMTConnection(VMTRawConnection):
             Group object in :obj:`dict` form.
 
         See Also:
-            `5.9 REST API Guide (JSON) <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_
-
-            `6.0 REST API Guide (JSON) <https://cdn.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_
+            REST API Guide `5.9 <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_, `6.0 <https://cdn.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_
         """
         return self.request('groups', method='POST', dto=dto)
 
@@ -789,11 +787,9 @@ class VMTConnection(VMTRawConnection):
             A list of search results.
 
         See Also:
-            `5.9 REST API Guide (JSON) <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_
+            REST API Guide `5.9 <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_, `6.0 <https://cdn.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_
 
-            `6.0 REST API Guide (JSON) <https://cdn.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_
-
-            Search criteria list: `http://<host>/vmturbo/rest/search/criteria`_
+            Search criteria list: `http://<host>/vmturbo/rest/search/criteria`
         """
         if dto is not None:
             return self.request('search', method='POST', dto=dto)
