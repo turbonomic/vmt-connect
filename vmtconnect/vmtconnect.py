@@ -14,7 +14,7 @@ except:
   from urlparse import urlunparse
 
 
-__version__ = '1.2.2'
+__version__ = '1.2.3'
 __all__ = [
     'VMTConnectionError',
     'HTTPError',
@@ -166,7 +166,7 @@ class VMTVersion(object):
     def str_to_ver(string):
         string = string.strip('+')
 
-        if string.count('.') != 2 or string.count('-') > 0 \
+        if string.count('.') < 2 or string.count('-') > 0 \
            or not string.replace('.', '').isdigit():
             raise VMTFormatError('Incorrect version format')
 
@@ -197,7 +197,7 @@ class VMTVersion(object):
             raise VMTVersionError()
         elif warn:
             warnings.warn('Your version of Turbonomic does not meet the ' \
-                          ' minimum recommended version. You may experience ' \
+                          'minimum recommended version. You may experience ' \
                           'unexpected errors, and are strongly encouraged to ' \
                           'upgrade.')
 
@@ -251,7 +251,7 @@ class VMTRawConnection(object):
         protocol: Service protocol to use (HTTP, or HTTPS).
     """
     def __init__(self, host=None, username=None, password=None, auth=None,
-                 base_url=None, ssl=False, verify=False):
+                 base_url=None, ssl=None, verify=False):
         self.__username = username
         self.__password = password
         self.__basic_auth = auth
@@ -333,6 +333,10 @@ class VMTConnection(VMTRawConnection):
         Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS
         connection. Because of this, vmt-connect will automatically switch the protocol
         to HTTPS when connecting to this version or higher instance if ``ssl`` is set to `None`.
+
+        Starting with ``vmt-connect`` v2.0 SSL will be True by default, and
+        verify will continue to be False by default. This will affect instances
+        prior to 6.0 only.
     """
 
     # system level markets to block certain actions
@@ -366,6 +370,7 @@ class VMTConnection(VMTRawConnection):
         if dto is not None and method == 'GET':
             method = 'POST'
 
+        msg = ''
         response = super(VMTConnection, self).request(resource=path,
                                                       method=method,
                                                       query=query,
@@ -377,8 +382,6 @@ class VMTConnection(VMTRawConnection):
 
             if response.status_code/100 != 2:
                 msg = ': [{}]'.format(res['exception'])
-            else:
-                msg = ''
         except Exception as e:
             pass
 
@@ -432,7 +435,7 @@ class VMTConnection(VMTRawConnection):
     def _get_ver(self):
         res = self.request('admin/versions')[0]
         try:
-            return re.search('Manager (\d+\.\d+\.\d+) \(Build \d+\)',
+            return re.search('Manager ([\d.]+) \(Build \d+\)',
                              res['versionInfo']).group(1)
         except:
             return None
