@@ -79,9 +79,12 @@ may be used in place of a <code class="docutils literal"><span class="pre">usern
 
 <div class="admonition-notes admonition">
 <p class="first admonition-title">Notes</p>
-<p class="last">Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS
+<p>Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS
 connection. Because of this, vmt-connect will automatically switch the protocol
 to HTTPS when connecting to this version or higher instance if <code class="docutils literal"><span class="pre">ssl</span></code> is set to <cite>None</cite>.</p>
+<p class="last">Starting with <code class="docutils literal"><span class="pre">vmt-connect</span></code> v2.0 SSL will be True by default, and
+verify will continue to be False by default. This will affect instances
+prior to 6.0 only.</p>
 </div>
 <dl class="method">
 <dt id="vmtconnect.VMTConnection.add_group">
@@ -563,7 +566,7 @@ If None, all types are searched via consecutive requests.</li>
 
 <dl class="class">
 <dt id="vmtconnect.VMTRawConnection">
-<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">VMTRawConnection</code><span class="sig-paren">(</span><em>host=None</em>, <em>username=None</em>, <em>password=None</em>, <em>auth=None</em>, <em>base_url=None</em>, <em>ssl=False</em>, <em>verify=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTRawConnection" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">VMTRawConnection</code><span class="sig-paren">(</span><em>host=None</em>, <em>username=None</em>, <em>password=None</em>, <em>auth=None</em>, <em>base_url=None</em>, <em>ssl=None</em>, <em>verify=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTRawConnection" title="Permalink to this definition">¶</a></dt>
 <dd><p>A basic stateless connection to a Turbonomic instance. This connection
 returns the whole <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response" title="(in Requests v2.18.4)"><code class="xref py py-class docutils literal"><span class="pre">requests.Response</span></code></a> object, without post-processing.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -695,7 +698,7 @@ safely ignored.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2017, R.A. Stern.
+      &copy;2017-2018, R.A. Stern.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
