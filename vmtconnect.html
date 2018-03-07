@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>vmtconnect — Developer Interfaces &#8212; vmt-connect 1.2.2 documentation</title>
+    <title>vmtconnect — Developer Interfaces &#8212; vmt-connect 1.2.4 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.2.2',
+        VERSION:     '1.2.4',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -55,17 +55,17 @@ for communicating with Turbonomic instances.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>host</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – The hostname or IP address to connect to. (default:
+<li><strong>host</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – The hostname or IP address to connect to. (default:
 <cite>localhost</cite>)</li>
-<li><strong>username</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Username to authenticate with.</li>
-<li><strong>password</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Password to authenticate with.</li>
-<li><strong>auth</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Pre-encoded ‘Basic Authentication’ string which
+<li><strong>username</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Username to authenticate with.</li>
+<li><strong>password</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Password to authenticate with.</li>
+<li><strong>auth</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Pre-encoded ‘Basic Authentication’ string which
 may be used in place of a <code class="docutils literal"><span class="pre">username</span></code> and <code class="docutils literal"><span class="pre">password</span></code> pair.</li>
-<li><strong>base_url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Base endpoint path to use. (default:
+<li><strong>base_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Base endpoint path to use. (default:
 <cite>/vmturbo/rest/</cite>)</li>
-<li><strong>ssl</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Use SSL or not. (default: <cite>None</cite>, auto-negotiate)</li>
+<li><strong>ssl</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a><em>, </em><em>optional</em>) – Use SSL or not. (default: <cite>None</cite>, auto-negotiate)</li>
 <li><strong>version</strong> (<code class="xref py py-class docutils literal"><span class="pre">VMTVersion</span></code>, optional) – Versions requirements object.</li>
-<li><strong>verify</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Sets SSL Certificate verification. (default: ‘False’)</li>
+<li><strong>verify</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a><em>, </em><em>optional</em>) – Sets SSL Certificate verification. (default: ‘False’)</li>
 </ul>
 </td>
 </tr>
@@ -94,9 +94,9 @@ prior to 6.0 only.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dto</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – JSON representation of the GroupApiDTO.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dto</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – JSON representation of the GroupApiDTO.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Group object in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Group object in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
 </tr>
 </tbody>
 </table>
@@ -115,13 +115,13 @@ prior to 6.0 only.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Group display name.</li>
-<li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Group type.</li>
-<li><strong>members</strong> (<em>list</em>) – List of member UUIDs.</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Group display name.</li>
+<li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Group type.</li>
+<li><strong>members</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – List of member UUIDs.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Group object <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Group object <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
 </td>
 </tr>
 </tbody>
@@ -136,7 +136,7 @@ prior to 6.0 only.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – UUID of the group to be removed.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – UUID of the group to be removed.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True on success, False otherwise.</td>
 </tr>
@@ -153,8 +153,8 @@ prior to 6.0 only.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – UUID of the market to be removed.</li>
-<li><strong>scenario</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) – If True will remove the scenario too.</li>
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – UUID of the market to be removed.</li>
+<li><strong>scenario</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a><em>, </em><em>optional</em>) – If True will remove the scenario too.</li>
 </ul>
 </td>
 </tr>
@@ -173,7 +173,7 @@ prior to 6.0 only.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – UUID of the scenario to be removed.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – UUID of the scenario to be removed.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True on success, False otherwise.</td>
 </tr>
@@ -190,12 +190,12 @@ prior to 6.0 only.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</li>
-<li><strong>market</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Market to query. (default: <cite>Market</cite>)</li>
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</li>
+<li><strong>market</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Market to query. (default: <cite>Market</cite>)</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of datacenters in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of datacenters in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
 </td>
 </tr>
 </tbody>
@@ -211,12 +211,12 @@ prior to 6.0 only.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</li>
-<li><strong>market</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Market to query. (default: <cite>Market</cite>)</li>
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</li>
+<li><strong>market</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Market to query. (default: <cite>Market</cite>)</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of datastores in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of datastores in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
 </td>
 </tr>
 </tbody>
@@ -237,7 +237,7 @@ prior to 6.0 only.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Entity UUID.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Entity UUID.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing groups the entity belongs to.</td>
 </tr>
@@ -255,12 +255,12 @@ prior to 6.0 only.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>scope</strong> (<em>list</em>) – List of entities to scope to.</li>
-<li><strong>start_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – Unix timestamp in miliseconds. Uses current time
+<li><strong>scope</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – List of entities to scope to.</li>
+<li><strong>start_date</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Unix timestamp in miliseconds. Uses current time
 if blank.</li>
-<li><strong>end_date</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) – Unix timestamp in miliseconds. Uses current time if
+<li><strong>end_date</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – Unix timestamp in miliseconds. Uses current time if
 blank.</li>
-<li><strong>stats</strong> (<em>list</em>) – List of stats classes to retrieve.</li>
+<li><strong>stats</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – List of stats classes to retrieve.</li>
 </ul>
 </td>
 </tr>
@@ -279,9 +279,9 @@ blank.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Group name to lookup.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Group name to lookup.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing the group in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing the group in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
 </tr>
 </tbody>
 </table>
@@ -295,7 +295,7 @@ blank.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Group UUID.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Group UUID.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing all members of the group, of the appropriate group
 type.</td>
@@ -313,12 +313,12 @@ type.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Specific group UUID to lookup.</li>
-<li><strong>stats_filter</strong> (<em>list</em>) – List of filters to apply.</li>
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Specific group UUID to lookup.</li>
+<li><strong>stats_filter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – List of filters to apply.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list containing the group stats in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list containing the group stats in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
 </td>
 </tr>
 </tbody>
@@ -333,9 +333,9 @@ type.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of groups in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of groups in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
 </tr>
 </tbody>
 </table>
@@ -349,7 +349,7 @@ type.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Market UUID. (default: <cite>Market</cite>)</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Market UUID. (default: <cite>Market</cite>)</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A string representation of the market state.</td>
 </tr>
@@ -366,12 +366,12 @@ type.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Market UUID. (default: <cite>Market</cite>)</li>
-<li><strong>filter</strong> (<a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a><em>, </em><em>optional</em>) – DTO style filter to limit stats returned.</li>
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Market UUID. (default: <cite>Market</cite>)</li>
+<li><strong>filter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><em>dict</em></a><em>, </em><em>optional</em>) – DTO style filter to limit stats returned.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of stat objects in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of stat objects in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
 </td>
 </tr>
 </tbody>
@@ -386,9 +386,9 @@ type.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of markets in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of markets in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
 </tr>
 </tbody>
 </table>
@@ -403,12 +403,12 @@ type.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</li>
-<li><strong>market</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Market to query. (default: <cite>Market</cite>)</li>
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</li>
+<li><strong>market</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Market to query. (default: <cite>Market</cite>)</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of hosts in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of hosts in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
 </td>
 </tr>
 </tbody>
@@ -423,9 +423,9 @@ type.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of scenarios in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of scenarios in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
 </tr>
 </tbody>
 </table>
@@ -439,9 +439,9 @@ type.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Name of the template.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Name of the template.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing the template in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing the template in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
 </tr>
 </tbody>
 </table>
@@ -455,9 +455,9 @@ type.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing templates in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing templates in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
 </tr>
 </tbody>
 </table>
@@ -471,9 +471,9 @@ type.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of user objects in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of user objects in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
 </tr>
 </tbody>
 </table>
@@ -488,12 +488,12 @@ type.</td>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</li>
-<li><strong>market</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Market to query. (default: <cite>Market</cite>)</li>
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</li>
+<li><strong>market</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Market to query. (default: <cite>Market</cite>)</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of virtual machines in <a class="reference external" href="https://docs.python.org/2/library/stdtypes.html#dict" title="(in Python v2.7)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of virtual machines in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
 </td>
 </tr>
 </tbody>
@@ -518,12 +518,12 @@ search endpoint.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dto</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – JSON representation of the StatScopesApiInputDTO.</li>
-<li><strong>q</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Query string.</li>
-<li><strong>types</strong> (<em>list</em><em>, </em><em>optional</em>) – Types of entities to return.</li>
-<li><strong>scopes</strong> (<em>list</em><em>, </em><em>optional</em>) – Entities to scope to.</li>
-<li><strong>state</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – State filter.</li>
-<li><strong>group_type</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Group type filter.</li>
+<li><strong>dto</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – JSON representation of the StatScopesApiInputDTO.</li>
+<li><strong>q</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Query string.</li>
+<li><strong>types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a><em>, </em><em>optional</em>) – Types of entities to return.</li>
+<li><strong>scopes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a><em>, </em><em>optional</em>) – Entities to scope to.</li>
+<li><strong>state</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – State filter.</li>
+<li><strong>group_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Group type filter.</li>
 </ul>
 </td>
 </tr>
@@ -548,14 +548,36 @@ search endpoint.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – Display name of the entity to search for.</li>
-<li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – An entity classification to aid in searching.
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Display name of the entity to search for.</li>
+<li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – An entity classification to aid in searching.
 If None, all types are searched via consecutive requests.</li>
-<li><strong>case_sensitive</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Search case sensitivity. (default: False)</li>
+<li><strong>case_sensitive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a><em>, </em><em>optional</em>) – Search case sensitivity. (default: False)</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of matching results.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.update_static_group_members">
+<code class="descname">update_static_group_members</code><span class="sig-paren">(</span><em>uuid</em>, <em>type</em>, <em>members</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.update_static_group_members" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update static group members.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – UUID of the group to be updated.</li>
+<li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Group entity type.</li>
+<li><strong>members</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – List of member entity UUIDs.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The updated group definition.</p>
 </td>
 </tr>
 </tbody>
@@ -574,16 +596,16 @@ returns the whole <a class="reference external" href="http://docs.python-request
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>host</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – The hostname or IP address to connect to. (default:
+<li><strong>host</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – The hostname or IP address to connect to. (default:
 <cite>localhost</cite>)</li>
-<li><strong>username</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Username to authenticate with.</li>
-<li><strong>password</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Password to authenticate with.</li>
-<li><strong>auth</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Pre-encoded ‘Basic Authentication’ string which
+<li><strong>username</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Username to authenticate with.</li>
+<li><strong>password</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Password to authenticate with.</li>
+<li><strong>auth</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Pre-encoded ‘Basic Authentication’ string which
 may be used in place of a <code class="docutils literal"><span class="pre">username</span></code> and <code class="docutils literal"><span class="pre">password</span></code> pair.</li>
-<li><strong>base_url</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – Base endpoint path to use. (default:
+<li><strong>base_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Base endpoint path to use. (default:
 <cite>/vmturbo/rest/</cite>)</li>
-<li><strong>ssl</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Use SSL or not. (default: <cite>None</cite>, auto-negotiate)</li>
-<li><strong>verify</strong> (<a class="reference external" href="https://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Sets SSL Certificate verification. (default: ‘False’)</li>
+<li><strong>ssl</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a><em>, </em><em>optional</em>) – Use SSL or not. (default: <cite>None</cite>, auto-negotiate)</li>
+<li><strong>verify</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a><em>, </em><em>optional</em>) – Sets SSL Certificate verification. (default: ‘False’)</li>
 </ul>
 </td>
 </tr>
