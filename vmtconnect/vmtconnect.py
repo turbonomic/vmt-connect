@@ -14,7 +14,7 @@ except:
   from urlparse import urlunparse
 
 
-__version__ = '1.2.4'
+__version__ = '1.2.5'
 __all__ = [
     'VMTConnectionError',
     'HTTPError',
@@ -294,8 +294,11 @@ class VMTRawConnection(object):
             if case in ('POST', 'PUT'):
                 if 'Content-Type' not in kwargs['headers']:
                     kwargs['headers'].update({'Content-Type': 'application/json'})
-
+            if case == 'POST':
                 self.response = requests.post(url, data=dto, verify=self.verify, **kwargs)
+                break
+            if case == 'PUT':
+                self.response = requests.put(url, data=dto, verify=self.verify, **kwargs)
                 break
             if case == 'DELETE':
                 self.response = requests.delete(url, verify=self.verify, **kwargs)
