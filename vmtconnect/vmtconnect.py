@@ -14,7 +14,7 @@ except:
   from urlparse import urlunparse
 
 
-__version__ = '1.2.3'
+__version__ = '1.2.4'
 __all__ = [
     'VMTConnectionError',
     'HTTPError',
@@ -291,14 +291,11 @@ class VMTRawConnection(object):
                           self.base_path + resource.lstrip('/'), '', query, ''))
 
         for case in [method.upper()]:
-            if case == 'POST':
+            if case in ('POST', 'PUT'):
                 if 'Content-Type' not in kwargs['headers']:
                     kwargs['headers'].update({'Content-Type': 'application/json'})
 
                 self.response = requests.post(url, data=dto, verify=self.verify, **kwargs)
-                break
-            if case == 'PUT':
-                self.response = requests.put(url, verify=self.verify, **kwargs)
                 break
             if case == 'DELETE':
                 self.response = requests.delete(url, verify=self.verify, **kwargs)
@@ -725,7 +722,7 @@ class VMTConnection(VMTRawConnection):
                'memberUuidList': members
                }
 
-        return self.add_group(dto)
+        return self.add_group(json.dumps(dto))
 
     def del_group(self, uuid):
         """Removes a group.
@@ -839,3 +836,19 @@ class VMTConnection(VMTRawConnection):
                 pass
 
         return results
+
+
+    def update_static_group_members(self, uuid, type, members):
+        """Update static group members.
+
+        Args:
+            uuid (str): UUID of the group to be updated.
+            type (str): Group entity type.
+            members (list): List of member entity UUIDs.
+
+        Returns:
+            The updated group definition.
+        """
+        dto = json.dumps({'groupType': type, 'memberUuidList': members})
+
+        return self.request('groups', method='PUT', uuid=uuid, dto=dto)
