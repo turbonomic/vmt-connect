@@ -666,6 +666,30 @@ class VMTConnection(VMTRawConnection):
         """
         return self.request('scenarios', uuid=uuid)
 
+    def get_targets(self, uuid=None):
+        """Returns a list of targets.
+
+        Args:
+            uuid (str, optional): Specific UUID to lookup.
+
+        Returns:
+            A list containing targets in :obj:`dict` form.
+        """
+        return self.request('targets', uuid=uuid)
+
+    def get_target_for_entity(self, uuid):
+        """Returns a list of templates.
+
+        Args:
+            uuid (str): Entity UUID to lookup.
+
+        Returns:
+            A list of targets for an entity in :obj:`dict` form.
+        """
+        entity = self.get_entities(uuid=uuid)
+
+        return self.request('targets', uuid=entity['discoveredBy']['uuid'])
+
 
     def get_templates(self, uuid=None):
         """Returns a list of templates.
