@@ -265,6 +265,11 @@ class VMTRawConnection(object):
         if not self.__basic_auth and (self.__username and self.__password):
             self.__basic_auth = base64.b64encode('{}:{}'.format(self.__username,
                                                                 self.__password).encode())
+        else:
+            try:
+                self.__basic_auth = self.__basic_auth.encode()
+            except AttributeError:
+                pass
 
         self.__username = self.__password = None
         self.headers = {'Authorization': u'Basic {}'.format(self.__basic_auth.decode())}
@@ -677,19 +682,27 @@ class VMTConnection(VMTRawConnection):
         """
         return self.request('targets', uuid=uuid)
 
-    def get_target_for_entity(self, uuid):
+    def get_target_for_entity(self, uuid=None, name=None, type='VirtualMachine'):
         """Returns a list of templates.
 
         Args:
-            uuid (str): Entity UUID to lookup.
+            uuid (str, optional): Entity UUID to lookup.
+            name (str, optional): Name to lookup.
+            type (str, optional): Entity type for name based lookups.
 
         Returns:
             A list of targets for an entity in :obj:`dict` form.
+
+        Notes:
+            Only one parameter is required. If both are supplied, uuid overrides.
+            If a name lookup returns multiple entities, only the first is returned.
         """
-        entity = self.get_entities(uuid=uuid)
+        if uuid is not None:
+            entity = self.get_entities(uuid=uuid)
+        else:
+            entity = self.search_by_name(name, type)
 
-        return self.request('targets', uuid=entity['discoveredBy']['uuid'])
-
+        return self.request('targets', uuid=entity[0]['discoveredBy']['uuid'])
 
     def get_templates(self, uuid=None):
         """Returns a list of templates.
