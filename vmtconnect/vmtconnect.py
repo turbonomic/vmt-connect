@@ -7,6 +7,7 @@ import warnings
 import base64
 import json
 import requests
+import datetime
 
 try:
   from urllib.parse import urlunparse, urlencode
@@ -363,6 +364,13 @@ class VMTConnection(VMTRawConnection):
             self.protocol = 'https'
 
         self.__get_system_markets()
+        self.__market_uuid = self.get_markets(uuid='Market')[0]['uuid']
+
+        # for inventory caching - used to prevent thrashing the API with
+        # repeated calls for full inventory lookups within some calls only
+        self.__inventory_cache = None
+        self.__inventory_cache_timeout = 600
+        self.__inventory_cache_expires = datetime.datetime.now()
 
     def request(self, path, method='GET', query='', dto=None, uuid=None, **kwargs):
         """Provides the same functionality as :meth:`VMTRawConnection.request`
@@ -445,9 +453,24 @@ class VMTConnection(VMTRawConnection):
         except:
             return None
 
+    def __is_cache_valid(self):
+        if datetime.datetime.now() <= self.__inventory_cache_expires and \
+           self.__inventory_cache is not None:
+            return True
+
+        return False
+
     def __get_system_markets(self):
         res = self.get_markets()
         self.__system_market_ids = [x['uuid'] for x in res if x['displayName'] in self.__system_markets]
+
+    def get_cached_inventory(self):
+        if not self.__is_cache_valid():
+            delta = datetime.timedelta(seconds=self.__inventory_cache_timeout)
+            self.__inventory_cache = self.request('markets/Market/entities')
+            self.__inventory_cache_expires = datetime.datetime.now() + delta
+
+        return self.__inventory_cache
 
     def get_users(self, uuid=None):
         """Returns a list of users.
@@ -502,10 +525,15 @@ class VMTConnection(VMTRawConnection):
         """
         if uuid is not None:
             path = 'entities/{}'.format(uuid)
+        elif market == 'Market' or market == self.__market_uuid:
+            path = False
         else:
             path = 'markets/{}/entities'.format(market)
 
-        entities = self.request(path)
+        if not path:
+            entities = self.get_cached_inventory()
+        else:
+            entities = self.request(path)
 
         if type is not None:
             return [x for x in entities if x['className'] == type]
@@ -604,6 +632,19 @@ class VMTConnection(VMTRawConnection):
         dto = json.dumps(dto)
 
         return self.request('stats', method='POST', dto=dto)
+
+    def get_entity_by_remoteid(self, remote_id):
+        """Returns a entities from the real-time market for a given remoteId
+
+        Args:
+            remote_id (str): Remote id to lookup.
+
+        Returns:
+            A list of entities in :obj:`dict` form.
+        """
+        entities = self.get_entities()
+
+        return [x for x in entities if 'remoteId' in x and x['remoteId'] == remote_id]
 
     def get_groups(self, uuid=None):
         """Returns a list of groups in the given market
