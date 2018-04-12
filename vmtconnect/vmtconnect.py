@@ -330,10 +330,12 @@ class VMTConnection(VMTRawConnection):
             `/vmturbo/rest/`)
         ssl (bool, optional): Use SSL or not. (default: `None`, auto-negotiate)
         version (:class:`VMTVersion`, optional): Versions requirements object.
-        verify (bool, optional): Sets SSL Certificate verification. (default: 'False')
+        verify (bool, optional): Sets SSL Certificate verification. (default: `False`)
+        disable_hateoas (bool, optional): Removes HATEOAS navigation links. (default: `True`)
 
     Attributes:
         version (str): Turbonomic instance version.
+        disable_hateoas (bool): HATEOAS links state.
 
     Notes:
         Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS
@@ -351,9 +353,12 @@ class VMTConnection(VMTRawConnection):
     __system_market_ids = []
 
     def __init__(self, host=None, username=None, password=None, auth=None,
-                 base_url=None, ssl=None, versions=None, verify=False):
+                 base_url=None, ssl=None, versions=None, verify=False,
+                 disable_hateoas=True):
         super(VMTConnection, self).__init__(host, username, password, auth,
               base_url=base_url, ssl=ssl, verify=verify)
+
+        self.disable_hateoas = disable_hateoas
 
         self.__version = None
         self.__req_ver = versions or VMTVersion()
@@ -382,6 +387,9 @@ class VMTConnection(VMTRawConnection):
         # attempt to detect a POST
         if dto is not None and method == 'GET':
             method = 'POST'
+
+        if method == 'GET' and self.disable_hateoas:
+            query += ('&' if query != '' else '') + 'disable_hateoas=true'
 
         msg = ''
         response = super(VMTConnection, self).request(resource=path,
