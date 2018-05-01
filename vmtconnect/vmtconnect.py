@@ -232,11 +232,12 @@ class VMTConnection(object):
             may be used in place of a ``username`` and ``password`` pair.
         base_url (str, optional): Base endpoint path to use. (default:
             `/vmturbo/rest/`)
-        ssl (bool, optional): Use SSL or not. (default: `None`, auto-negotiate)
-        version (:class:`VMTVersion`, optional): Versions requirements object.
+        versions (:class:`VMTVersion`, optional): Versions requirements object.
         disable_hateoas (bool, optional): Removes HATEOAS navigation links. (default: `True`)
+        ssl (bool, optional): Use SSL or not. (default: `True`)
         verify (string, optional): SSL certificate bundle path. (default: `False`)
         cert (string, optional): Local client side certificate file.
+        headers (dict, optional): Dicitonary of additional persistent headers.
 
     Attributes:
         version (str): Turbonomic instance version.
@@ -255,11 +256,10 @@ class VMTConnection(object):
 
     def __init__(self, host=None, username=None, password=None, auth=None,
                  base_url=None, versions=None, disable_hateoas=True,
-                 ssl=True, verify=False, cert=None):
-        super(VMTConnection, self).__init__(host, username, password, auth,
-              base_url=base_url, ssl=ssl, verify=verify)
+                 ssl=True, verify=False, cert=None, headers=None):
 
         self.__session = requests.Session()
+        self.__session.verify = verify
         self.__basic_auth = auth
         self.__version = None
         self.__req_ver = versions or VMTVersion()
@@ -268,11 +268,11 @@ class VMTConnection(object):
         self.protocol = 'https' if ssl else 'http'
         self.disable_hateoas = disable_hateoas
 
-        if verify:
-            self.__session.verify = verify
-
         if cert:
             self.__session.cert = cert
+
+        if headers:
+            self.__session.headers = headers
 
         # set auth encoding
         if not auth and (username and password):
@@ -302,11 +302,6 @@ class VMTConnection(object):
         self.__inventory_cache_expires = datetime.datetime.now()
 
     def _request(self, resource, method='GET', query='', dto=None, **kwargs):
-        if 'headers' in kwargs:
-            kwargs['headers'].update(self.headers)
-        else:
-            kwargs['headers'] = self.headers
-
         url = urlunparse((self.protocol, self.host,
                           self.base_path + resource.lstrip('/'), '', query, ''))
 
@@ -427,13 +422,13 @@ class VMTConnection(object):
         self.get_cached_inventory()
 
         for e in self.__inventory_cache:
-            if (case_sensitive and e.displayName != name) or \
-               (e.displayName.lower() != name.lower()):
+            if (case_sensitive and e['displayName'] != name) or \
+               (e['displayName'].lower() != name.lower()):
                 continue
-            if type and e.className != type:
+            if type and e['className'] != type:
                 continue
 
-            results += e
+            results += [e]
 
         return results
 
@@ -897,7 +892,7 @@ class VMTConnection(object):
 
         for fclass in search_classes:
             if from_cache:
-                results += self._search_cache(name, type, case_sensitive)
+                results += self._search_cache(name, fclass, case_sensitive)
                 continue
 
             try:
