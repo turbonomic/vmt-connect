@@ -307,8 +307,11 @@ class VMTConnection(object):
 
         for case in [method.upper()]:
             if case in ('POST', 'PUT'):
-                if 'Content-Type' not in kwargs['headers']:
-                    kwargs['headers'].update({'Content-Type': 'application/json'})
+                if 'Content-Type' not in self.__session.headers:
+                    if 'headers' in kwargs:
+                        kwargs['headers'].update({'Content-Type': 'application/json'})
+                    else:
+                        kwargs['headers'] = {'Content-Type': 'application/json'}
             if case == 'POST':
                 return self.__session.post(url, data=dto, **kwargs)
             if case == 'PUT':
