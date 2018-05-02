@@ -14,8 +14,6 @@ Connections
    :show-inheritance:
    :inherited-members:
 
-.. autoclass:: VMTRawConnection
-
 
 Exceptions
 ----------
