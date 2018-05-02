@@ -6,13 +6,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Index &#8212; vmt-connect 1.2.4 documentation</title>
+    <title>Index &#8212; vmt-connect 2.0.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.2.4',
+        VERSION:     '2.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -44,11 +44,9 @@
 
 <div class="genindex-jumpbox">
  <a href="#A"><strong>A</strong></a>
- | <a href="#B"><strong>B</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
- | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#U"><strong>U</strong></a>
@@ -67,24 +65,18 @@
   </ul></td>
 </tr></table>
 
-<h2 id="B">B</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="vmtconnect.html#vmtconnect.VMTRawConnection.base_url">base_url (vmtconnect.VMTRawConnection attribute)</a>
-</li>
-  </ul></td>
-</tr></table>
-
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="vmtconnect.html#vmtconnect.VMTConnection.del_group">del_group() (vmtconnect.VMTConnection method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="vmtconnect.html#vmtconnect.VMTConnection.del_market">del_market() (vmtconnect.VMTConnection method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="vmtconnect.html#vmtconnect.VMTConnection.del_scenario">del_scenario() (vmtconnect.VMTConnection method)</a>
+</li>
+      <li><a href="vmtconnect.html#vmtconnect.VMTConnection.disable_hateoas">disable_hateoas (vmtconnect.VMTConnection attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -92,11 +84,15 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="vmtconnect.html#vmtconnect.VMTConnection.get_cached_inventory">get_cached_inventory() (vmtconnect.VMTConnection method)</a>
+</li>
       <li><a href="vmtconnect.html#vmtconnect.VMTConnection.get_datacenters">get_datacenters() (vmtconnect.VMTConnection method)</a>
 </li>
       <li><a href="vmtconnect.html#vmtconnect.VMTConnection.get_datastores">get_datastores() (vmtconnect.VMTConnection method)</a>
 </li>
       <li><a href="vmtconnect.html#vmtconnect.VMTConnection.get_entities">get_entities() (vmtconnect.VMTConnection method)</a>
+</li>
+      <li><a href="vmtconnect.html#vmtconnect.VMTConnection.get_entity_by_remoteid">get_entity_by_remoteid() (vmtconnect.VMTConnection method)</a>
 </li>
       <li><a href="vmtconnect.html#vmtconnect.VMTConnection.get_entity_groups">get_entity_groups() (vmtconnect.VMTConnection method)</a>
 </li>
@@ -122,6 +118,10 @@
 </li>
       <li><a href="vmtconnect.html#vmtconnect.VMTConnection.get_scenarios">get_scenarios() (vmtconnect.VMTConnection method)</a>
 </li>
+      <li><a href="vmtconnect.html#vmtconnect.VMTConnection.get_target_for_entity">get_target_for_entity() (vmtconnect.VMTConnection method)</a>
+</li>
+      <li><a href="vmtconnect.html#vmtconnect.VMTConnection.get_targets">get_targets() (vmtconnect.VMTConnection method)</a>
+</li>
       <li><a href="vmtconnect.html#vmtconnect.VMTConnection.get_template_by_name">get_template_by_name() (vmtconnect.VMTConnection method)</a>
 </li>
       <li><a href="vmtconnect.html#vmtconnect.VMTConnection.get_templates">get_templates() (vmtconnect.VMTConnection method)</a>
@@ -136,27 +136,15 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="vmtconnect.html#vmtconnect.VMTRawConnection.headers">headers (vmtconnect.VMTRawConnection attribute)</a>
-</li>
-      <li><a href="vmtconnect.html#vmtconnect.VMTRawConnection.host">host (vmtconnect.VMTRawConnection attribute)</a>
-</li>
       <li><a href="vmtconnect.html#vmtconnect.HTTP500Error">HTTP500Error</a>
+</li>
+      <li><a href="vmtconnect.html#vmtconnect.HTTP502Error">HTTP502Error</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="vmtconnect.html#vmtconnect.HTTP502Error">HTTP502Error</a>
-</li>
       <li><a href="vmtconnect.html#vmtconnect.HTTPError">HTTPError</a>
 </li>
       <li><a href="vmtconnect.html#vmtconnect.HTTPWarn">HTTPWarn</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="P">P</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="vmtconnect.html#vmtconnect.VMTRawConnection.protocol">protocol (vmtconnect.VMTRawConnection attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -165,10 +153,6 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="vmtconnect.html#vmtconnect.VMTConnection.request">request() (vmtconnect.VMTConnection method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="vmtconnect.html#vmtconnect.VMTRawConnection.response">response (vmtconnect.VMTRawConnection attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -205,8 +189,6 @@
       <li><a href="vmtconnect.html#vmtconnect.VMTConnection">VMTConnection (class in vmtconnect)</a>
 </li>
       <li><a href="vmtconnect.html#vmtconnect.VMTConnectionError">VMTConnectionError</a>
-</li>
-      <li><a href="vmtconnect.html#vmtconnect.VMTRawConnection">VMTRawConnection (class in vmtconnect)</a>
 </li>
   </ul></td>
 </tr></table>

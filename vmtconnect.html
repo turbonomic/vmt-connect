@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>vmtconnect — Developer Interfaces &#8212; vmt-connect 1.2.4 documentation</title>
+    <title>vmtconnect — Developer Interfaces &#8212; vmt-connect 2.0.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.2.4',
+        VERSION:     '2.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -47,9 +47,9 @@ for communicating with Turbonomic instances.</p>
 <h2>Connections<a class="headerlink" href="#connections" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="vmtconnect.VMTConnection">
-<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">VMTConnection</code><span class="sig-paren">(</span><em>host=None</em>, <em>username=None</em>, <em>password=None</em>, <em>auth=None</em>, <em>base_url=None</em>, <em>ssl=None</em>, <em>versions=None</em>, <em>verify=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#vmtconnect.VMTRawConnection" title="vmtconnect.VMTRawConnection"><code class="xref py py-class docutils literal"><span class="pre">vmtconnect.VMTRawConnection</span></code></a></p>
-<p>A wrapper for <a class="reference internal" href="#vmtconnect.VMTRawConnection" title="vmtconnect.VMTRawConnection"><code class="xref py py-class docutils literal"><span class="pre">VMTRawConnection</span></code></a> with additional helper methods.</p>
+<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">VMTConnection</code><span class="sig-paren">(</span><em>host=None</em>, <em>username=None</em>, <em>password=None</em>, <em>auth=None</em>, <em>base_url=None</em>, <em>versions=None</em>, <em>disable_hateoas=True</em>, <em>ssl=True</em>, <em>verify=False</em>, <em>cert=None</em>, <em>headers=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>A wrapper for <code class="xref py py-class docutils literal"><span class="pre">VMTRawConnection</span></code> with additional helper methods.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -63,9 +63,12 @@ for communicating with Turbonomic instances.</p>
 may be used in place of a <code class="docutils literal"><span class="pre">username</span></code> and <code class="docutils literal"><span class="pre">password</span></code> pair.</li>
 <li><strong>base_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Base endpoint path to use. (default:
 <cite>/vmturbo/rest/</cite>)</li>
-<li><strong>ssl</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a><em>, </em><em>optional</em>) – Use SSL or not. (default: <cite>None</cite>, auto-negotiate)</li>
-<li><strong>version</strong> (<code class="xref py py-class docutils literal"><span class="pre">VMTVersion</span></code>, optional) – Versions requirements object.</li>
-<li><strong>verify</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a><em>, </em><em>optional</em>) – Sets SSL Certificate verification. (default: ‘False’)</li>
+<li><strong>versions</strong> (<code class="xref py py-class docutils literal"><span class="pre">VMTVersion</span></code>, optional) – Versions requirements object.</li>
+<li><strong>disable_hateoas</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a><em>, </em><em>optional</em>) – Removes HATEOAS navigation links. (default: <cite>True</cite>)</li>
+<li><strong>ssl</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a><em>, </em><em>optional</em>) – Use SSL or not. (default: <cite>True</cite>)</li>
+<li><strong>verify</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.6)"><em>string</em></a><em>, </em><em>optional</em>) – SSL certificate bundle path. (default: <cite>False</cite>)</li>
+<li><strong>cert</strong> (<a class="reference external" href="https://docs.python.org/3/library/string.html#module-string" title="(in Python v3.6)"><em>string</em></a><em>, </em><em>optional</em>) – Local client side certificate file.</li>
+<li><strong>headers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><em>dict</em></a><em>, </em><em>optional</em>) – Dicitonary of additional persistent headers.</li>
 </ul>
 </td>
 </tr>
@@ -77,14 +80,18 @@ may be used in place of a <code class="docutils literal"><span class="pre">usern
 <dd><p><em>str</em> – Turbonomic instance version.</p>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="vmtconnect.VMTConnection.disable_hateoas">
+<code class="descname">disable_hateoas</code><a class="headerlink" href="#vmtconnect.VMTConnection.disable_hateoas" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>bool</em> – HATEOAS links state.</p>
+</dd></dl>
+
 <div class="admonition-notes admonition">
 <p class="first admonition-title">Notes</p>
-<p>Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS
-connection. Because of this, vmt-connect will automatically switch the protocol
-to HTTPS when connecting to this version or higher instance if <code class="docutils literal"><span class="pre">ssl</span></code> is set to <cite>None</cite>.</p>
-<p class="last">Starting with <code class="docutils literal"><span class="pre">vmt-connect</span></code> v2.0 SSL will be True by default, and
-verify will continue to be False by default. This will affect instances
-prior to 6.0 only.</p>
+<p class="last">Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS connection. Because of this, vmt-connect defaults to using SSL. Versions prior to 6.0 using HTTP will need to manually set ssl to False.
+If verify is set to a path to a directory, the directory must have been processed using the c_rehash utility supplied with OpenSSL.
+For client side certificates using <cite>cert</cite>: the private key to your local certificate must be unencrypted. Currently, Requests does not support using encrypted keys.
+Requests uses certificates from the package certifi.</p>
 </div>
 <dl class="method">
 <dt id="vmtconnect.VMTConnection.add_group">
@@ -182,6 +189,13 @@ prior to 6.0 only.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="vmtconnect.VMTConnection.get_cached_inventory">
+<code class="descname">get_cached_inventory</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_cached_inventory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the market entities inventory from cache, populating the
+cache if necessary.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="vmtconnect.VMTConnection.get_datacenters">
 <code class="descname">get_datacenters</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_datacenters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of datacenters in the given market</p>
@@ -227,6 +241,28 @@ prior to 6.0 only.</p>
 <dt id="vmtconnect.VMTConnection.get_entities">
 <code class="descname">get_entities</code><span class="sig-paren">(</span><em>type=None</em>, <em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_entities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of entities in the given market.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_entity_by_remoteid">
+<code class="descname">get_entity_by_remoteid</code><span class="sig-paren">(</span><em>remote_id</em>, <em>target_name=None</em>, <em>target_uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_entity_by_remoteid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a entities from the real-time market for a given remoteId</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>remote_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Remote id to lookup.</li>
+<li><strong>target_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Name of Turbonomic target known to host the entity.</li>
+<li><strong>target_uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – UUID of Turbonomic target known to host the entity.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of entities in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -432,6 +468,49 @@ type.</td>
 </dd></dl>
 
 <dl class="method">
+<dt id="vmtconnect.VMTConnection.get_target_for_entity">
+<code class="descname">get_target_for_entity</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>name=None</em>, <em>type='VirtualMachine'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_target_for_entity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of templates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Entity UUID to lookup.</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Name to lookup.</li>
+<li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Entity type for name based lookups.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of targets for an entity in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-notes admonition">
+<p class="first admonition-title">Notes</p>
+<p class="last">Only one parameter is required. If both are supplied, uuid overrides.
+If a name lookup returns multiple entities, only the first is returned.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.VMTConnection.get_targets">
+<code class="descname">get_targets</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_targets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of targets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list containing targets in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.6)"><code class="xref py py-obj docutils literal"><span class="pre">dict</span></code></a> form.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="vmtconnect.VMTConnection.get_template_by_name">
 <code class="descname">get_template_by_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.get_template_by_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a template by name.</p>
@@ -503,8 +582,23 @@ type.</td>
 <dl class="method">
 <dt id="vmtconnect.VMTConnection.request">
 <code class="descname">request</code><span class="sig-paren">(</span><em>path</em>, <em>method='GET'</em>, <em>query=''</em>, <em>dto=None</em>, <em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.request" title="Permalink to this definition">¶</a></dt>
-<dd><p>Provides the same functionality as <code class="xref py py-meth docutils literal"><span class="pre">VMTRawConnection.request()</span></code>
-with error checking and output deserialization.</p>
+<dd><p>Constructs and sends an appropriate HTTP request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – API resource to utilize, relative to <cite>base_path</cite>.</li>
+<li><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – HTTP method to use for the request. (default: GET)</li>
+<li><strong>query</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Query string parameters to attach.</li>
+<li><strong>dto</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Data transfer object to send to the server.</li>
+<li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Turbonomic object UUID to operate on.</li>
+<li><strong>**kwargs</strong> – Additional Requests keyword arguments.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -541,7 +635,7 @@ search endpoint.</p>
 
 <dl class="method">
 <dt id="vmtconnect.VMTConnection.search_by_name">
-<code class="descname">search_by_name</code><span class="sig-paren">(</span><em>name</em>, <em>type=None</em>, <em>case_sensitive=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.search_by_name" title="Permalink to this definition">¶</a></dt>
+<code class="descname">search_by_name</code><span class="sig-paren">(</span><em>name</em>, <em>type=None</em>, <em>case_sensitive=False</em>, <em>from_cache=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.search_by_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Searches for an entity by name.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -549,9 +643,11 @@ search endpoint.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Display name of the entity to search for.</li>
-<li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – An entity classification to aid in searching.
-If None, all types are searched via consecutive requests.</li>
-<li><strong>case_sensitive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a><em>, </em><em>optional</em>) – Search case sensitivity. (default: False)</li>
+<li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – One or more entity classifications to aid in
+searching. If None, all types are searched via consecutive
+requests.</li>
+<li><strong>case_sensitive</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a><em>, </em><em>optional</em>) – Search case sensitivity. (default: <cite>False</cite>)</li>
+<li><strong>from_cache</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a><em>, </em><em>optional</em>) – Uses the cached inventory if set. (default: <cite>False</cite>)</li>
 </ul>
 </td>
 </tr>
@@ -564,7 +660,7 @@ If None, all types are searched via consecutive requests.</li>
 
 <dl class="method">
 <dt id="vmtconnect.VMTConnection.update_static_group_members">
-<code class="descname">update_static_group_members</code><span class="sig-paren">(</span><em>uuid</em>, <em>type</em>, <em>members</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.update_static_group_members" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update_static_group_members</code><span class="sig-paren">(</span><em>uuid</em>, <em>name</em>, <em>type</em>, <em>members</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.update_static_group_members" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update static group members.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -572,6 +668,7 @@ If None, all types are searched via consecutive requests.</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – UUID of the group to be updated.</li>
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Display name of the group.</li>
 <li><strong>type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – Group entity type.</li>
 <li><strong>members</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.6)"><em>list</em></a>) – List of member entity UUIDs.</li>
 </ul>
@@ -582,63 +679,6 @@ If None, all types are searched via consecutive requests.</li>
 </tr>
 </tbody>
 </table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="vmtconnect.VMTRawConnection">
-<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">VMTRawConnection</code><span class="sig-paren">(</span><em>host=None</em>, <em>username=None</em>, <em>password=None</em>, <em>auth=None</em>, <em>base_url=None</em>, <em>ssl=None</em>, <em>verify=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTRawConnection" title="Permalink to this definition">¶</a></dt>
-<dd><p>A basic stateless connection to a Turbonomic instance. This connection
-returns the whole <a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response" title="(in Requests v2.18.4)"><code class="xref py py-class docutils literal"><span class="pre">requests.Response</span></code></a> object, without post-processing.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>host</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – The hostname or IP address to connect to. (default:
-<cite>localhost</cite>)</li>
-<li><strong>username</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Username to authenticate with.</li>
-<li><strong>password</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Password to authenticate with.</li>
-<li><strong>auth</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Pre-encoded ‘Basic Authentication’ string which
-may be used in place of a <code class="docutils literal"><span class="pre">username</span></code> and <code class="docutils literal"><span class="pre">password</span></code> pair.</li>
-<li><strong>base_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a><em>, </em><em>optional</em>) – Base endpoint path to use. (default:
-<cite>/vmturbo/rest/</cite>)</li>
-<li><strong>ssl</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a><em>, </em><em>optional</em>) – Use SSL or not. (default: <cite>None</cite>, auto-negotiate)</li>
-<li><strong>verify</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.6)"><em>bool</em></a><em>, </em><em>optional</em>) – Sets SSL Certificate verification. (default: ‘False’)</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="attribute">
-<dt id="vmtconnect.VMTRawConnection.host">
-<code class="descname">host</code><a class="headerlink" href="#vmtconnect.VMTRawConnection.host" title="Permalink to this definition">¶</a></dt>
-<dd><p>Hostname or IP address connected to.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.VMTRawConnection.base_url">
-<code class="descname">base_url</code><a class="headerlink" href="#vmtconnect.VMTRawConnection.base_url" title="Permalink to this definition">¶</a></dt>
-<dd><p>Base endpoint path used.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.VMTRawConnection.response">
-<code class="descname">response</code><a class="headerlink" href="#vmtconnect.VMTRawConnection.response" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference external" href="http://docs.python-requests.org/en/latest/api/#requests.Response" title="(in Requests v2.18.4)"><code class="xref py py-obj docutils literal"><span class="pre">requests.Response</span></code></a> object.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.VMTRawConnection.headers">
-<code class="descname">headers</code><a class="headerlink" href="#vmtconnect.VMTRawConnection.headers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dictionary of headers to send with each request.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.VMTRawConnection.protocol">
-<code class="descname">protocol</code><a class="headerlink" href="#vmtconnect.VMTRawConnection.protocol" title="Permalink to this definition">¶</a></dt>
-<dd><p>Service protocol to use (HTTP, or HTTPS).</p>
 </dd></dl>
 
 </dd></dl>
