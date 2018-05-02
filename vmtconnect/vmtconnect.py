@@ -1,20 +1,14 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import re
 import warnings
 import base64
 import json
 import requests
+import datetime
 
-try:
-  from urllib.parse import urlunparse, urlencode
-except:
-  from urlparse import urlunparse
+from urllib.parse import urlunparse, urlencode
 
 
-__version__ = '1.2.5'
+__version__ = '2.0.0'
 __all__ = [
     'VMTConnectionError',
     'HTTPError',
@@ -22,7 +16,6 @@ __all__ = [
     'HTTP500Error',
     'HTTP502Error',
     'HTTPWarn',
-    'VMTRawConnection',
     'VMTConnection',
     'VMTVersionError',
     'VMTFormatError'
@@ -227,90 +220,7 @@ class VMTVersion(object):
         return False
 
 
-class VMTRawConnection(object):
-    """A basic stateless connection to a Turbonomic instance. This connection
-    returns the whole :class:`requests.Response` object, without post-processing.
-
-    Args:
-        host (str, optional): The hostname or IP address to connect to. (default:
-            `localhost`)
-        username (str, optional): Username to authenticate with.
-        password (str, optional): Password to authenticate with.
-        auth (str, optional): Pre-encoded 'Basic Authentication' string which
-            may be used in place of a ``username`` and ``password`` pair.
-        base_url (str, optional): Base endpoint path to use. (default:
-            `/vmturbo/rest/`)
-        ssl (bool, optional): Use SSL or not. (default: `None`, auto-negotiate)
-        verify (bool, optional): Sets SSL Certificate verification. (default: 'False')
-
-    Attributes:
-        host: Hostname or IP address connected to.
-        base_url: Base endpoint path used.
-        response: :obj:`requests.Response` object.
-        headers: Dictionary of headers to send with each request.
-        protocol: Service protocol to use (HTTP, or HTTPS).
-    """
-    def __init__(self, host=None, username=None, password=None, auth=None,
-                 base_url=None, ssl=None, verify=False):
-        self.__username = username
-        self.__password = password
-        self.__basic_auth = auth
-        self.host = host or 'localhost'
-        self.base_path = base_url or '/vmturbo/rest/'
-        self.response = None
-        self.verify = verify
-        self.protocol = 'http'
-
-        # set auth encoding
-        if not self.__basic_auth and (self.__username and self.__password):
-            self.__basic_auth = base64.b64encode('{}:{}'.format(self.__username,
-                                                                self.__password).encode())
-
-        self.__username = self.__password = None
-        self.headers = {'Authorization': u'Basic {}'.format(self.__basic_auth.decode())}
-
-        if ssl:
-            self.protocol = 'https'
-
-    def request(self, resource, method='GET', query='', dto=None, **kwargs):
-        """Constructs and sends an appropriate HTTP request.
-
-        Args:
-            resource (str): API resource to utilize, relative to `base_path`.
-            method (str, optional): HTTP method to use for the request. (default: GET)
-            query (str, optional): Query string to use.
-            dto (str, optional): Data transfer object to send to the server.
-            **kwargs: Arbitrary keyword arguments.
-        """
-        if 'headers' in kwargs:
-            kwargs['headers'].update(self.headers)
-        else:
-            kwargs['headers'] = self.headers
-
-        url = urlunparse((self.protocol, self.host,
-                          self.base_path + resource.lstrip('/'), '', query, ''))
-
-        for case in [method.upper()]:
-            if case in ('POST', 'PUT'):
-                if 'Content-Type' not in kwargs['headers']:
-                    kwargs['headers'].update({'Content-Type': 'application/json'})
-            if case == 'POST':
-                self.response = requests.post(url, data=dto, verify=self.verify, **kwargs)
-                break
-            if case == 'PUT':
-                self.response = requests.put(url, data=dto, verify=self.verify, **kwargs)
-                break
-            if case == 'DELETE':
-                self.response = requests.delete(url, verify=self.verify, **kwargs)
-                break
-
-            # default is GET
-            self.response = requests.get(url, verify=self.verify, **kwargs)
-
-        return self.response
-
-
-class VMTConnection(VMTRawConnection):
+class VMTConnection(object):
     """A wrapper for :class:`VMTRawConnection` with additional helper methods.
 
     Args:
@@ -322,67 +232,127 @@ class VMTConnection(VMTRawConnection):
             may be used in place of a ``username`` and ``password`` pair.
         base_url (str, optional): Base endpoint path to use. (default:
             `/vmturbo/rest/`)
-        ssl (bool, optional): Use SSL or not. (default: `None`, auto-negotiate)
-        version (:class:`VMTVersion`, optional): Versions requirements object.
-        verify (bool, optional): Sets SSL Certificate verification. (default: 'False')
+        versions (:class:`VMTVersion`, optional): Versions requirements object.
+        disable_hateoas (bool, optional): Removes HATEOAS navigation links. (default: `True`)
+        ssl (bool, optional): Use SSL or not. (default: `True`)
+        verify (string, optional): SSL certificate bundle path. (default: `False`)
+        cert (string, optional): Local client side certificate file.
+        headers (dict, optional): Dicitonary of additional persistent headers.
 
     Attributes:
         version (str): Turbonomic instance version.
+        disable_hateoas (bool): HATEOAS links state.
 
     Notes:
-        Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS
-        connection. Because of this, vmt-connect will automatically switch the protocol
-        to HTTPS when connecting to this version or higher instance if ``ssl`` is set to `None`.
-
-        Starting with ``vmt-connect`` v2.0 SSL will be True by default, and
-        verify will continue to be False by default. This will affect instances
-        prior to 6.0 only.
+        Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS connection. Because of this, vmt-connect defaults to using SSL. Versions prior to 6.0 using HTTP will need to manually set ssl to False.
+        If verify is set to a path to a directory, the directory must have been processed using the c_rehash utility supplied with OpenSSL.
+        For client side certificates using `cert`: the private key to your local certificate must be unencrypted. Currently, Requests does not support using encrypted keys.
+        Requests uses certificates from the package certifi.
     """
-
     # system level markets to block certain actions
     # this is done by name, and subject to breaking if names are abused
     __system_markets = ['Market', 'Market_Default']
     __system_market_ids = []
 
     def __init__(self, host=None, username=None, password=None, auth=None,
-                 base_url=None, ssl=None, versions=None, verify=False):
-        super(VMTConnection, self).__init__(host, username, password, auth,
-              base_url=base_url, ssl=ssl, verify=verify)
+                 base_url=None, versions=None, disable_hateoas=True,
+                 ssl=True, verify=False, cert=None, headers=None):
 
+        self.__session = requests.Session()
+        self.__session.verify = verify
+        self.__basic_auth = auth
         self.__version = None
         self.__req_ver = versions or VMTVersion()
+        self.host = host or 'localhost'
+        self.base_path = base_url or '/vmturbo/rest/'
+        self.protocol = 'https' if ssl else 'http'
+        self.disable_hateoas = disable_hateoas
+
+        if cert:
+            self.__session.cert = cert
+
+        if headers:
+            self.__session.headers = headers
+
+        # set auth encoding
+        if not auth and (username and password):
+            self.__basic_auth = base64.b64encode('{}:{}'.format(
+                username, password).encode())
+        else:
+            try:
+                self.__basic_auth = auth.encode()
+            except AttributeError:
+                pass
+
+        self.__session.headers.update(
+            {'Authorization': u'Basic {}'.format(self.__basic_auth.decode())}
+        )
+
+        # verify version
+        # note: prior to 6.0.11, this may fail due to enforced update checking
         self.__req_ver.check(self.version)
 
-        # kludge for forced/broken ssl setup
-        if self.version >= '6.0.0' and ssl is None:
-            self.protocol = 'https'
-
         self.__get_system_markets()
+        self.__market_uuid = self.get_markets(uuid='Market')[0]['uuid']
+
+        # for inventory caching - used to prevent thrashing the API with
+        # repeated calls for full inventory lookups within some calls
+        self.__inventory_cache = None
+        self.__inventory_cache_timeout = 600
+        self.__inventory_cache_expires = datetime.datetime.now()
+
+    def _request(self, resource, method='GET', query='', dto=None, **kwargs):
+        url = urlunparse((self.protocol, self.host,
+                          self.base_path + resource.lstrip('/'), '', query, ''))
+
+        for case in [method.upper()]:
+            if case in ('POST', 'PUT'):
+                if 'Content-Type' not in self.__session.headers:
+                    if 'headers' in kwargs:
+                        kwargs['headers'].update({'Content-Type': 'application/json'})
+                    else:
+                        kwargs['headers'] = {'Content-Type': 'application/json'}
+            if case == 'POST':
+                return self.__session.post(url, data=dto, **kwargs)
+            if case == 'PUT':
+                return self.__session.put(url, data=dto, **kwargs)
+            if case == 'DELETE':
+                return self.__session.delete(url, **kwargs)
+
+            # default is GET
+            return self.__session.get(url, **kwargs)
 
     def request(self, path, method='GET', query='', dto=None, uuid=None, **kwargs):
-        """Provides the same functionality as :meth:`VMTRawConnection.request`
-        with error checking and output deserialization.
+        """Constructs and sends an appropriate HTTP request.
+
+        Args:
+            path (str): API resource to utilize, relative to `base_path`.
+            method (str, optional): HTTP method to use for the request. (default: GET)
+            query (str, optional): Query string parameters to attach.
+            dto (str, optional): Data transfer object to send to the server.
+            uuid (str, optional): Turbonomic object UUID to operate on.
+            **kwargs: Additional Requests keyword arguments.
         """
         if uuid is not None:
             path = '{}/{}'.format(path, uuid)
 
-        # attempt to detect a POST
+        # attempt to detect a misdirected POST
         if dto is not None and method == 'GET':
             method = 'POST'
 
+        if method == 'GET' and self.disable_hateoas:
+            query += ('&' if query != '' else '') + 'disable_hateoas=true'
+
         msg = ''
-        response = super(VMTConnection, self).request(resource=path,
-                                                      method=method,
-                                                      query=query,
-                                                      dto=dto,
-                                                      **kwargs)
+        response = self._request(resource=path, method=method, query=query,
+                                 dto=dto, **kwargs)
 
         try:
             res = response.json()
 
             if response.status_code/100 != 2:
                 msg = ': [{}]'.format(res['exception'])
-        except Exception as e:
+        except Exception:
             pass
 
         if response.status_code == 502:
@@ -401,7 +371,6 @@ class VMTConnection(VMTRawConnection):
             return False
         else:
             return [res] if isinstance(res, dict) else res
-
 
     @staticmethod
     def _search_criteria(op, value, filter_type, case_sensitive=False):
@@ -440,9 +409,42 @@ class VMTConnection(VMTRawConnection):
         except:
             return None
 
+    def __is_cache_valid(self):
+        if datetime.datetime.now() <= self.__inventory_cache_expires and \
+           self.__inventory_cache is not None:
+            return True
+
+        return False
+
     def __get_system_markets(self):
         res = self.get_markets()
         self.__system_market_ids = [x['uuid'] for x in res if x['displayName'] in self.__system_markets]
+
+    def _search_cache(self, name, type=None, case_sensitive=False):
+        results = []
+        self.get_cached_inventory()
+
+        for e in self.__inventory_cache:
+            if (case_sensitive and e['displayName'] != name) or \
+               (e['displayName'].lower() != name.lower()):
+                continue
+            if type and e['className'] != type:
+                continue
+
+            results += [e]
+
+        return results
+
+    def get_cached_inventory(self):
+        """Returns the market entities inventory from cache, populating the
+        cache if necessary.
+        """
+        if not self.__is_cache_valid():
+            delta = datetime.timedelta(seconds=self.__inventory_cache_timeout)
+            self.__inventory_cache = self.request('markets/Market/entities')
+            self.__inventory_cache_expires = datetime.datetime.now() + delta
+
+        return self.__inventory_cache
 
     def get_users(self, uuid=None):
         """Returns a list of users.
@@ -493,14 +495,18 @@ class VMTConnection(VMTRawConnection):
         return self.request('markets/{}/stats'.format(uuid))
 
     def get_entities(self, type=None, uuid=None, market='Market'):
-        """Returns a list of entities in the given market.
-        """
+        """Returns a list of entities in the given market."""
         if uuid is not None:
             path = 'entities/{}'.format(uuid)
+        elif market == 'Market' or market == self.__market_uuid:
+            path = False
         else:
             path = 'markets/{}/entities'.format(market)
 
-        entities = self.request(path)
+        if not path:
+            entities = self.get_cached_inventory()
+        else:
+            entities = self.request(path)
 
         if type is not None:
             return [x for x in entities if x['className'] == type]
@@ -600,6 +606,29 @@ class VMTConnection(VMTRawConnection):
 
         return self.request('stats', method='POST', dto=dto)
 
+    # TODO: vmsByAltName is supposed to do this - broken
+    def get_entity_by_remoteid(self, remote_id, target_name=None, target_uuid=None):
+        """Returns a entities from the real-time market for a given remoteId
+
+        Args:
+            remote_id (str): Remote id to lookup.
+            target_name (str, optional): Name of Turbonomic target known to host the entity.
+            target_uuid (str, optional): UUID of Turbonomic target known to host the entity.
+
+        Returns:
+            A list of entities in :obj:`dict` form.
+        """
+        entities = self.get_entities()
+        entities = [x for x in entities if 'remoteId' in x and x['remoteId'] == remote_id]
+
+        if target_name is not None:
+            entities = [x for x in entities if x['discoveredBy']['displayName'] == target_name]
+
+        if target_uuid is not None:
+            entities = [x for x in entities if x['discoveredBy']['uuid'] == target_uuid]
+
+        return entities
+
     def get_groups(self, uuid=None):
         """Returns a list of groups in the given market
 
@@ -666,6 +695,38 @@ class VMTConnection(VMTRawConnection):
         """
         return self.request('scenarios', uuid=uuid)
 
+    def get_targets(self, uuid=None):
+        """Returns a list of targets.
+
+        Args:
+            uuid (str, optional): Specific UUID to lookup.
+
+        Returns:
+            A list containing targets in :obj:`dict` form.
+        """
+        return self.request('targets', uuid=uuid)
+
+    def get_target_for_entity(self, uuid=None, name=None, type='VirtualMachine'):
+        """Returns a list of templates.
+
+        Args:
+            uuid (str, optional): Entity UUID to lookup.
+            name (str, optional): Name to lookup.
+            type (str, optional): Entity type for name based lookups.
+
+        Returns:
+            A list of targets for an entity in :obj:`dict` form.
+
+        Notes:
+            Only one parameter is required. If both are supplied, uuid overrides.
+            If a name lookup returns multiple entities, only the first is returned.
+        """
+        if uuid is not None:
+            entity = self.get_entities(uuid=uuid)
+        else:
+            entity = self.search_by_name(name, type)
+
+        return self.request('targets', uuid=entity[0]['discoveredBy']['uuid'])
 
     def get_templates(self, uuid=None):
         """Returns a list of templates.
@@ -809,14 +870,16 @@ class VMTConnection(VMTRawConnection):
 
         return self.request('search', query=urlencode(query))
 
-    def search_by_name(self, name, type=None, case_sensitive=False):
+    def search_by_name(self, name, type=None, case_sensitive=False, from_cache=False):
         """Searches for an entity by name.
 
         Args:
             name (str): Display name of the entity to search for.
-            type (str, optional): An entity classification to aid in searching.
-                If None, all types are searched via consecutive requests.
-            case_sensitive (bool, optional): Search case sensitivity. (default: False)
+            type (str, optional): One or more entity classifications to aid in
+                searching. If None, all types are searched via consecutive
+                requests.
+            case_sensitive (bool, optional): Search case sensitivity. (default: `False`)
+            from_cache (bool, optional): Uses the cached inventory if set. (default: `False`)
 
         Returns:
             A list of matching results.
@@ -825,10 +888,16 @@ class VMTConnection(VMTRawConnection):
 
         if type is None:
             search_classes = set([x for x in _entity_filter_class.values()])
+        elif isinstance(type, list):
+            search_classes = [_entity_filter_class[x.lower()] for x in type]
         else:
             search_classes = [_entity_filter_class[type.lower()]]
 
         for fclass in search_classes:
+            if from_cache:
+                results += self._search_cache(name, fclass, case_sensitive)
+                continue
+
             try:
                 sfilter = _class_filter_prefix[fclass] + 'ByName'
                 criteria = self._search_criteria('EQ', name, sfilter, case_sensitive)
@@ -841,17 +910,21 @@ class VMTConnection(VMTRawConnection):
         return results
 
 
-    def update_static_group_members(self, uuid, type, members):
+    def update_static_group_members(self, uuid, name, type, members):
         """Update static group members.
 
         Args:
             uuid (str): UUID of the group to be updated.
+            name (str): Display name of the group.
             type (str): Group entity type.
             members (list): List of member entity UUIDs.
 
         Returns:
             The updated group definition.
         """
-        dto = json.dumps({'groupType': type, 'memberUuidList': members})
+        dto = json.dumps({'displayName': name,
+                          'groupType': type,
+                          'memberUuidList': members}
+        )
 
         return self.request('groups', method='PUT', uuid=uuid, dto=dto)
