@@ -3,8 +3,8 @@
 
 .. module:: vmtconnect
 
-vmt-connect provides two connection interface classes, and several exceptions
-for communicating with Turbonomic instances.
+vmt-connect provides a single session based connection interface class, and
+several exceptions for communicating with Turbonomic instances.
 
 
 Connections
