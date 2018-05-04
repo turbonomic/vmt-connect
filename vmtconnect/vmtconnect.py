@@ -373,6 +373,12 @@ class VMTConnection(object):
             return [res] if isinstance(res, dict) else res
 
     @staticmethod
+    def _bool_to_text(value):
+        value = 'true' if value else 'false'
+
+        return value
+
+    @staticmethod
     def _search_criteria(op, value, filter_type, case_sensitive=False):
         if op in _exp_type:
             op = _exp_type[op]
@@ -908,6 +914,20 @@ class VMTConnection(object):
                 pass
 
         return results
+
+    def update_action(self, uuid, accept):
+        """Update a manual action by accepting or rejecting it.
+
+        Args:
+             uuid (str): UUID of action to update.
+             accept (bool): True to accept, or False to reject the action.
+
+        Return:
+            None
+        """
+        return self.request('actions', method='POST', uuid=uuid,
+                            query='accept={}'.format(self._bool_to_text(accept))
+        )
 
 
     def update_static_group_members(self, uuid, name, type, members):
