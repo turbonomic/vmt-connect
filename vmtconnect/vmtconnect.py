@@ -8,7 +8,7 @@ import datetime
 from urllib.parse import urlunparse, urlencode
 
 
-__version__ = '2.0.0.dev'
+__version__ = '2.2.0.dev'
 __all__ = [
     'VMTConnectionError',
     'HTTPError',
@@ -107,6 +107,7 @@ class HTTP401Error(HTTPError):
 class HTTP404Error(HTTPError):
     """Raised when a requested resource cannot be located."""
     pass
+
 
 class HTTP500Error(HTTPError):
     """Raised when an HTTP 500 error returned."""
@@ -452,6 +453,14 @@ class VMTConnection(object):
 
         return self.__inventory_cache
 
+    def get_current_user(self):
+        """Returns the current user.
+
+        Returns:
+            A list of one user object in :obj:`dict` form.
+        """
+        return self.request('users/me')
+
     def get_users(self, uuid=None):
         """Returns a list of users.
 
@@ -794,6 +803,26 @@ class VMTConnection(object):
 
         return self.add_group(json.dumps(dto))
 
+    def add_static_group_members(self, uuid, members=[]):
+        """Add members to a static group.
+
+        Args:
+            uuid (str): UUID of the group to be updated.
+            members (list): List of member entity UUIDs.
+
+        Returns:
+            The updated group definition.
+        """
+        group = self.get_groups(uuid)[0]
+        members.extend(group['memberUuidList'])
+
+        dto = json.dumps({'displayName': group['displayName'],
+                          'groupType': group['groupType'],
+                          'memberUuidList': members}
+        )
+
+        return self.request('groups', method='PUT', uuid=uuid, dto=dto)
+
     def del_group(self, uuid):
         """Removes a group.
 
@@ -930,20 +959,23 @@ class VMTConnection(object):
         )
 
 
-    def update_static_group_members(self, uuid, name, type, members):
-        """Update static group members.
+    def update_static_group_members(self, uuid, name=None, type=None, members):
+        """Update static group members by fully replacing it.
 
         Args:
             uuid (str): UUID of the group to be updated.
-            name (str): Display name of the group.
-            type (str): Group entity type.
+            name (str, optional): Display name of the group.
+            type (str, optional): Ignored - kept for backwards compatibility
             members (list): List of member entity UUIDs.
 
         Returns:
             The updated group definition.
         """
+        group = self.get_groups(uuid)[0]
+        name = name if name is not None else group['displayName']
+
         dto = json.dumps({'displayName': name,
-                          'groupType': type,
+                          'groupType': group['groupType'],
                           'memberUuidList': members}
         )
 
