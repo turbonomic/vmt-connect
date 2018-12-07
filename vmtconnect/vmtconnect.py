@@ -150,7 +150,7 @@ class VMTVersion(object):
             matching version is found when :method:`~VMTVersion.check` is run.
     """
     def __init__(self, versions=None, exclude=None, require=True):
-        self.versions = versions or ['5.7.0+']  # API 2
+        self.versions = versions or ['5.9.0+']  # API 2
         self.exclude = exclude or []
         self.require = require
 
@@ -222,7 +222,7 @@ class VMTVersion(object):
 
 
 class VMTConnection(object):
-    """A wrapper for :class:`VMTRawConnection` with additional helper methods.
+    """Turbonomic instance connection class
 
     Args:
         host (str, optional): The hostname or IP address to connect to. (default:
@@ -246,7 +246,7 @@ class VMTConnection(object):
 
     Notes:
         Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS connection. Because of this, vmt-connect defaults to using SSL. Versions prior to 6.0 using HTTP will need to manually set ssl to False.
-        If verify is set to a path to a directory, the directory must have been processed using the c_rehash utility supplied with OpenSSL.
+        If verify is given a path to a directory, the directory must have been processed using the c_rehash utility supplied with OpenSSL.
         For client side certificates using `cert`: the private key to your local certificate must be unencrypted. Currently, Requests does not support using encrypted keys.
         Requests uses certificates from the package certifi.
     """
