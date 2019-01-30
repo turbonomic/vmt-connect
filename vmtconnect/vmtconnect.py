@@ -518,7 +518,7 @@ class VMTConnection(object):
         Returns:
             A string representation of the market state.
         """
-        return self.get_markets(uuid)['state']
+        return self.get_markets(uuid)[0]['state']
 
     def get_market_stats(self, uuid='Market', filter=None):
         """Returns a list of market statistics.
