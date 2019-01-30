@@ -8,7 +8,7 @@ import datetime
 from urllib.parse import urlunparse, urlencode
 
 
-__version__ = '2.2.1.dev'
+__version__ = '2.2.1'
 __all__ = [
     'VMTConnectionError',
     'HTTPError',
