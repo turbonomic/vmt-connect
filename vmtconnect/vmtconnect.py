@@ -8,7 +8,7 @@ import datetime
 from urllib.parse import urlunparse, urlencode
 
 
-__version__ = '2.2.0.dev'
+__version__ = '2.2.1.dev'
 __all__ = [
     'VMTConnectionError',
     'HTTPError',
@@ -17,6 +17,7 @@ __all__ = [
     'HTTP502Error',
     'HTTPWarn',
     'VMTConnection',
+    'VMTVersion',
     'VMTVersionError',
     'VMTFormatError'
 ]
@@ -984,14 +985,14 @@ class VMTConnection(object):
         )
 
 
-    def update_static_group_members(self, uuid, name=None, type=None, members):
+    def update_static_group_members(self, uuid, members, name=None, type=None):
         """Update static group members by fully replacing it.
 
         Args:
             uuid (str): UUID of the group to be updated.
+            members (list): List of member entity UUIDs.
             name (str, optional): Display name of the group.
             type (str, optional): Ignored - kept for backwards compatibility
-            members (list): List of member entity UUIDs.
 
         Returns:
             The updated group definition.
