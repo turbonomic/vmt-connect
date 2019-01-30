@@ -8,7 +8,7 @@ import datetime
 from urllib.parse import urlunparse, urlencode
 
 
-__version__ = '2.0.0.dev'
+__version__ = '2.2.0.dev'
 __all__ = [
     'VMTConnectionError',
     'HTTPError',
@@ -108,6 +108,7 @@ class HTTP404Error(HTTPError):
     """Raised when a requested resource cannot be located."""
     pass
 
+
 class HTTP500Error(HTTPError):
     """Raised when an HTTP 500 error returned."""
     pass
@@ -149,7 +150,7 @@ class VMTVersion(object):
             matching version is found when :method:`~VMTVersion.check` is run.
     """
     def __init__(self, versions=None, exclude=None, require=True):
-        self.versions = versions or ['5.7.0+']  # API 2
+        self.versions = versions or ['5.9.0+']  # API 2
         self.exclude = exclude or []
         self.require = require
 
@@ -221,7 +222,7 @@ class VMTVersion(object):
 
 
 class VMTConnection(object):
-    """A wrapper for :class:`VMTRawConnection` with additional helper methods.
+    """Turbonomic instance connection class
 
     Args:
         host (str, optional): The hostname or IP address to connect to. (default:
@@ -245,7 +246,7 @@ class VMTConnection(object):
 
     Notes:
         Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS connection. Because of this, vmt-connect defaults to using SSL. Versions prior to 6.0 using HTTP will need to manually set ssl to False.
-        If verify is set to a path to a directory, the directory must have been processed using the c_rehash utility supplied with OpenSSL.
+        If verify is given a path to a directory, the directory must have been processed using the c_rehash utility supplied with OpenSSL.
         For client side certificates using `cert`: the private key to your local certificate must be unencrypted. Currently, Requests does not support using encrypted keys.
         Requests uses certificates from the package certifi.
     """
@@ -267,6 +268,11 @@ class VMTConnection(object):
         self.base_path = base_url or '/vmturbo/rest/'
         self.protocol = 'https' if ssl else 'http'
         self.disable_hateoas = disable_hateoas
+
+        # fix for urllib3 connection timing issue - https://github.com/requests/requests/issues/4664
+        adapter = requests.adapters.HTTPAdapter(max_retries=2)
+        self.__session.mount('http://', adapter)
+        self.__session.mount('https://', adapter)
 
         if cert:
             self.__session.cert = cert
@@ -373,6 +379,12 @@ class VMTConnection(object):
             return [res] if isinstance(res, dict) else res
 
     @staticmethod
+    def _bool_to_text(value):
+        value = 'true' if value else 'false'
+
+        return value
+
+    @staticmethod
     def _search_criteria(op, value, filter_type, case_sensitive=False):
         if op in _exp_type:
             op = _exp_type[op]
@@ -435,6 +447,26 @@ class VMTConnection(object):
 
         return results
 
+    def get_actions(self, market='Market', uuid=None):
+        """Returns a list of actions.
+
+        The get_actions method returns a list of actions from a given market,
+        or can be used to lookup a specific action by its uuid. The options are
+        mutually exclusive, and a uuid will override a market lookup. If neither
+        parameter is provided, all actions from the real-time market will be listed.
+
+        Args:
+            market (str, optional): The market to list actions from
+            uuid (str, optional): Specific UUID to lookup.
+
+        Returns:
+            A list of actions
+        """
+        if uuid is not None:
+            return self.request('actions', uuid=uuid)
+
+        return self.request('markets/{}/actions'.format(market))
+
     def get_cached_inventory(self):
         """Returns the market entities inventory from cache, populating the
         cache if necessary.
@@ -445,6 +477,14 @@ class VMTConnection(object):
             self.__inventory_cache_expires = datetime.datetime.now() + delta
 
         return self.__inventory_cache
+
+    def get_current_user(self):
+        """Returns the current user.
+
+        Returns:
+            A list of one user object in :obj:`dict` form.
+        """
+        return self.request('users/me')
 
     def get_users(self, uuid=None):
         """Returns a list of users.
@@ -788,6 +828,26 @@ class VMTConnection(object):
 
         return self.add_group(json.dumps(dto))
 
+    def add_static_group_members(self, uuid, members=[]):
+        """Add members to a static group.
+
+        Args:
+            uuid (str): UUID of the group to be updated.
+            members (list): List of member entity UUIDs.
+
+        Returns:
+            The updated group definition.
+        """
+        group = self.get_groups(uuid)[0]
+        members.extend(group['memberUuidList'])
+
+        dto = json.dumps({'displayName': group['displayName'],
+                          'groupType': group['groupType'],
+                          'memberUuidList': members}
+        )
+
+        return self.request('groups', method='PUT', uuid=uuid, dto=dto)
+
     def del_group(self, uuid):
         """Removes a group.
 
@@ -909,21 +969,38 @@ class VMTConnection(object):
 
         return results
 
+    def update_action(self, uuid, accept):
+        """Update a manual action by accepting or rejecting it.
 
-    def update_static_group_members(self, uuid, name, type, members):
-        """Update static group members.
+        Args:
+             uuid (str): UUID of action to update.
+             accept (bool): True to accept, or False to reject the action.
+
+        Return:
+            None
+        """
+        return self.request('actions', method='POST', uuid=uuid,
+                            query='accept={}'.format(self._bool_to_text(accept))
+        )
+
+
+    def update_static_group_members(self, uuid, name=None, type=None, members):
+        """Update static group members by fully replacing it.
 
         Args:
             uuid (str): UUID of the group to be updated.
-            name (str): Display name of the group.
-            type (str): Group entity type.
+            name (str, optional): Display name of the group.
+            type (str, optional): Ignored - kept for backwards compatibility
             members (list): List of member entity UUIDs.
 
         Returns:
             The updated group definition.
         """
+        group = self.get_groups(uuid)[0]
+        name = name if name is not None else group['displayName']
+
         dto = json.dumps({'displayName': name,
-                          'groupType': type,
+                          'groupType': group['groupType'],
                           'memberUuidList': members}
         )
 
