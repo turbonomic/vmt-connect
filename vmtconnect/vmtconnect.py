@@ -269,6 +269,11 @@ class VMTConnection(object):
         self.protocol = 'https' if ssl else 'http'
         self.disable_hateoas = disable_hateoas
 
+        # fix for urllib3 connection timing issue - https://github.com/requests/requests/issues/4664
+        adapter = requests.adapters.HTTPAdapter(max_retries=2)
+        self.__session.mount('http://', adapter)
+        self.__session.mount('https://', adapter)
+
         if cert:
             self.__session.cert = cert
 
@@ -441,6 +446,26 @@ class VMTConnection(object):
             results += [e]
 
         return results
+
+    def get_actions(self, market='Market', uuid=None):
+        """Returns a list of actions.
+
+        The get_actions method returns a list of actions from a given market,
+        or can be used to lookup a specific action by its uuid. The options are
+        mutually exclusive, and a uuid will override a market lookup. If neither
+        parameter is provided, all actions from the real-time market will be listed.
+
+        Args:
+            market (str, optional): The market to list actions from
+            uuid (str, optional): Specific UUID to lookup.
+
+        Returns:
+            A list of actions
+        """
+        if uuid is not None:
+            return self.request('actions', uuid=uuid)
+
+        return self.request('markets/{}/actions'.format(market))
 
     def get_cached_inventory(self):
         """Returns the market entities inventory from cache, populating the
