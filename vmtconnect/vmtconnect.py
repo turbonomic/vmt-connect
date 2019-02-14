@@ -1,3 +1,16 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# libraries
+
 import re
 import warnings
 import base64
@@ -8,19 +21,6 @@ import datetime
 from urllib.parse import urlunparse, urlencode
 
 
-__version__ = '2.2.1.dev'
-__all__ = [
-    'VMTConnectionError',
-    'HTTPError',
-    'HTTP404Error',
-    'HTTP500Error',
-    'HTTP502Error',
-    'HTTPWarn',
-    'VMTConnection',
-    'VMTVersion',
-    'VMTVersionError',
-    'VMTFormatError'
-]
 
 _entity_filter_class = {
     'application': 'Application',
@@ -518,7 +518,7 @@ class VMTConnection(object):
         Returns:
             A string representation of the market state.
         """
-        return self.get_markets(uuid)['state']
+        return self.get_markets(uuid)[0]['state']
 
     def get_market_stats(self, uuid='Market', filter=None):
         """Returns a list of market statistics.
@@ -810,7 +810,7 @@ class VMTConnection(object):
         """
         return self.request('groups', method='POST', dto=dto)
 
-    def add_static_group(self, name, type, members=[]):
+    def add_static_group(self, name, type, members=None):
         """Creates a static group.
 
         Args:
@@ -821,6 +821,9 @@ class VMTConnection(object):
         Returns:
             Group object :obj:`dict` form.
         """
+        if members is None:
+            members = []
+
         dto = {'displayName': name,
                'isStatic': True,
                'groupType': type,
@@ -829,7 +832,7 @@ class VMTConnection(object):
 
         return self.add_group(json.dumps(dto))
 
-    def add_static_group_members(self, uuid, members=[]):
+    def add_static_group_members(self, uuid, members=None):
         """Add members to a static group.
 
         Args:
@@ -839,6 +842,9 @@ class VMTConnection(object):
         Returns:
             The updated group definition.
         """
+        if members is None:
+            members = []
+
         group = self.get_groups(uuid)[0]
         members.extend(group['memberUuidList'])
 
