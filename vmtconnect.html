@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>vmtconnect — Developer Interfaces &#8212; vmt-connect 2.2.0 documentation</title>
+    <title>vmtconnect — Developer Interfaces &#8212; vmt-connect 1.2.2 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '2.2.0',
+        VERSION:     '1.2.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -41,8 +41,8 @@
             
   <div class="section" id="module-vmtconnect">
 <span id="vmtconnect-developer-interfaces"></span><h1><a class="reference internal" href="#module-vmtconnect" title="vmtconnect"><code class="xref py py-mod docutils literal"><span class="pre">vmtconnect</span></code></a> — Developer Interfaces<a class="headerlink" href="#module-vmtconnect" title="Permalink to this headline">¶</a></h1>
-<p>vmt-connect provides a single session based connection interface class, and
-several exceptions for communicating with Turbonomic instances.</p>
+<p>vmt-connect provides two connection interface classes, and several exceptions
+for communicating with Turbonomic instances.</p>
 <div class="section" id="connections">
 <h2>Connections<a class="headerlink" href="#connections" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -115,7 +115,7 @@ Requests uses certificates from the package certifi.</p>
 
 <dl class="method">
 <dt id="vmtconnect.VMTConnection.add_static_group">
-<code class="descname">add_static_group</code><span class="sig-paren">(</span><em>name</em>, <em>type</em>, <em>members=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.add_static_group" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_static_group</code><span class="sig-paren">(</span><em>name</em>, <em>type</em>, <em>members=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.add_static_group" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a static group.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -137,7 +137,7 @@ Requests uses certificates from the package certifi.</p>
 
 <dl class="method">
 <dt id="vmtconnect.VMTConnection.add_static_group_members">
-<code class="descname">add_static_group_members</code><span class="sig-paren">(</span><em>uuid</em>, <em>members=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.add_static_group_members" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_static_group_members</code><span class="sig-paren">(</span><em>uuid</em>, <em>members=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection.add_static_group_members" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add members to a static group.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -841,7 +841,7 @@ safely ignored.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2017-2019, R.A. Stern.
+      &copy;2017-2018, R.A. Stern.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>

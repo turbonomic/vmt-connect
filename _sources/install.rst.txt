@@ -22,7 +22,7 @@ Python, and install the Requests_ module.
 
 * Python -- one of the following:
 
-  - CPython_ >= 3.3
+  - CPython_ >= 2.7 or >= 3.3
 
 * Requests_ >= 2.10.0
 
