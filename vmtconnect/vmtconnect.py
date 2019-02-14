@@ -810,7 +810,7 @@ class VMTConnection(object):
         """
         return self.request('groups', method='POST', dto=dto)
 
-    def add_static_group(self, name, type, members=[]):
+    def add_static_group(self, name, type, members=None):
         """Creates a static group.
 
         Args:
@@ -821,6 +821,9 @@ class VMTConnection(object):
         Returns:
             Group object :obj:`dict` form.
         """
+        if members is None:
+            members = []
+
         dto = {'displayName': name,
                'isStatic': True,
                'groupType': type,
@@ -829,7 +832,7 @@ class VMTConnection(object):
 
         return self.add_group(json.dumps(dto))
 
-    def add_static_group_members(self, uuid, members=[]):
+    def add_static_group_members(self, uuid, members=None):
         """Add members to a static group.
 
         Args:
@@ -839,6 +842,9 @@ class VMTConnection(object):
         Returns:
             The updated group definition.
         """
+        if members is None:
+            members = []
+
         group = self.get_groups(uuid)[0]
         members.extend(group['memberUuidList'])
 
