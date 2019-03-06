@@ -694,7 +694,7 @@ class VMTConnection(object):
 
     # TODO: vmsByAltName is supposed to do this - broken
     def get_entity_by_remoteid(self, remote_id, target_name=None, target_uuid=None):
-        """Returns a entities from the real-time market for a given remoteId
+        """Returns a list of entities from the real-time market for a given remoteId
 
         Args:
             remote_id (str): Remote id to lookup.
@@ -879,7 +879,7 @@ class VMTConnection(object):
         return self.add_group(json.dumps(dto))
 
     def add_static_group_members(self, uuid, members=None):
-        """Add members to a static group.
+        """Add members to an existing static group.
 
         Args:
             uuid (str): UUID of the group to be updated.
