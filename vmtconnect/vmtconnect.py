@@ -571,7 +571,17 @@ class VMTConnection(object):
         return self.request('markets/{}/stats'.format(uuid))
 
     def get_entities(self, type=None, uuid=None, market='Market'):
-        """Returns a list of entities in the given market."""
+        """Returns a list of entities in the given market.
+
+        Args:
+            type (str, optional): Entity type to filter on.
+            uuid (str, optional): Specific UUID to lookup.
+            market (str, optional): Market to query. (default: `Market`)
+
+        Returns:
+            A list of entities in :obj:`dict` form.
+
+        """
         if uuid is not None:
             path = 'entities/{}'.format(uuid)
         elif market == 'Market' or market == self.__market_uuid:
@@ -590,7 +600,7 @@ class VMTConnection(object):
             return entities
 
     def get_virtualmachines(self, uuid=None, market='Market'):
-        """Returns a list of virtual machines in the given market
+        """Returns a list of virtual machines in the given market.
 
         Args:
             uuid (str, optional): Specific UUID to lookup.
@@ -602,7 +612,7 @@ class VMTConnection(object):
         return self.get_entities('VirtualMachine', uuid=uuid, market=market)
 
     def get_physicalmachines(self, uuid=None, market='Market'):
-        """Returns a list of hosts in the given market
+        """Returns a list of hosts in the given market.
 
         Args:
             uuid (str, optional): Specific UUID to lookup.
@@ -614,7 +624,7 @@ class VMTConnection(object):
         return self.get_entities('PhysicalMachine', uuid=uuid, market=market)
 
     def get_datacenters(self, uuid=None, market='Market'):
-        """Returns a list of datacenters in the given market
+        """Returns a list of datacenters in the given market.
 
         Args:
             uuid (str, optional): Specific UUID to lookup.
@@ -626,7 +636,7 @@ class VMTConnection(object):
         return self.get_entities('DataCenter', uuid=uuid, market=market)
 
     def get_datastores(self, uuid=None, market='Market'):
-        """Returns a list of datastores in the given market
+        """Returns a list of datastores in the given market.
 
         Args:
             uuid (str, optional): Specific UUID to lookup.
