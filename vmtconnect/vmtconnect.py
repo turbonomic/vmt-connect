@@ -798,12 +798,13 @@ class VMTConnection(object):
         Args:
             uuid (str, optional): Entity UUID to lookup.
             name (str, optional): Name to lookup.
-            type (str, optional): Entity type for name based lookups.
+            type (str, optional): Entity type for name based lookups (Default: VirtualMachine).
 
         Returns:
             A list of targets for an entity in :obj:`dict` form.
 
         Notes:
+            Use of UUIDs is strongly encouraged to avoid collisions.
             Only one parameter is required. If both are supplied, uuid overrides.
             If a name lookup returns multiple entities, only the first is returned.
         """
