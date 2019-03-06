@@ -20,6 +20,13 @@ import datetime
 
 from urllib.parse import urlunparse, urlencode
 
+try:
+    from enum import Enum
+except ImportError:
+    try:
+        from aenum import Enum
+    except ImportError:
+        print('Critical failure: no enum module found')
 
 
 _entity_filter_class = {
@@ -69,6 +76,23 @@ _exp_type = {
     '>=': 'GTE',
     '<': 'LT',
     '<=': 'LTE'
+}
+
+_cwom_versions = {
+    '1.0': '5.8.3.1',
+    '1.1': '5.9.1',
+    '1.1.3': '5.9.3',
+    '1.2.0': '6.0.3',
+    '1.2.1': '6.0.6',
+    '1.2.2': '6.0.9',
+    '1.2.3': '6.0.11.1',
+    '2.0.0': '6.1.1',
+    '2.0.1': '6.1.6',
+    '2.0.2': '6.1.8',
+    '2.0.3': '6.1.12',
+    '2.1.0': '6.2.2',
+    '2.1.1': '6.2.7.1',
+    '2.1.2': '6.2.10'
 }
 
 
@@ -416,9 +440,20 @@ class VMTConnection(object):
 
     def _get_ver(self):
         res = self.request('admin/versions')[0]
+
         try:
-            return re.search('Manager ([\d.]+) \(Build \d+\)',
-                             res['versionInfo']).group(1)
+            if 'branch' in res:
+                ver = res['branch']
+            elif 'version' in res:
+                ver = res['version']
+            else:
+                ver = re.search('Manager ([\d.]+) \(Build \d+\)',
+                                res['versionInfo']).group(1)
+
+            if ver in _cwom_versions:
+                ver = _cwom_versions[ver]
+
+            return ver
         except:
             return None
 
