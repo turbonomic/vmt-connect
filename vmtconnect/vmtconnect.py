@@ -218,16 +218,6 @@ class Version(object):
         return ver
 
 
-class VMTVersion(object):
-    """Alias for :class:`~VersionSpec` to provide backwards compatibility.
-
-    Notes:
-        To be removed in a future branch.
-    """
-    def __init__(self, versions=None, exclude=None, require=False):
-        return VersionSpec(versions=versions, exclude=exclude, required=require)
-
-
 class VersionSpec(object):
     """Turbonomic version specification object
 
@@ -262,7 +252,10 @@ class VersionSpec(object):
         self.exclude = exclude or []
         self.required = required
 
-        self.versions.sort()
+        try:
+            self.versions.sort()
+        except AttributeError:
+            raise VMTFormatError('Invalid input format')
 
     @staticmethod
     def str_to_ver(string):
@@ -276,6 +269,9 @@ class VersionSpec(object):
 
     @staticmethod
     def _check(current, versions, required=True, warn=True):
+        if isinstance(versions, str):
+            raise VMTFormatError('Invalid input format')
+
         for v in versions:
             res = VersionSpec.cmp_ver(current, v)
 
@@ -303,8 +299,6 @@ class VersionSpec(object):
 
         return 0
 
-        return False
-
     def min(self):
         return self.versions[0].strip('+')
 
@@ -330,14 +324,14 @@ class VersionSpec(object):
         return False
 
 
-class VMTConnection(object):
-    """Alias for :class:`~Connection` to provide backwards compatibility.
+class VMTVersion(VersionSpec):
+    """Alias for :class:`~VersionSpec` to provide backwards compatibility.
 
     Notes:
         To be removed in a future branch.
     """
-    def __init__(self, *args, **kwargs):
-        return Connection(*args, **kwargs)
+    def __init__(self, versions=None, exclude=None, require=False):
+        super().__init__(versions=versions, exclude=exclude, required=require)
 
 
 class Connection(object):
@@ -1143,3 +1137,29 @@ class Connection(object):
         )
 
         return self.request('groups', method='PUT', uuid=uuid, dto=dto)
+
+
+class Session(Connection):
+    """Alias for :class:`~Connection` to provide convenience.
+
+    See :class:`~Connection` for parameter details.
+
+    Notes:
+        The value for `session` will always be set to `True` when using :class:`~Session`
+
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class VMTConnection(Session):
+    """Alias for :class:`~Connection` to provide backwards compatibility.
+
+    See :class:`~Connection` for parameter details.
+
+    Notes:
+        The value for `session` will default to `True` when using :class:`~VMTConnection`
+        To be removed in a future branch.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
