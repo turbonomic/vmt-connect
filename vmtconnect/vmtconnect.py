@@ -126,6 +126,14 @@ class VMTUnknownVersion(Exception):
     pass
 
 
+class VMTVersionWarning(Warning):
+    """Generic version warning."""
+    pass
+
+class VMTMinimumVersionWarning(VMTVersionWarning):
+    """Minimum version warnings."""
+    pass
+
 class VMTFormatError(Exception):
     """Generic format error."""
     pass
@@ -210,8 +218,9 @@ class Version(object):
         # forward versions store this directly
         if 'branch' not in ver and 'version' not in ver:
             if ver['product'] in _product_names:
-                ver['base_version'] = Version.map_version(ver['product'],
-                                                          ver['version'])
+                ver['base_version'] = Version.map_version(
+                                          _product_names[ver['product']],
+                                          ver['version'])
 
         ver['components'] = obj['versionInfo'].rstrip(sep).split(sep)
 
@@ -222,24 +231,23 @@ class VersionSpec(object):
     """Turbonomic version specification object
 
     The :class:`~VersionSpec` object contains version compatibility and
-    requirements information. Versions must be in three-dotted semantic format,
-    and may optionally have a '+' postfix to indicate versions greater than or
-    equal to are acceptable. If using '+', you only need to specify the minimum
-    version required, as all later versions will be accepted independent of minor
-    release branch. E.g. 6.0.0+ includes 6.1 and 6.2 branches.
+    requirements information. Versions must be in dotted format, and may
+    optionally have a '+' postfix to indicate versions greater than or equal
+    to are acceptable. If using '+', you only need to specify the minimum
+    version required, as all later versions will be accepted independent of
+    minor release branch. E.g. 6.0+ includes 6.1, 6.2, and all later branches.
 
     Examples:
-        VersionSpec(['6.0.0+'], exclude=['6.0.1', '6.1.2', '6.2.5', '6.3.0'])
+        VersionSpec(['6.0+'], exclude=['6.0.1', '6.1.2', '6.2.5', '6.3.0'])
 
     Args:
         versions (list, optional): A list of acceptable versions.
         exclude (list, optional): A list of versions to explicitly exclude.
         required (bool, optional): If set to True, an error is thrown if no
             matching version is found when :method:`~VMTVersion.check` is run.
-        version_mapping (bool, optional): By default, white label versions
-            will be mapped to their corresponding Turbonomic release version
-            prior to comparing. If set to false, the white label version will
-            be compared directly. (Default: True)
+        cmp_base (bool, optional): If True, white label versions will be translated
+            to their corresponding base Turbonomic version prior to comparison. If
+            False, only the explicit product version will be compared. (Default: True)
 
     Notes:
         The Turbonomic API is not a versioned REST API, and each release is treated
@@ -247,10 +255,11 @@ class VersionSpec(object):
         distinguish it from the "API 1.0" implementation available prior to the
         Turbonomic HTML UI released with v6.0 of the core product.
     """
-    def __init__(self, versions=None, exclude=None, required=False):
+    def __init__(self, versions=None, exclude=None, required=False, cmp_base=True):
         self.versions = versions or ['6.1.0+']  # API 2
         self.exclude = exclude or []
         self.required = required
+        self.cmp_base = cmp_base
 
         try:
             self.versions.sort()
@@ -261,17 +270,27 @@ class VersionSpec(object):
     def str_to_ver(string):
         string = string.strip('+')
 
-        if string.count('.') < 2 or string.count('-') > 0 \
+        if not re.search(r'[\d.]+\d+', string) \
            or not string.replace('.', '').isdigit():
             raise VMTFormatError('Unrecognized version format')
 
         return string.split('.')
 
     @staticmethod
-    def _check(current, versions, required=True, warn=True):
-        if isinstance(versions, str):
-            raise VMTFormatError('Invalid input format')
+    def cmp_ver(a, b):
+        a1 = VersionSpec.str_to_ver(a)
+        b1 = VersionSpec.str_to_ver(b)
 
+        for x in range(0, len(a1)):
+            if int(a1[x]) > int(b1[x]):
+                return 1
+            elif int(a1[x]) < int(b1[x]):
+                return -1
+
+        return 0
+
+    @staticmethod
+    def _check(current, versions, required=True, warn=True):
         for v in versions:
             res = VersionSpec.cmp_ver(current, v)
 
@@ -284,29 +303,13 @@ class VersionSpec(object):
             warnings.warn('Your version of Turbonomic does not meet the ' \
                           'minimum recommended version. You may experience ' \
                           'unexpected errors, and are strongly encouraged to ' \
-                          'upgrade.')
-
-    @staticmethod
-    def cmp_ver(a, b):
-        a1 = VersionSpec.str_to_ver(a)
-        b1 = VersionSpec.str_to_ver(b)
-
-        for x in range(0, 3):
-            if int(a1[x]) > int(b1[x]):
-                return 1
-            elif int(a1[x]) < int(b1[x]):
-                return -1
-
-        return 0
-
-    def min(self):
-        return self.versions[0].strip('+')
+                          'upgrade.', VMTMinimumVersionWarning)
 
     def check(self, version):
-        """Checks a version number for validity against the :class:`~VersionSpec`.
+        """Checks a :class:~`Version` for validity against the :class:`~VersionSpec`.
 
         Args:
-            version (str): The version to check.
+            version (obj): The :class:~`Version` to check.
 
         Returns:
             True if valid, False if the version is excluded or not found.
@@ -315,10 +318,26 @@ class VersionSpec(object):
             Raises :class:`VMTVersionError` if version requirement is not met.
         """
         # exclusion list gatekeeping
-        if self._check(version, self.exclude, required=False, warn=False):
+        if self.cmp_base:
+            try:
+                if version.base_version is None:
+                    warnings.warn('Version does not contain a base version, using primary version as base.', VMTVersionWarning)
+                    ver = version.version
+                else:
+                    ver = version.base_version
+
+            except AttributeError:
+                raise VMTVersionError('Urecognized version: {} {}'.format(
+                                      version.product, version.version))
+        else:
+            ver = version.version
+
+        # kick out on excluded version match
+        if self._check(ver, self.exclude, required=False, warn=False):
             return False
 
-        if self._check(version, self.versions, required=self.required):
+        # return on explicit match
+        if self._check(ver, self.versions, required=self.required):
             return True
 
         return False
@@ -370,7 +389,7 @@ class Connection(object):
     __system_market_ids = []
 
     def __init__(self, host=None, username=None, password=None, auth=None,
-                 base_url=None, versions=None, disable_hateoas=True,
+                 base_url=None, req_versions=None, disable_hateoas=True,
                  ssl=True, verify=False, cert=None, headers=None, session=True):
 
         if session:
@@ -387,20 +406,16 @@ class Connection(object):
             self.__session = False
             self.__conn = requests.request
 
-        self.__basic_auth = auth
-        self.__version = None
-        self.__req_ver = versions or VMTVersion()
-
         self.host = host or 'localhost'
         self.base_path = base_url or '/vmturbo/rest/'
         self.protocol = 'https' if ssl else 'http'
         self.disable_hateoas = disable_hateoas
 
-
-
+        self.__version = None
+        self.__req_ver = isinstance(req_versions, VersionSpec) or VersionSpec()
 
         self.__cert = cert
-        self.__headers = headers
+        self.__headers = headers or {}
 
         # set auth encoding
         if not auth and (username and password):
@@ -419,8 +434,7 @@ class Connection(object):
         )
 
         # verify version
-        # note: prior to 6.0.11, this may fail due to enforced update checking
-        self.__req_ver.check(self.version)
+        self.__req_ver.check(self.version.version)
 
         self.__get_system_markets()
         self.__market_uuid = self.get_markets(uuid='Market')[0]['uuid']
@@ -527,14 +541,9 @@ class Connection(object):
     @property
     def version(self):
         if self.__version is None:
-            self.__version = self._get_ver()
+            self.__version = Version(self.request('admin/versions')[0])
 
-        return self.request('admin/versions')[0]
-
-    def _get_ver(self):
-        res = self.request('admin/versions')[0]
-
-        return VMTVersion(res)
+        return self.__version
 
     def __is_cache_valid(self):
         if datetime.datetime.now() <= self.__inventory_cache_expires and \
