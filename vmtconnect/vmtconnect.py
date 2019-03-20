@@ -461,12 +461,10 @@ class Connection(object):
                           self.base_path + resource.lstrip('/'), '', query, ''))
 
         kwargs['verify'] = self.__verify
+        kwargs['headers'] = {**self.headers, **kwargs.get('headers', {})}
 
         if method in ('POST', 'PUT'):
-            if 'headers' in kwargs:
-                kwargs['headers'] = {**kwargs['headers'], **self.headers, **self.update_headers}
-            else:
-                kwargs['headers'] = {**self.headers, **self.update_headers}
+            kwargs['headers'] = {**kwargs['headers'], **self.update_headers}
 
             return self.__conn(method, url, data=dto, **kwargs)
         else:
