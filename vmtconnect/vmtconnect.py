@@ -365,16 +365,22 @@ class Connection(object):
             may be used in place of a ``username`` and ``password`` pair.
         base_url (str, optional): Base endpoint path to use. (default:
             `/vmturbo/rest/`)
-        versions (:class:`VersionSpec`, optional): Versions requirements object.
-        disable_hateoas (bool, optional): Removes HATEOAS navigation links. (default: `True`)
+        req_versions (:class:`VersionSpec`, optional): Versions requirements object.
+        disable_hateoas (bool, optional): Removes HATEOAS navigation links.
+            (default: `True`)
         ssl (bool, optional): Use SSL or not. (default: `True`)
         verify (string, optional): SSL certificate bundle path. (default: `False`)
         cert (string, optional): Local client side certificate file.
         headers (dict, optional): Dicitonary of additional persistent headers.
+        use_session (bool, optional): If set to True, a :py:class:`Requests.Session`
+            will be created, otherwise individual :py:class:`Requests.Request`
+            calls will be made. (default: `True`)
 
     Attributes:
-        version (str): Turbonomic instance version.
         disable_hateoas (bool): HATEOAS links state.
+        headers (dict): Dictionary of custom headers for all calls.
+        update_headers (dict): Dictionary of custom headers for put and post calls.
+        version (str): Turbonomic instance version.
 
     Notes:
         The default minimum version has been bumped up to Turbonomic 6.1.x. Using a previous version will trigger a version warning. To avoid this warning, you will need to explicitly pass in a :class:`~VMTVersionSpec` object for the version desired.
@@ -390,11 +396,10 @@ class Connection(object):
 
     def __init__(self, host=None, username=None, password=None, auth=None,
                  base_url=None, req_versions=None, disable_hateoas=True,
-                 ssl=True, verify=False, cert=None, headers=None, session=True):
+                 ssl=True, verify=False, cert=None, headers=None, use_session=False):
 
-        if session:
+        if use_session:
             self.__session = requests.Session()
-            self.__session.verify = verify
 
             # possible fix for urllib3 connection timing issue - https://github.com/requests/requests/issues/4664
             adapter = requests.adapters.HTTPAdapter(max_retries=3)
@@ -411,36 +416,41 @@ class Connection(object):
         self.protocol = 'https' if ssl else 'http'
         self.disable_hateoas = disable_hateoas
 
+        self.__verify = verify
         self.__version = None
         self.__req_ver = isinstance(req_versions, VersionSpec) or VersionSpec()
 
         self.__cert = cert
-        self.__headers = headers or {}
+        self.headers = headers or {}
+        self.update_headers = {'Content-Type': 'application/json'}
 
         # set auth encoding
-        if not auth and (username and password):
-            self.__basic_auth = base64.b64encode('{}:{}'.format(
-                username, password).encode())
-        else:
+        if auth:
             try:
                 self.__basic_auth = auth.encode()
             except AttributeError:
-                pass
+                self.__basic_auth = auth
+        elif (username and password):
+            self.__basic_auth = base64.b64encode('{}:{}'.format(
+                username, password).encode())
+        else:
+            raise VMTConnectionError('Missing credentials')
+
 
         # XL will use tokens, not yet available in 6.x
         # because we accept encoded credentials, we'll manually attach here
-        self.__headers.update(
+        self.headers.update(
             {'Authorization': u'Basic {}'.format(self.__basic_auth.decode())}
         )
 
         # verify version
-        self.__req_ver.check(self.version.version)
+        self.__req_ver.check(self.version)
 
         self.__get_system_markets()
         self.__market_uuid = self.get_markets(uuid='Market')[0]['uuid']
 
         # for inventory caching - used to prevent thrashing the API with
-        # repeated calls for full inventory lookups within some calls
+        # repeated calls for full inventory lookups within some expensive calls
         self.__inventory_cache = None
         self.__inventory_cache_timeout = 600
         self.__inventory_cache_expires = datetime.datetime.now()
@@ -450,12 +460,14 @@ class Connection(object):
         url = urlunparse((self.protocol, self.host,
                           self.base_path + resource.lstrip('/'), '', query, ''))
 
+        kwargs['verify'] = self.__verify
+
         if method in ('POST', 'PUT'):
-            if 'Content-Type' not in self.__conn.headers:
-                if 'headers' in kwargs:
-                    kwargs['headers'].update({'Content-Type': 'application/json'})
-                else:
-                    kwargs['headers'] = {'Content-Type': 'application/json'}
+            if 'headers' in kwargs:
+                kwargs['headers'] = {**kwargs['headers'], **self.headers, **self.update_headers}
+            else:
+                kwargs['headers'] = {**self.headers, **self.update_headers}
+
             return self.__conn(method, url, data=dto, **kwargs)
         else:
             return self.__conn(method, url, **kwargs)
@@ -469,7 +481,7 @@ class Connection(object):
             query (str, optional): Query string parameters to attach.
             dto (str, optional): Data transfer object to send to the server.
             uuid (str, optional): Turbonomic object UUID to operate on.
-            **kwargs: Additional Requests keyword arguments.
+            **kwargs: Additional :py:class:`Requests.Request` keyword arguments.
         """
         if uuid is not None:
             path = '{}/{}'.format(path, uuid)
@@ -1158,6 +1170,7 @@ class Session(Connection):
 
     """
     def __init__(self, *args, **kwargs):
+        kwargs['use_session'] = True
         super().__init__(*args, **kwargs)
 
 
