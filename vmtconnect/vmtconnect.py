@@ -217,7 +217,12 @@ class Version(object):
         # backwards compatibility pre 6.1 white label version mapping
         # forward versions store this directly
         if 'branch' not in ver and 'version' not in ver:
-            if ver['product'] in _product_names:
+            if ver['product'] == 'Turbonomic':
+                ver['base_version'] = ver['version']
+                ver['base_branch'] = ver['version']
+                ver['base_build'] = re.search(r'Manager ([\d.]+) \(Build (\d+)\)',
+                                   obj['versionInfo']).group(2)
+            elif ver['product'] in _product_names:
                 ver['base_version'] = Version.map_version(
                                           _product_names[ver['product']],
                                           ver['version'])
@@ -372,7 +377,7 @@ class Connection(object):
         verify (string, optional): SSL certificate bundle path. (default: `False`)
         cert (string, optional): Local client side certificate file.
         headers (dict, optional): Dicitonary of additional persistent headers.
-        use_session (bool, optional): If set to True, a :py:class:`Requests.Session`
+        use_session (bool, optional): If set to `True`, a :py:class:`Requests.Session`
             will be created, otherwise individual :py:class:`Requests.Request`
             calls will be made. (default: `True`)
 
