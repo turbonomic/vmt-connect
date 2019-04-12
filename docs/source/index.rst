@@ -4,17 +4,17 @@
 .. # Links
 .. _API 2.0: https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf
 
+==================================
 vmt-connect Documentation Contents
 ==================================
 
-vmt-connect encompases a single Python module called ``vmtconnect``. This module
-provides a set of wrapper classes and utility methods used to handle connecting
-to the Turbonomic `API 2.0`_.
+*vmt-connect* provides a set of wrapper classes and utility methods used to handle
+connecting to the Turbonomic `API 2.0`_.
 
 
 .. toctree::
    :maxdepth: 2
 
-   install
-   quickstart
+   start
+   userguide
    vmtconnect
