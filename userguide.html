@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>User Guide &#8212; vmt-connect 3.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="vmtconnect — Developer Interfaces" href="vmtconnect.html" />
+    <link rel="prev" title="Getting Started" href="start.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="user-guide">
+<h1>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h1>
+<p><em>vmt-connect</em> provides base communication operations with the <a class="reference external" href="http://www.turbonomic.com">Turbonomic</a> <a class="reference external" href="https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf">API</a>.</p>
+<div class="section" id="talking-to-turbo">
+<h2>Talking to Turbo<a class="headerlink" href="#talking-to-turbo" title="Permalink to this headline">¶</a></h2>
+<p>vmt-connect provides two interfaces for connecting to the Turbonomic <a class="reference external" href="https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf">API</a>. The
+first is a standard REST based <a class="reference internal" href="vmtconnect.html#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a>, while the second
+is a session based connection class, <a class="reference internal" href="vmtconnect.html#vmtconnect.Session" title="vmtconnect.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a>. There is also
+a legacy class <a class="reference internal" href="vmtconnect.html#vmtconnect.VMTConnection" title="vmtconnect.VMTConnection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VMTConnection</span></code></a> that serves as an alias to
+<a class="reference internal" href="vmtconnect.html#vmtconnect.Session" title="vmtconnect.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a> for backwards compatibility. This will be removed
+in a future version, and code should be updated to the proper connection class.</p>
+<div class="section" id="getting-connected">
+<h3>Getting Connected<a class="headerlink" href="#getting-connected" title="Permalink to this headline">¶</a></h3>
+<p>Using the <a class="reference internal" href="vmtconnect.html#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a> class to connect to Turbonomic is very simple.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">vmtconnect</span>
+
+<span class="n">vmt</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s1">&#39;bob&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;*****&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With this we have a connection setup and ready to use. Let’s get a list of all
+the Virtual Machines in the environment, and show how many we find.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vms</span> <span class="o">=</span> <span class="n">vmt</span><span class="o">.</span><span class="n">get_virtualmachines</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vms</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Using that same result set, we can investigate other properties of the VMs that
+are already returned. For instance, lets filter out only the VMs from a single
+vCenter instance.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vc_uuid</span> <span class="o">=</span> <span class="s1">&#39;_wDNeYErKEeapb_68sPF4mg&#39;</span> <span class="c1"># internal Turbo UUID</span>
+<span class="n">vc_vms</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vms</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;discoveredBy&#39;</span><span class="p">][</span><span class="s1">&#39;uuid&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">vc_uuid</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="legacy-connections">
+<h3>Legacy Connections<a class="headerlink" href="#legacy-connections" title="Permalink to this headline">¶</a></h3>
+<p>Any existing code using the <a class="reference internal" href="vmtconnect.html#vmtconnect.VMTConnection" title="vmtconnect.VMTConnection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VMTConnection</span></code></a> class should continue
+to operate as before. The underlying communication will be handled by the <a class="reference internal" href="vmtconnect.html#vmtconnect.Session" title="vmtconnect.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a>
+class, and code should be updated to the new class names as soon as possible.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">vmtconnect</span> <span class="kn">as</span> <span class="nn">vc</span>
+
+<span class="n">vmt</span> <span class="o">=</span> <span class="n">vc</span><span class="o">.</span><span class="n">VMTConnection</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s1">&#39;bob&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;*****&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="working-with-results">
+<h3>Working with Results<a class="headerlink" href="#working-with-results" title="Permalink to this headline">¶</a></h3>
+<p>Regardless of the connection class used, all JSON results are automatically
+deserialized into Python objects and can be accessed directly. Because Turbonomic
+may return a single item or a list of items on most endpoints, the connection
+classes will serialize the result into a list regardless of the count so that
+all return types are as uniform as possible.</p>
+<p>Using the deserialized objects, we can easily displaying which host a VM lives
+on, continuing from the earlier example.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vms</span> <span class="o">=</span> <span class="n">vmt</span><span class="o">.</span><span class="n">get_virtualmachines</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">vm</span> <span class="ow">in</span> <span class="n">vms</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vm</span><span class="p">[</span><span class="s1">&#39;providers&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;className&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;PhysicalMachine&#39;</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="n">vm</span><span class="p">[</span><span class="s1">&#39;displayName&#39;</span><span class="p">],</span> <span class="s1">&#39;resides on&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;displayName&#39;</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">vm</span><span class="p">[</span><span class="s1">&#39;displayName&#39;</span><span class="p">],</span> <span class="s1">&#39;is powered off&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For more details on the exact data structure of each Turbonomic entity, see the
+<a class="reference external" href="https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf">API</a> documentation.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">User Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#talking-to-turbo">Talking to Turbo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vmtconnect.html">vmtconnect — Developer Interfaces</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="start.html" title="previous chapter">Getting Started</a></li>
+      <li>Next: <a href="vmtconnect.html" title="next chapter">vmtconnect — Developer Interfaces</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017-2019, R.A. Stern.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/userguide.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
