@@ -18,15 +18,8 @@ import json
 import requests
 import datetime
 
+from collections import defaultdict
 from urllib.parse import urlunparse, urlencode
-
-try:
-    from enum import Enum
-except ImportError:
-    try:
-        from aenum import Enum
-    except ImportError:
-        print('Critical failure: no enum module found')
 
 
 _entity_filter_class = {
@@ -78,21 +71,27 @@ _exp_type = {
     '<=': 'LTE'
 }
 
-_cwom_versions = {
-    '1.0': '5.8.3.1',
-    '1.1': '5.9.1',
-    '1.1.3': '5.9.3',
-    '1.2.0': '6.0.3',
-    '1.2.1': '6.0.6',
-    '1.2.2': '6.0.9',
-    '1.2.3': '6.0.11.1',
-    '2.0.0': '6.1.1',
-    '2.0.1': '6.1.6',
-    '2.0.2': '6.1.8',
-    '2.0.3': '6.1.12',
-    '2.1.0': '6.2.2',
-    '2.1.1': '6.2.7.1',
-    '2.1.2': '6.2.10'
+_product_names = {
+    'Cisco': 'cwom'
+}
+
+_version_mappings = {
+    'cwom':  {
+        '1.0': '5.8.3.1',
+        '1.1': '5.9.1',
+        '1.1.3': '5.9.3',
+        '1.2.0': '6.0.3',
+        '1.2.1': '6.0.6',
+        '1.2.2': '6.0.9',
+        '1.2.3': '6.0.11.1',
+        '2.0.0': '6.1.1',
+        '2.0.1': '6.1.6',
+        '2.0.2': '6.1.8',
+        '2.0.3': '6.1.12',
+        '2.1.0': '6.2.2',
+        '2.1.1': '6.2.7.1',
+        '2.1.2': '6.2.10'
+    }
 }
 
 
@@ -106,7 +105,7 @@ class VMTConnectionError(Exception):
 
 
 class VMTVersionError(Exception):
-    """Versions Error"""
+    """Incompatible version error."""
     def __init__(self, message=None):
         if message is None:
             message = 'Your version of Turbonomic does not meet the minimum ' \
@@ -114,8 +113,21 @@ class VMTVersionError(Exception):
         super(VMTVersionError, self).__init__(message)
 
 
+class VMTUnknownVersion(Exception):
+    """Unknown version."""
+    pass
+
+
+class VMTVersionWarning(Warning):
+    """Generic version warning."""
+    pass
+
+class VMTMinimumVersionWarning(VMTVersionWarning):
+    """Minimum version warnings."""
+    pass
+
 class VMTFormatError(Exception):
-    """Generic format error"""
+    """Generic format error."""
     pass
 
 
@@ -155,48 +167,127 @@ class HTTPWarn(Exception):
 # ----------------------------------------------------
 #  API Wrapper Classes
 # ----------------------------------------------------
-class VMTVersion(object):
+class Version(object):
+    """Turbonomic instance version object
+
+    The :class:`~Version` object contains instance version information, and
+    equivalent Turbonomic version information in the case of a white label
+    product.
+
+    Args:
+        version (obj): Version object returned by Turbonomic instance.
+
+    Attributes:
+        version: Reported Instance version
+        product: Reported Product name
+        base_version: Equivalent Turbonomic version
+        base_build: Equivalent Turbonomic build
+        base_branch: Equivalent Turbonomic branch
+    """
+    def __init__(self, version):
+        keys = self.parse(version)
+
+        for key in keys:
+            setattr(self, key, keys[key])
+
+    @staticmethod
+    def map_version(name, version):
+        try:
+            return _version_mappings[name.lower()][version]
+        except KeyError:
+            raise VMTUnknownVersion
+
+    @staticmethod
+    def parse(obj):
+        fields = ('version', 'branch', 'build', 'marketVersion')
+        sep = '\n'
+        ver = defaultdict(lambda : None)
+
+        ver['product'] = re.search(r'^([\S]+)\s', obj['versionInfo']).group(1)
+        ver['version'] = re.search(r'Manager ([\d.]+) \(Build \d+\)',
+                                   obj['versionInfo']).group(1)
+
+        for x in fields:
+            if x in ('version', 'build', 'branch'):
+                label = 'base_' + x
+            else:
+                label = x
+
+            ver[label] = obj[x] if x in obj else None
+
+        # backwards compatibility pre 6.1 white label version mapping
+        # forward versions store this directly
+        if 'branch' not in ver and 'version' not in ver:
+            if ver['product'] == 'Turbonomic':
+                ver['base_version'] = ver['version']
+                ver['base_branch'] = ver['version']
+                ver['base_build'] = re.search(r'Manager ([\d.]+) \(Build (\d+)\)',
+                                   obj['versionInfo']).group(2)
+            elif ver['product'] in _product_names:
+                ver['base_version'] = Version.map_version(
+                                          _product_names[ver['product']],
+                                          ver['version'])
+
+        ver['components'] = obj['versionInfo'].rstrip(sep).split(sep)
+
+        return ver
+
+
+class VersionSpec(object):
     """Turbonomic version specification object
 
-    The :class:`~VMTVersion` object contains version compatibility and
-    requirements information. Versions must be in three-dotted semantic format,
-    and may optionally have a '+' postfix to indicate versions greater than or
-    equal to are acceptable. If using '+', you only need to specify the minimum
-    version required, as all later versions will be accepted independent of minor
-    release branch. E.g. 5.7.0+ includes 5.8 and 5.9 branches.
+    The :class:`~VersionSpec` object contains version compatibility and
+    requirements information. Versions must be in dotted format, and may
+    optionally have a '+' postfix to indicate versions greater than or equal
+    to are acceptable. If using '+', you only need to specify the minimum
+    version required, as all later versions will be accepted independent of
+    minor release branch. E.g. 6.0+ includes 6.1, 6.2, and all later branches.
 
     Examples:
-        VMTVersion(['5.7.0+'], exclude=['5.7.5', '5.8.0', '5.8.1', '5.9.0'])
+        VersionSpec(['6.0+'], exclude=['6.0.1', '6.1.2', '6.2.5', '6.3.0'])
 
     Args:
         versions (list, optional): A list of acceptable versions.
         exclude (list, optional): A list of versions to explicitly exclude.
-        require (bool, optional): If set to True, an error is thrown if no
-            matching version is found when :method:`~VMTVersion.check` is run.
-    """
-    def __init__(self, versions=None, exclude=None, require=True):
-        self.versions = versions or ['5.9.0+']  # API 2
-        self.exclude = exclude or []
-        self.require = require
+        required (bool, optional): If set to True, an error is thrown if no
+            matching version is found when :meth:`~VMTVersion.check` is run.
+        cmp_base (bool, optional): If True, white label versions will be translated
+            to their corresponding base Turbonomic version prior to comparison. If
+            False, only the explicit product version will be compared. (Default: ``True``)
 
-        self.versions.sort()
+    Notes:
+        The Turbonomic API is not a versioned REST API, and each release is treated
+        as if it were a separate API, while retaining the name of "API 2.0" to
+        distinguish it from the "API 1.0" implementation available prior to the
+        Turbonomic HTML UI released with v6.0 of the core product.
+    """
+    def __init__(self, versions=None, exclude=None, required=False, cmp_base=True):
+        self.versions = versions or ['6.1.0+']  # API 2
+        self.exclude = exclude or []
+        self.required = required
+        self.cmp_base = cmp_base
+
+        try:
+            self.versions.sort()
+        except AttributeError:
+            raise VMTFormatError('Invalid input format')
 
     @staticmethod
     def str_to_ver(string):
         string = string.strip('+')
 
-        if string.count('.') < 2 or string.count('-') > 0 \
+        if not re.search(r'[\d.]+\d+', string) \
            or not string.replace('.', '').isdigit():
-            raise VMTFormatError('Incorrect version format')
+            raise VMTFormatError('Unrecognized version format')
 
         return string.split('.')
 
     @staticmethod
     def cmp_ver(a, b):
-        a1 = VMTVersion.str_to_ver(a)
-        b1 = VMTVersion.str_to_ver(b)
+        a1 = VersionSpec.str_to_ver(a)
+        b1 = VersionSpec.str_to_ver(b)
 
-        for x in range(0, 3):
+        for x in range(0, len(a1)):
             if int(a1[x]) > int(b1[x]):
                 return 1
             elif int(a1[x]) < int(b1[x]):
@@ -205,48 +296,70 @@ class VMTVersion(object):
         return 0
 
     @staticmethod
-    def _check(current, versions, require=True, warn=True):
+    def _check(current, versions, required=True, warn=True):
         for v in versions:
-            res = VMTVersion.cmp_ver(current, v)
+            res = VersionSpec.cmp_ver(current, v)
 
             if (res > 0 and v[-1] == '+') or res == 0:
                 return True
 
-        if require:
+        if required:
             raise VMTVersionError()
         elif warn:
             warnings.warn('Your version of Turbonomic does not meet the ' \
                           'minimum recommended version. You may experience ' \
                           'unexpected errors, and are strongly encouraged to ' \
-                          'upgrade.')
-
-        return False
-
-    def min(self):
-        return self.versions[0].strip('+')
+                          'upgrade.', VMTMinimumVersionWarning)
 
     def check(self, version):
-        """Checks a version number for validity
+        """Checks a :class:`~Version` for validity against the :class:`~VersionSpec`.
 
         Args:
-            version (str): The version to check.
+            version (obj): The :class:`~Version` to check.
 
         Returns:
             True if valid, False if the version is excluded or not found.
 
-        Exceptions:
-            Raises :class:`VMTVersionError` if version requirement is not met.
+        Raises:
+            VMTVersionError: If version requirement is not met.
         """
-        if self._check(version, self.exclude, require=False, warn=False):
+        # exclusion list gatekeeping
+        if self.cmp_base:
+            try:
+                if version.base_version is None:
+                    warnings.warn('Version does not contain a base version, using primary version as base.', VMTVersionWarning)
+                    ver = version.version
+                else:
+                    ver = version.base_version
+
+            except AttributeError:
+                raise VMTVersionError('Urecognized version: {} {}'.format(
+                                      version.product, version.version))
+        else:
+            ver = version.version
+
+        # kick out on excluded version match
+        if self._check(ver, self.exclude, required=False, warn=False):
             return False
 
-        if self._check(version, self.versions, require=self.require):
+        # return on explicit match
+        if self._check(ver, self.versions, required=self.required):
             return True
 
         return False
 
 
-class VMTConnection(object):
+class VMTVersion(VersionSpec):
+    """Alias for :class:`~VersionSpec` to provide backwards compatibility.
+
+    Notes:
+        To be removed in a future branch.
+    """
+    def __init__(self, versions=None, exclude=None, require=False):
+        super().__init__(versions=versions, exclude=exclude, required=require)
+
+
+class Connection(object):
     """Turbonomic instance connection class
 
     Args:
@@ -258,18 +371,25 @@ class VMTConnection(object):
             may be used in place of a ``username`` and ``password`` pair.
         base_url (str, optional): Base endpoint path to use. (default:
             `/vmturbo/rest/`)
-        versions (:class:`VMTVersion`, optional): Versions requirements object.
-        disable_hateoas (bool, optional): Removes HATEOAS navigation links. (default: `True`)
-        ssl (bool, optional): Use SSL or not. (default: `True`)
-        verify (string, optional): SSL certificate bundle path. (default: `False`)
+        req_versions (:class:`VersionSpec`, optional): Versions requirements object.
+        disable_hateoas (bool, optional): Removes HATEOAS navigation links.
+            (default: ``True``)
+        ssl (bool, optional): Use SSL or not. (default: ``True``)
+        verify (string, optional): SSL certificate bundle path. (default: ``False``)
         cert (string, optional): Local client side certificate file.
         headers (dict, optional): Dicitonary of additional persistent headers.
+        use_session (bool, optional): If set to ``True``, a :py:class:`Requests.Session`
+            will be created, otherwise individual :py:class:`Requests.Request`
+            calls will be made. (default: ``True``)
 
     Attributes:
-        version (str): Turbonomic instance version.
         disable_hateoas (bool): HATEOAS links state.
+        headers (dict): Dictionary of custom headers for all calls.
+        update_headers (dict): Dictionary of custom headers for put and post calls.
+        version (str): Turbonomic instance version.
 
     Notes:
+        The default minimum version has been bumped up to Turbonomic 6.1.x. Using a previous version will trigger a version warning. To avoid this warning, you will need to explicitly pass in a :class:`~VMTVersionSpec` object for the version desired.
         Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS connection. Because of this, vmt-connect defaults to using SSL. Versions prior to 6.0 using HTTP will need to manually set ssl to False.
         If verify is given a path to a directory, the directory must have been processed using the c_rehash utility supplied with OpenSSL.
         For client side certificates using `cert`: the private key to your local certificate must be unencrypted. Currently, Requests does not support using encrypted keys.
@@ -281,88 +401,91 @@ class VMTConnection(object):
     __system_market_ids = []
 
     def __init__(self, host=None, username=None, password=None, auth=None,
-                 base_url=None, versions=None, disable_hateoas=True,
-                 ssl=True, verify=False, cert=None, headers=None):
+                 base_url=None, req_versions=None, disable_hateoas=True,
+                 ssl=True, verify=False, cert=None, headers=None, use_session=False):
 
-        self.__session = requests.Session()
-        self.__session.verify = verify
-        self.__basic_auth = auth
-        self.__version = None
-        self.__req_ver = versions or VMTVersion()
+        if use_session:
+            self.__session = requests.Session()
+
+            # possible fix for urllib3 connection timing issue - https://github.com/requests/requests/issues/4664
+            adapter = requests.adapters.HTTPAdapter(max_retries=3)
+            self.__session.mount('http://', adapter)
+            self.__session.mount('https://', adapter)
+
+            self.__conn = self.__session.request
+        else:
+            self.__session = False
+            self.__conn = requests.request
+
         self.host = host or 'localhost'
         self.base_path = base_url or '/vmturbo/rest/'
         self.protocol = 'https' if ssl else 'http'
         self.disable_hateoas = disable_hateoas
 
-        # fix for urllib3 connection timing issue - https://github.com/requests/requests/issues/4664
-        adapter = requests.adapters.HTTPAdapter(max_retries=2)
-        self.__session.mount('http://', adapter)
-        self.__session.mount('https://', adapter)
+        self.__verify = verify
+        self.__version = None
+        self.__req_ver = isinstance(req_versions, VersionSpec) or VersionSpec()
 
-        if cert:
-            self.__session.cert = cert
-
-        if headers:
-            self.__session.headers = headers
+        self.__cert = cert
+        self.headers = headers or {}
+        self.update_headers = {'Content-Type': 'application/json'}
 
         # set auth encoding
-        if not auth and (username and password):
-            self.__basic_auth = base64.b64encode('{}:{}'.format(
-                username, password).encode())
-        else:
+        if auth:
             try:
                 self.__basic_auth = auth.encode()
             except AttributeError:
-                pass
+                self.__basic_auth = auth
+        elif (username and password):
+            self.__basic_auth = base64.b64encode('{}:{}'.format(
+                username, password).encode())
+        else:
+            raise VMTConnectionError('Missing credentials')
 
-        self.__session.headers.update(
+
+        # XL will use tokens, not yet available in 6.x
+        # because we accept encoded credentials, we'll manually attach here
+        self.headers.update(
             {'Authorization': u'Basic {}'.format(self.__basic_auth.decode())}
         )
 
         # verify version
-        # note: prior to 6.0.11, this may fail due to enforced update checking
         self.__req_ver.check(self.version)
 
         self.__get_system_markets()
         self.__market_uuid = self.get_markets(uuid='Market')[0]['uuid']
 
         # for inventory caching - used to prevent thrashing the API with
-        # repeated calls for full inventory lookups within some calls
+        # repeated calls for full inventory lookups within some expensive calls
         self.__inventory_cache = None
         self.__inventory_cache_timeout = 600
         self.__inventory_cache_expires = datetime.datetime.now()
 
-    def _request(self, resource, method='GET', query='', dto=None, **kwargs):
+    def _request(self, method, resource, query='', dto=None, **kwargs):
+        method = method.upper()
         url = urlunparse((self.protocol, self.host,
                           self.base_path + resource.lstrip('/'), '', query, ''))
 
-        for case in [method.upper()]:
-            if case in ('POST', 'PUT'):
-                if 'Content-Type' not in self.__session.headers:
-                    if 'headers' in kwargs:
-                        kwargs['headers'].update({'Content-Type': 'application/json'})
-                    else:
-                        kwargs['headers'] = {'Content-Type': 'application/json'}
-            if case == 'POST':
-                return self.__session.post(url, data=dto, **kwargs)
-            if case == 'PUT':
-                return self.__session.put(url, data=dto, **kwargs)
-            if case == 'DELETE':
-                return self.__session.delete(url, **kwargs)
+        kwargs['verify'] = self.__verify
+        kwargs['headers'] = {**self.headers, **kwargs.get('headers', {})}
 
-            # default is GET
-            return self.__session.get(url, **kwargs)
+        if method in ('POST', 'PUT'):
+            kwargs['headers'] = {**kwargs['headers'], **self.update_headers}
+
+            return self.__conn(method, url, data=dto, **kwargs)
+        else:
+            return self.__conn(method, url, **kwargs)
 
     def request(self, path, method='GET', query='', dto=None, uuid=None, **kwargs):
         """Constructs and sends an appropriate HTTP request.
 
         Args:
-            path (str): API resource to utilize, relative to `base_path`.
-            method (str, optional): HTTP method to use for the request. (default: GET)
+            path (str): API resource to utilize, relative to ``base_path``.
+            method (str, optional): HTTP method to use for the request. (default: `GET`)
             query (str, optional): Query string parameters to attach.
             dto (str, optional): Data transfer object to send to the server.
             uuid (str, optional): Turbonomic object UUID to operate on.
-            **kwargs: Additional Requests keyword arguments.
+            **kwargs: Additional :py:class:`Requests.Request` keyword arguments.
         """
         if uuid is not None:
             path = '{}/{}'.format(path, uuid)
@@ -375,7 +498,7 @@ class VMTConnection(object):
             query += ('&' if query != '' else '') + 'disable_hateoas=true'
 
         msg = ''
-        response = self._request(resource=path, method=method, query=query,
+        response = self._request(method=method, resource=path, query=query,
                                  dto=dto, **kwargs)
 
         try:
@@ -434,28 +557,9 @@ class VMTConnection(object):
     @property
     def version(self):
         if self.__version is None:
-            self.__version = self._get_ver()
+            self.__version = Version(self.request('admin/versions')[0])
 
         return self.__version
-
-    def _get_ver(self):
-        res = self.request('admin/versions')[0]
-
-        try:
-            if 'branch' in res:
-                ver = res['branch']
-            elif 'version' in res:
-                ver = res['version']
-            else:
-                ver = re.search('Manager ([\d.]+) \(Build \d+\)',
-                                res['versionInfo']).group(1)
-
-            if ver in _cwom_versions:
-                ver = _cwom_versions[ver]
-
-            return ver
-        except:
-            return None
 
     def __is_cache_valid(self):
         if datetime.datetime.now() <= self.__inventory_cache_expires and \
@@ -571,7 +675,17 @@ class VMTConnection(object):
         return self.request('markets/{}/stats'.format(uuid))
 
     def get_entities(self, type=None, uuid=None, market='Market'):
-        """Returns a list of entities in the given market."""
+        """Returns a list of entities in the given market.
+
+        Args:
+            type (str, optional): Entity type to filter on.
+            uuid (str, optional): Specific UUID to lookup.
+            market (str, optional): Market to query. (default: `Market`)
+
+        Returns:
+            A list of entities in :obj:`dict` form.
+
+        """
         if uuid is not None:
             path = 'entities/{}'.format(uuid)
         elif market == 'Market' or market == self.__market_uuid:
@@ -590,7 +704,7 @@ class VMTConnection(object):
             return entities
 
     def get_virtualmachines(self, uuid=None, market='Market'):
-        """Returns a list of virtual machines in the given market
+        """Returns a list of virtual machines in the given market.
 
         Args:
             uuid (str, optional): Specific UUID to lookup.
@@ -602,7 +716,7 @@ class VMTConnection(object):
         return self.get_entities('VirtualMachine', uuid=uuid, market=market)
 
     def get_physicalmachines(self, uuid=None, market='Market'):
-        """Returns a list of hosts in the given market
+        """Returns a list of hosts in the given market.
 
         Args:
             uuid (str, optional): Specific UUID to lookup.
@@ -614,7 +728,7 @@ class VMTConnection(object):
         return self.get_entities('PhysicalMachine', uuid=uuid, market=market)
 
     def get_datacenters(self, uuid=None, market='Market'):
-        """Returns a list of datacenters in the given market
+        """Returns a list of datacenters in the given market.
 
         Args:
             uuid (str, optional): Specific UUID to lookup.
@@ -626,7 +740,7 @@ class VMTConnection(object):
         return self.get_entities('DataCenter', uuid=uuid, market=market)
 
     def get_datastores(self, uuid=None, market='Market'):
-        """Returns a list of datastores in the given market
+        """Returns a list of datastores in the given market.
 
         Args:
             uuid (str, optional): Specific UUID to lookup.
@@ -684,7 +798,7 @@ class VMTConnection(object):
 
     # TODO: vmsByAltName is supposed to do this - broken
     def get_entity_by_remoteid(self, remote_id, target_name=None, target_uuid=None):
-        """Returns a entities from the real-time market for a given remoteId
+        """Returns a list of entities from the real-time market for a given remoteId
 
         Args:
             remote_id (str): Remote id to lookup.
@@ -788,12 +902,13 @@ class VMTConnection(object):
         Args:
             uuid (str, optional): Entity UUID to lookup.
             name (str, optional): Name to lookup.
-            type (str, optional): Entity type for name based lookups.
+            type (str, optional): Entity type for name based lookups (Default: `VirtualMachine`).
 
         Returns:
             A list of targets for an entity in :obj:`dict` form.
 
         Notes:
+            Use of UUIDs is strongly encouraged to avoid collisions.
             Only one parameter is required. If both are supplied, uuid overrides.
             If a name lookup returns multiple entities, only the first is returned.
         """
@@ -841,7 +956,9 @@ class VMTConnection(object):
             Group object in :obj:`dict` form.
 
         See Also:
-            REST API Guide `5.9 <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_, `6.0 <https://cdn.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_
+            REST API Guide `5.9 <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_,
+            `6.0 <https://cdn.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_,
+            and the `Unofficial User Guide <http://rsnyc.sdf.org/vmt/>`_.
         """
         return self.request('groups', method='POST', dto=dto)
 
@@ -868,7 +985,7 @@ class VMTConnection(object):
         return self.add_group(json.dumps(dto))
 
     def add_static_group_members(self, uuid, members=None):
-        """Add members to a static group.
+        """Add members to an existing static group.
 
         Args:
             uuid (str): UUID of the group to be updated.
@@ -897,7 +1014,7 @@ class VMTConnection(object):
             uuid (str): UUID of the group to be removed.
 
         Returns:
-            True on success, False otherwise.
+            ``True`` on success, False otherwise.
         """
         return self.request('groups', method='DELETE', uuid=uuid)
 
@@ -906,10 +1023,10 @@ class VMTConnection(object):
 
         Args:
             uuid (str): UUID of the market to be removed.
-            scenario (bool, optional): If True will remove the scenario too.
+            scenario (bool, optional): If ``True`` will remove the scenario too.
 
         Returns:
-            True on success, False otherwise.
+            ``True`` on success, False otherwise.
         """
         if uuid in self.__system_market_ids:
             return False
@@ -930,7 +1047,7 @@ class VMTConnection(object):
             uuid (str): UUID of the scenario to be removed.
 
         Returns:
-            True on success, False otherwise.
+            ``True`` on success, False otherwise.
         """
         return self.request('scenarios', method='DELETE', uuid=uuid)
 
@@ -953,7 +1070,9 @@ class VMTConnection(object):
             A list of search results.
 
         See Also:
-            REST API Guide `5.9 <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_, `6.0 <https://cdn.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_
+            REST API Guide `5.9 <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_,
+            `6.0 <https://cdn.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_,
+            and the `Unofficial User Guide <http://rsnyc.sdf.org/vmt/>`_.
 
             Search criteria list: `http://<host>/vmturbo/rest/search/criteria`
         """
@@ -980,8 +1099,8 @@ class VMTConnection(object):
             type (str, optional): One or more entity classifications to aid in
                 searching. If None, all types are searched via consecutive
                 requests.
-            case_sensitive (bool, optional): Search case sensitivity. (default: `False`)
-            from_cache (bool, optional): Uses the cached inventory if set. (default: `False`)
+            case_sensitive (bool, optional): Search case sensitivity. (default: ``False``)
+            from_cache (bool, optional): Uses the cached inventory if set. (default: ``False``)
 
         Returns:
             A list of matching results.
@@ -1016,9 +1135,9 @@ class VMTConnection(object):
 
         Args:
              uuid (str): UUID of action to update.
-             accept (bool): True to accept, or False to reject the action.
+             accept (bool): ``True`` to accept, or ``False`` to reject the action.
 
-        Return:
+        Returns:
             None
         """
         return self.request('actions', method='POST', uuid=uuid,
@@ -1047,3 +1166,30 @@ class VMTConnection(object):
         )
 
         return self.request('groups', method='PUT', uuid=uuid, dto=dto)
+
+
+class Session(Connection):
+    """Alias for :class:`~Connection` to provide convenience.
+
+    See :class:`~Connection` for parameter details.
+
+    Notes:
+        The value for ``session`` will always be set to ``True`` when using :class:`~Session`
+
+    """
+    def __init__(self, *args, **kwargs):
+        kwargs['use_session'] = True
+        super().__init__(*args, **kwargs)
+
+
+class VMTConnection(Session):
+    """Alias for :class:`~Connection` to provide backwards compatibility.
+
+    See :class:`~Connection` for parameter details.
+
+    Notes:
+        The value for ``session`` will default to ``True`` when using :class:`~VMTConnection`
+        To be removed in a future branch.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)

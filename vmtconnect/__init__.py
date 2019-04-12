@@ -1,3 +1,5 @@
+# Copyright 2017-2019 R.A. Stern
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -22,16 +24,22 @@ __all__ = [
     '__license__',
     '__title__',
     '__version__',
+    'Connection',
     'HTTPError',
     'HTTP401Error',
     'HTTP404Error',
     'HTTP500Error',
     'HTTP502Error',
     'HTTPWarn',
+    'Session',
+    'Version',
+    'VersionSpec',
     'VMTConnection',
     'VMTConnectionError',
     'VMTFormatError',
+    'VMTMinimumVersionWarning',
+    'VMTUnknownVersion',
     'VMTVersion',
     'VMTVersionError',
+    'VMTVersionWarning',
 ]
-
