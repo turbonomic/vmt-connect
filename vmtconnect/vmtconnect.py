@@ -21,14 +21,6 @@ import datetime
 from collections import defaultdict
 from urllib.parse import urlunparse, urlencode
 
-try:
-    from enum import Enum
-except ImportError:
-    try:
-        from aenum import Enum
-    except ImportError:
-        print('Critical failure: no enum module found')
-
 
 _entity_filter_class = {
     'application': 'Application',
@@ -178,10 +170,19 @@ class HTTPWarn(Exception):
 class Version(object):
     """Turbonomic instance version object
 
-    The :class:`~Version` object contains instance version information.
+    The :class:`~Version` object contains instance version information, and
+    equivalent Turbonomic version information in the case of a white label
+    product.
 
     Args:
-        version: Version object returned by Turbonomic instance.
+        version (obj): Version object returned by Turbonomic instance.
+
+    Attributes:
+        version: Reported Instance version
+        product: Reported Product name
+        base_version: Equivalent Turbonomic version
+        base_build: Equivalent Turbonomic build
+        base_branch: Equivalent Turbonomic branch
     """
     def __init__(self, version):
         keys = self.parse(version)
@@ -249,10 +250,10 @@ class VersionSpec(object):
         versions (list, optional): A list of acceptable versions.
         exclude (list, optional): A list of versions to explicitly exclude.
         required (bool, optional): If set to True, an error is thrown if no
-            matching version is found when :method:`~VMTVersion.check` is run.
+            matching version is found when :meth:`~VMTVersion.check` is run.
         cmp_base (bool, optional): If True, white label versions will be translated
             to their corresponding base Turbonomic version prior to comparison. If
-            False, only the explicit product version will be compared. (Default: True)
+            False, only the explicit product version will be compared. (Default: ``True``)
 
     Notes:
         The Turbonomic API is not a versioned REST API, and each release is treated
@@ -311,16 +312,16 @@ class VersionSpec(object):
                           'upgrade.', VMTMinimumVersionWarning)
 
     def check(self, version):
-        """Checks a :class:~`Version` for validity against the :class:`~VersionSpec`.
+        """Checks a :class:`~Version` for validity against the :class:`~VersionSpec`.
 
         Args:
-            version (obj): The :class:~`Version` to check.
+            version (obj): The :class:`~Version` to check.
 
         Returns:
             True if valid, False if the version is excluded or not found.
 
-        Exceptions:
-            Raises :class:`VMTVersionError` if version requirement is not met.
+        Raises:
+            VMTVersionError: If version requirement is not met.
         """
         # exclusion list gatekeeping
         if self.cmp_base:
@@ -372,14 +373,14 @@ class Connection(object):
             `/vmturbo/rest/`)
         req_versions (:class:`VersionSpec`, optional): Versions requirements object.
         disable_hateoas (bool, optional): Removes HATEOAS navigation links.
-            (default: `True`)
-        ssl (bool, optional): Use SSL or not. (default: `True`)
-        verify (string, optional): SSL certificate bundle path. (default: `False`)
+            (default: ``True``)
+        ssl (bool, optional): Use SSL or not. (default: ``True``)
+        verify (string, optional): SSL certificate bundle path. (default: ``False``)
         cert (string, optional): Local client side certificate file.
         headers (dict, optional): Dicitonary of additional persistent headers.
-        use_session (bool, optional): If set to `True`, a :py:class:`Requests.Session`
+        use_session (bool, optional): If set to ``True``, a :py:class:`Requests.Session`
             will be created, otherwise individual :py:class:`Requests.Request`
-            calls will be made. (default: `True`)
+            calls will be made. (default: ``True``)
 
     Attributes:
         disable_hateoas (bool): HATEOAS links state.
@@ -479,8 +480,8 @@ class Connection(object):
         """Constructs and sends an appropriate HTTP request.
 
         Args:
-            path (str): API resource to utilize, relative to `base_path`.
-            method (str, optional): HTTP method to use for the request. (default: GET)
+            path (str): API resource to utilize, relative to ``base_path``.
+            method (str, optional): HTTP method to use for the request. (default: `GET`)
             query (str, optional): Query string parameters to attach.
             dto (str, optional): Data transfer object to send to the server.
             uuid (str, optional): Turbonomic object UUID to operate on.
@@ -901,7 +902,7 @@ class Connection(object):
         Args:
             uuid (str, optional): Entity UUID to lookup.
             name (str, optional): Name to lookup.
-            type (str, optional): Entity type for name based lookups (Default: VirtualMachine).
+            type (str, optional): Entity type for name based lookups (Default: `VirtualMachine`).
 
         Returns:
             A list of targets for an entity in :obj:`dict` form.
@@ -955,7 +956,9 @@ class Connection(object):
             Group object in :obj:`dict` form.
 
         See Also:
-            REST API Guide `5.9 <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_, `6.0 <https://cdn.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_
+            REST API Guide `5.9 <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_,
+            `6.0 <https://cdn.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_,
+            and the `Unofficial User Guide <http://rsnyc.sdf.org/vmt/>`_.
         """
         return self.request('groups', method='POST', dto=dto)
 
@@ -1011,7 +1014,7 @@ class Connection(object):
             uuid (str): UUID of the group to be removed.
 
         Returns:
-            True on success, False otherwise.
+            ``True`` on success, False otherwise.
         """
         return self.request('groups', method='DELETE', uuid=uuid)
 
@@ -1020,10 +1023,10 @@ class Connection(object):
 
         Args:
             uuid (str): UUID of the market to be removed.
-            scenario (bool, optional): If True will remove the scenario too.
+            scenario (bool, optional): If ``True`` will remove the scenario too.
 
         Returns:
-            True on success, False otherwise.
+            ``True`` on success, False otherwise.
         """
         if uuid in self.__system_market_ids:
             return False
@@ -1044,7 +1047,7 @@ class Connection(object):
             uuid (str): UUID of the scenario to be removed.
 
         Returns:
-            True on success, False otherwise.
+            ``True`` on success, False otherwise.
         """
         return self.request('scenarios', method='DELETE', uuid=uuid)
 
@@ -1067,7 +1070,9 @@ class Connection(object):
             A list of search results.
 
         See Also:
-            REST API Guide `5.9 <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_, `6.0 <https://cdn.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_
+            REST API Guide `5.9 <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_,
+            `6.0 <https://cdn.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_,
+            and the `Unofficial User Guide <http://rsnyc.sdf.org/vmt/>`_.
 
             Search criteria list: `http://<host>/vmturbo/rest/search/criteria`
         """
@@ -1094,8 +1099,8 @@ class Connection(object):
             type (str, optional): One or more entity classifications to aid in
                 searching. If None, all types are searched via consecutive
                 requests.
-            case_sensitive (bool, optional): Search case sensitivity. (default: `False`)
-            from_cache (bool, optional): Uses the cached inventory if set. (default: `False`)
+            case_sensitive (bool, optional): Search case sensitivity. (default: ``False``)
+            from_cache (bool, optional): Uses the cached inventory if set. (default: ``False``)
 
         Returns:
             A list of matching results.
@@ -1130,9 +1135,9 @@ class Connection(object):
 
         Args:
              uuid (str): UUID of action to update.
-             accept (bool): True to accept, or False to reject the action.
+             accept (bool): ``True`` to accept, or ``False`` to reject the action.
 
-        Return:
+        Returns:
             None
         """
         return self.request('actions', method='POST', uuid=uuid,
@@ -1169,7 +1174,7 @@ class Session(Connection):
     See :class:`~Connection` for parameter details.
 
     Notes:
-        The value for `session` will always be set to `True` when using :class:`~Session`
+        The value for ``session`` will always be set to ``True`` when using :class:`~Session`
 
     """
     def __init__(self, *args, **kwargs):
@@ -1183,7 +1188,7 @@ class VMTConnection(Session):
     See :class:`~Connection` for parameter details.
 
     Notes:
-        The value for `session` will default to `True` when using :class:`~VMTConnection`
+        The value for ``session`` will default to ``True`` when using :class:`~VMTConnection`
         To be removed in a future branch.
     """
     def __init__(self, *args, **kwargs):
