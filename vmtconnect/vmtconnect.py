@@ -997,15 +997,10 @@ class Connection(object):
         if members is None:
             members = []
 
-        group = self.get_groups(uuid)[0]
-        members.extend(group['memberUuidList'])
+        group = self.get_group_members(uuid)
+        ext = [x['uuid'] for x in group]
 
-        dto = json.dumps({'displayName': group['displayName'],
-                          'groupType': group['groupType'],
-                          'memberUuidList': members}
-        )
-
-        return self.request('groups', method='PUT', uuid=uuid, dto=dto)
+        return self.update_static_group_members(uuid, ext + members)
 
     def del_group(self, uuid):
         """Removes a group.
