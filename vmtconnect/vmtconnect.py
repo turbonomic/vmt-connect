@@ -845,15 +845,25 @@ class Connection(object):
             if grp['displayName'] == name:
                 return [grp]
 
-    def get_group_members(self, uuid):
-        """Returns a list of member entities that belong to the group.
+    def get_group_entities(self, uuid):
+        """Returns a detailed list of member entities that belong to the group.
 
         Args:
             uuid (str): Group UUID.
 
         Returns:
-            A list containing all members of the group, of the appropriate group
-            type.
+            A list containing all members of the group and their related consumers.
+        """
+        return self.request('groups/{}/entities'.format(uuid))
+
+    def get_group_members(self, uuid):
+        """Returns a list of members that belong to the group.
+
+        Args:
+            uuid (str): Group UUID.
+
+        Returns:
+            A list containing all members of the group.
         """
         return self.request('groups/{}/members'.format(uuid))
 
