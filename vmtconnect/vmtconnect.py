@@ -437,8 +437,7 @@ class Connection(object):
             except AttributeError:
                 self.__basic_auth = auth
         elif (username and password):
-            self.__basic_auth = base64.b64encode('{}:{}'.format(
-                username, password).encode())
+            self.__basic_auth = base64.b64encode(f'{username}:{password}'.encode())
         else:
             raise VMTConnectionError('Missing credentials')
 
@@ -446,7 +445,7 @@ class Connection(object):
         # XL will use tokens, not yet available in 6.x
         # because we accept encoded credentials, we'll manually attach here
         self.headers.update(
-            {'Authorization': u'Basic {}'.format(self.__basic_auth.decode())}
+            {'Authorization': f'Basic {self.__basic_auth.decode()}'}
         )
 
         # verify version
@@ -488,7 +487,7 @@ class Connection(object):
             **kwargs: Additional :py:class:`Requests.Request` keyword arguments.
         """
         if uuid is not None:
-            path = '{}/{}'.format(path, uuid)
+            path = f'{path}/{uuid}'
 
         # attempt to detect a misdirected POST
         if dto is not None and method == 'GET':
@@ -505,20 +504,20 @@ class Connection(object):
             res = response.json()
 
             if response.status_code/100 != 2:
-                msg = ': [{}]'.format(res['exception'])
+                msg = f': [{res["exception"]}]'
         except Exception:
             pass
 
         if response.status_code == 502:
-            raise HTTP502Error('(API) HTTP 502 - Bad Gateway{}'.format(msg))
+            raise HTTP502Error(f'(API) HTTP 502 - Bad Gateway {msg}')
         elif response.status_code == 401:
-            raise HTTP401Error('(API) HTTP 401 - Unauthorized{}'.format(msg))
+            raise HTTP401Error(f'(API) HTTP 401 - Unauthorized {msg}')
         elif response.status_code == 404:
-            raise HTTP404Error('(API) HTTP 404 - Resource Not Found{}'.format(msg))
+            raise HTTP404Error(f'(API) HTTP 404 - Resource Not Found {msg}')
         elif response.status_code/100 == 5:
-            raise HTTP500Error('(API) HTTP {} - Server Error{}'.format(response.status_code, msg))
+            raise HTTP500Error(f'(API) HTTP {response.status_code} - Server Error {msg}')
         elif response.status_code/100 != 2:
-            raise HTTPError('(API) HTTP Code {} returned{}'.format(response.status_code, msg))
+            raise HTTPError(f'(API) HTTP Code {response.status_code} returned {msg}')
         elif response.text == 'true':
             return True
         elif response.text == 'false':
@@ -605,7 +604,7 @@ class Connection(object):
         if uuid is not None:
             return self.request('actions', uuid=uuid)
 
-        return self.request('markets/{}/actions'.format(market))
+        return self.request(f'markets/{market}/actions')
 
     def get_cached_inventory(self):
         """Returns the market entities inventory from cache, populating the
@@ -670,9 +669,9 @@ class Connection(object):
             A list of stat objects in :obj:`dict` form.
         """
         if filter is not None:
-            self.request('markets/{}/stats'.format(uuid), method='POST', dto=filter)
+            return self.request(f'markets/{uuid}/stats', method='POST', dto=filter)
 
-        return self.request('markets/{}/stats'.format(uuid))
+        return self.request(f'markets/{uuid}/stats')
 
     def get_entities(self, type=None, uuid=None, market='Market'):
         """Returns a list of entities in the given market.
@@ -687,11 +686,11 @@ class Connection(object):
 
         """
         if uuid is not None:
-            path = 'entities/{}'.format(uuid)
+            path = f'entities/{uuid}'
         elif market == 'Market' or market == self.__market_uuid:
             path = False
         else:
-            path = 'markets/{}/entities'.format(market)
+            path = f'markets/{market}/entities'
 
         if not path:
             entities = self.get_cached_inventory()
@@ -760,7 +759,7 @@ class Connection(object):
         Returns:
             A list containing groups the entity belongs to.
         """
-        return self.request('entities/{}/groups'.format(uuid))
+        return self.request(f'entities/{uuid}/groups')
 
     def get_entity_stats(self, scope, start_date=None, end_date=None,
                          stats=None):
@@ -854,7 +853,7 @@ class Connection(object):
         Returns:
             A list containing all members of the group and their related consumers.
         """
-        return self.request('groups/{}/entities'.format(uuid))
+        return self.request(f'groups/{uuid}/entities')
 
     def get_group_members(self, uuid):
         """Returns a list of members that belong to the group.
@@ -865,7 +864,7 @@ class Connection(object):
         Returns:
             A list containing all members of the group.
         """
-        return self.request('groups/{}/members'.format(uuid))
+        return self.request(f'groups/{uuid}/members')
 
     def get_group_stats(self, uuid, stats_filter=None):
         """Returns the aggregated statistics for a group.
@@ -878,11 +877,11 @@ class Connection(object):
             A list containing the group stats in :obj:`dict` form.
         """
         if stats_filter is None:
-            return self.request('groups/{}/stats'.format(uuid))
+            return self.request(f'groups/{uuid}/stats')
 
         dto = json.dumps({'statistics': self._stats_filter(stats_filter)})
 
-        return self.request('groups/{}/stats'.format(uuid), method='POST', dto=dto)
+        return self.request(f'groups/{uuid}/stats', method='POST', dto=dto)
 
     def get_scenarios(self, uuid=None):
         """Returns a list of scenarios.
@@ -1146,7 +1145,7 @@ class Connection(object):
             None
         """
         return self.request('actions', method='POST', uuid=uuid,
-                            query='accept={}'.format(self._bool_to_text(accept))
+                            query=f'accept={self._bool_to_text(accept)}'
         )
 
 
