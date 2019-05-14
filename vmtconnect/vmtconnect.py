@@ -670,7 +670,7 @@ class Connection(object):
             A list of stat objects in :obj:`dict` form.
         """
         if filter is not None:
-            self.request('markets/{}/stats'.format(uuid), method='POST', dto=filter)
+            return self.request('markets/{}/stats'.format(uuid), method='POST', dto=filter)
 
         return self.request('markets/{}/stats'.format(uuid))
 
