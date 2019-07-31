@@ -456,9 +456,13 @@ class Connection(object):
 
         # for inventory caching - used to prevent thrashing the API with
         # repeated calls for full inventory lookups within some expensive calls
-        self.__inventory_cache = None
+        #self.__inventory_cache = None
         self.__inventory_cache_timeout = 600
-        self.__inventory_cache_expires = datetime.datetime.now()
+        #self.__inventory_cache_expires = datetime.datetime.now()
+        self.__inventory_cache = {'Market': {'data': None,
+                                             'expires': datetime.datetime.now()
+                                            }
+                                 }
 
     def _request(self, method, resource, query='', dto=None, **kwargs):
         method = method.upper()
@@ -560,9 +564,10 @@ class Connection(object):
 
         return self.__version
 
-    def __is_cache_valid(self):
-        if datetime.datetime.now() <= self.__inventory_cache_expires and \
-           self.__inventory_cache is not None:
+    def __is_cache_valid(self, id):
+        if id in self.__inventory_cache and \
+           datetime.datetime.now() < self.__inventory_cache[id]['expires'] and \
+           self.__inventory_cache[id]['data']:
             return True
 
         return False
@@ -571,11 +576,11 @@ class Connection(object):
         res = self.get_markets()
         self.__system_market_ids = [x['uuid'] for x in res if x['displayName'] in self.__system_markets]
 
-    def _search_cache(self, name, type=None, case_sensitive=False):
+    def _search_cache(self, id, name, type=None, case_sensitive=False):
         results = []
-        self.get_cached_inventory()
+        self.get_cached_inventory(id)
 
-        for e in self.__inventory_cache:
+        for e in self.__inventory_cache[id]['data']:
             if (case_sensitive and e['displayName'] != name) or \
                (e['displayName'].lower() != name.lower()):
                 continue
@@ -606,16 +611,16 @@ class Connection(object):
 
         return self.request(f'markets/{market}/actions')
 
-    def get_cached_inventory(self):
+    def get_cached_inventory(self, id):
         """Returns the market entities inventory from cache, populating the
         cache if necessary.
         """
-        if not self.__is_cache_valid():
+        if not self.__is_cache_valid(id):
             delta = datetime.timedelta(seconds=self.__inventory_cache_timeout)
-            self.__inventory_cache = self.request('markets/Market/entities')
-            self.__inventory_cache_expires = datetime.datetime.now() + delta
+            self.__inventory_cache[id]['data'] = self.request(f'markets/{id}/entities')
+            self.__inventory_cache[id]['expires'] = datetime.datetime.now() + delta
 
-        return self.__inventory_cache
+        return self.__inventory_cache[id]['data']
 
     def get_current_user(self):
         """Returns the current user.
@@ -673,34 +678,40 @@ class Connection(object):
 
         return self.request(f'markets/{uuid}/stats')
 
-    def get_entities(self, type=None, uuid=None, market='Market'):
+    def get_entities(self, type=None, uuid=None, market='Market', cache=False):
         """Returns a list of entities in the given market.
 
         Args:
             type (str, optional): Entity type to filter on.
             uuid (str, optional): Specific UUID to lookup.
             market (str, optional): Market to query. (default: `Market`)
+            cache (bool, optional): If true, will retrieve entities from the
+                market cache. (default: `False`)
 
         Returns:
             A list of entities in :obj:`dict` form.
 
         """
+        if market == self.__market_uuid:
+            market == 'Market'
+
         if uuid is not None:
             path = f'entities/{uuid}'
-        elif market == 'Market' or market == self.__market_uuid:
-            path = False
         else:
             path = f'markets/{market}/entities'
 
-        if not path:
-            entities = self.get_cached_inventory()
-        else:
+        if not cache:
             entities = self.request(path)
+        else:
+            entities = self.get_cached_inventory(id)
+
+            if uuid:
+                entities = [x for x in entities if x['uuid'] == uuid]
 
         if type is not None:
             return [x for x in entities if x['className'] == type]
-        else:
-            return entities
+
+        return entities
 
     def get_virtualmachines(self, uuid=None, market='Market'):
         """Returns a list of virtual machines in the given market.
