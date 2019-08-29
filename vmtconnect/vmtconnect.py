@@ -340,8 +340,7 @@ class VersionSpec(object):
                     ver = version.base_version
 
             except AttributeError:
-                raise VMTVersionError('Urecognized version: {} {}'.format(
-                                      version.product, version.version))
+                raise VMTVersionError(f'Urecognized version: {version.product} {version.version}')
         else:
             ver = version.version
 
