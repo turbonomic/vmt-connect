@@ -699,7 +699,7 @@ class Connection(object):
 
         """
         if market == self.__market_uuid:
-            market == 'Market'
+            market = 'Market'
 
         if uuid is not None:
             path = f'entities/{uuid}'
@@ -802,10 +802,10 @@ class Connection(object):
             period['startDate'] = start_date
         if end_date is not None:
             period['endDate'] = end_date
-        if stats is not None and len(stats) > 0:
+        if stats:
             period['statistics'] = self._stats_filter(stats)
 
-        if len(period) > 0:
+        if period:
             dto['period'] = period
 
         dto = json.dumps(dto)
@@ -1103,7 +1103,7 @@ class Connection(object):
         query = {}
         vars = {'q': q, 'types': types, 'scopes': scopes, 'state': state, 'group_type': group_type}
 
-        for v in vars.keys():
+        for v in vars:
             if vars[v] is not None:
                 if v[-1] == 's':
                     query[v] = ','.join(vars[v])
@@ -1129,7 +1129,7 @@ class Connection(object):
         results = []
 
         if type is None:
-            search_classes = set([x for x in _entity_filter_class.values()])
+            search_classes = {x for x in _entity_filter_class.values()}
         elif isinstance(type, list):
             search_classes = [_entity_filter_class[x.lower()] for x in type]
         else:
