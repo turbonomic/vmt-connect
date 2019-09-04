@@ -786,11 +786,11 @@ class Connection(object):
 
         Args:
             scope (list): List of entities to scope to.
-            start_date (int): Unix timestamp in miliseconds. Uses current time
+            start_date (int, optional): Unix timestamp in miliseconds. Uses current time
                 if blank.
-            end_date (int): Unix timestamp in miliseconds. Uses current time if
+            end_date (int, optional): Unix timestamp in miliseconds. Uses current time if
                 blank.
-            stats (list): List of stats classes to retrieve.
+            stats (list, optional): List of stats classes to retrieve.
 
         Returns:
             A list of stats for all periods between start and end dates.
@@ -883,12 +883,16 @@ class Connection(object):
         """
         return self.request(f'groups/{uuid}/members')
 
-    def get_group_stats(self, uuid, stats_filter=None):
+    def get_group_stats(self, uuid, stats_filter=None, start_date=None, end_date=None):
         """Returns the aggregated statistics for a group.
 
         Args:
             uuid (str): Specific group UUID to lookup.
-            stats_filter (list): List of filters to apply.
+            stats_filter (list, optional): List of filters to apply.
+            start_date (str, optional): Unix timestamp in miliseconds or relative
+                time string.
+            end_date (int, optional): Unix timestamp in miliseconds or relative
+                time string.
 
         Returns:
             A list containing the group stats in :obj:`dict` form.
@@ -896,7 +900,18 @@ class Connection(object):
         if stats_filter is None:
             return self.request(f'groups/{uuid}/stats')
 
-        dto = json.dumps({'statistics': self._stats_filter(stats_filter)})
+        dto = {}
+
+        if stats_filter:
+            dto['statistics'] = self._stats_filter(stats_filter)
+
+        if start_date:
+            dto['startDate'] = start_date
+
+        if end_date:
+            dto['endDate'] = end_date
+
+        dto = json.dumps(dto)
 
         return self.request(f'groups/{uuid}/stats', method='POST', dto=dto)
 
