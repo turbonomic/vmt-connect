@@ -997,7 +997,7 @@ class Connection(object):
             members (list): List of member UUIDs.
 
         Returns:
-            Group object :obj:`dict` form.
+            Group object in :obj:`dict` form.
         """
         if members is None:
             members = []
@@ -1027,6 +1027,17 @@ class Connection(object):
         ext = [x['uuid'] for x in group]
 
         return self.update_static_group_members(uuid, ext + members)
+
+    def add_template(self, dto):
+        """Creates a template based on the supplied DTO object.
+
+        Args:
+            dto (obj): Template definition
+
+        Returns:
+            Template object in :obj:`dict` form.
+        """
+        return self.request('/templates', method='POST', dto=dto)
 
     def del_group(self, uuid):
         """Removes a group.
