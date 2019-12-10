@@ -416,10 +416,11 @@ class Connection:
         disable_hateoas (bool): HATEOAS links state.
         headers (dict): Dictionary of custom headers for all calls.
         update_headers (dict): Dictionary of custom headers for put and post calls.
-        version (str): Turbonomic instance version.
+        version (:class:`Version`): Turbonomic instance version object.
 
     Notes:
         The default minimum version has been bumped up to Turbonomic 6.1.x. Using a previous version will trigger a version warning. To avoid this warning, you will need to explicitly pass in a :class:`~VMTVersionSpec` object for the version desired.
+
         Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS connection. Because of this, vmt-connect defaults to using SSL. Versions prior to 6.0 using HTTP will need to manually set ssl to False.
         If verify is given a path to a directory, the directory must have been processed using the c_rehash utility supplied with OpenSSL.
         For client side certificates using `cert`: the private key to your local certificate must be unencrypted. Currently, Requests does not support using encrypted keys.
@@ -435,6 +436,7 @@ class Connection:
                  ssl=True, verify=False, cert=None, headers=None, use_session=False):
 
         if use_session:
+            self.session = True
             self.__session = requests.Session()
 
             # possible fix for urllib3 connection timing issue - https://github.com/requests/requests/issues/4664
@@ -444,6 +446,7 @@ class Connection:
 
             self.__conn = self.__session.request
         else:
+            self.session = False
             self.__session = False
             self.__conn = requests.request
 
@@ -649,6 +652,11 @@ class Connection:
         return results
 
     def is_xl(self):
+        """Checks if the connection is to an XL or Classic type instance.
+
+        Returns:
+            ``True`` if connected to an XL instance, ``False`` otherwise.
+        """
         if self.version.platform == 'xl':
             return True
 
@@ -758,11 +766,11 @@ class Connection:
         Args:
             type (str, optional): Entity type to filter on.
             uuid (str, optional): Specific UUID to lookup.
-            detail (bool, optional): Include entity aspect details. (default: `False`)
+            detail (bool, optional): Include entity aspect details. (default: ``False``)
                 This parameter works only when specifying an entity UUID.
             market (str, optional): Market to query. (default: `Market`)
             cache (bool, optional): If true, will retrieve entities from the
-                market cache. (default: `False`)
+                market cache. (default: ``False``)
 
         Returns:
             A list of entities in :obj:`dict` form.
@@ -1297,7 +1305,7 @@ class Session(Connection):
     See :class:`~Connection` for parameter details.
 
     Notes:
-        The value for ``session`` will always be set to ``True`` when using :class:`~Session`
+        The value for the :class:`~Connection.session` property will always be set to ``True`` when using :class:`~Session`
 
     """
     def __init__(self, *args, **kwargs):
@@ -1311,7 +1319,7 @@ class VMTConnection(Session):
     See :class:`~Connection` for parameter details.
 
     Notes:
-        The value for ``session`` will default to ``True`` when using :class:`~VMTConnection`
+        The value for :class:`~Connection.session` will default to ``True`` when using :class:`~VMTConnection`
         To be removed in a future branch.
     """
     def __init__(self, *args, **kwargs):
