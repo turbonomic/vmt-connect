@@ -198,10 +198,14 @@ class Version:
     """
 
     def __init__(self, version):
+        self.version = None
         keys = self.parse(version)
 
         for key in keys:
             setattr(self, key, keys[key])
+
+    def __str__(self):
+        return self.version
 
     @staticmethod
     def map_version(name, version):
@@ -542,6 +546,9 @@ class Connection:
         if uuid is not None:
             path = f'{path}/{uuid}'
 
+        if query is None:
+            query = ''
+
         # attempt to detect a misdirected POST
         if dto is not None and method == 'GET':
             method = 'POST'
@@ -708,6 +715,17 @@ class Connection:
         """
         return self.request('markets', uuid=uuid)
 
+    def get_market_entities(self, uuid='Market'):
+        """Returns a list of entities in the given market.
+
+        Args:
+            uuid (str, optional): Market UUID. (default: `Market`)
+
+        Returns:
+            A list of market entities in :obj:`dict` form.
+        """
+        return self.request(f'markets/{uuid}/entities')
+
     def get_market_state(self, uuid='Market'):
         """Returns the state of a market.
 
@@ -734,12 +752,14 @@ class Connection:
 
         return self.request(f'markets/{uuid}/stats')
 
-    def get_entities(self, type=None, uuid=None, market='Market', cache=False):
+    def get_entities(self, type=None, uuid=None, detail=False, market='Market', cache=False):
         """Returns a list of entities in the given market.
 
         Args:
             type (str, optional): Entity type to filter on.
             uuid (str, optional): Specific UUID to lookup.
+            detail (bool, optional): Include entity aspect details. (default: `False`)
+                This parameter works only when specifying an entity UUID.
             market (str, optional): Market to query. (default: `Market`)
             cache (bool, optional): If true, will retrieve entities from the
                 market cache. (default: `False`)
@@ -748,21 +768,28 @@ class Connection:
             A list of entities in :obj:`dict` form.
 
         """
+        param = None
+
         if market == self.__market_uuid:
             market = 'Market'
 
         if uuid:
             path = f'entities/{uuid}'
-        else:
-            path = f'markets/{market}/entities'
+            market = None
 
-        if not cache:
-            entities = self.request(path)
-        else:
-            entities = self.get_cached_inventory(id)
+            if detail:
+                param = 'include_aspects=true'
+
+        if cache:
+            entities = self.get_cached_inventory(market)
 
             if uuid:
                 entities = [x for x in entities if x['uuid'] == uuid]
+        else:
+            if market is not None:
+                entities = self.get_market_entities(market)
+            else:
+                entities = self.request(path, method='GET', query=param)
 
         if type:
             return [x for x in entities if x['className'] == type]
