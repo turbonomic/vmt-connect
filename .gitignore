@@ -5,3 +5,6 @@ log
 dist
 build
 scratch
+tests
+*.pyc
+vmtconnect.egg-info
