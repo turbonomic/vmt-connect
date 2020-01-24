@@ -9,6 +9,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 # libraries
 
 import re
@@ -98,6 +99,9 @@ _version_mappings = {
         '2.2.4': '6.3.10',
         '2.2.5': '6.3.13',
         '2.3.0': '6.4.2',
+        '2.3.1': '6.4.5',
+        '2.3.2': '6.4.6',
+        '2.3.3': '6.4.7',
         '3.0.0': '7.0.0' # stub for future compatibility
     }
 }
@@ -290,7 +294,7 @@ class VersionSpec:
         Turbonomic HTML UI released with v6.0 of the core product.
     """
     def __init__(self, versions=None, exclude=None, required=False, cmp_base=True):
-        self.versions = versions or ['6.1.0+']  # API 2
+        self.versions = versions
         self.exclude = exclude or []
         self.required = required
         self.cmp_base = cmp_base
@@ -450,15 +454,16 @@ class Connection:
             self.__session = False
             self.__conn = requests.request
 
+        # /vmturbo/rest is the "unversioned" path
+        # /api/v2 is the v2 path intended for classic, but some XL instances use it
+        # /api/v3 is the v3 path intended for XL, but not all XL instances support it
         self.host = host or 'localhost'
-        self.base_path = base_url or '/vmturbo/rest/'
+        self.base_path = base_url
         self.protocol = 'https' if ssl else 'http'
         self.disable_hateoas = disable_hateoas
 
         self.__verify = verify
         self.__version = None
-        self.__req_ver = isinstance(req_versions, VersionSpec) or VersionSpec()
-
         self.__cert = cert
         self.__login = False
         self.headers = headers or {}
@@ -478,7 +483,7 @@ class Connection:
 
 
         # check required version
-        self.__req_ver.check(self.version)
+        self.version
 
         if self.is_xl():
             try:
@@ -487,10 +492,13 @@ class Connection:
                 body = {'username': (None, u), 'password': (None, p)}
                 self.request('login', 'POST', content_type=None, files=body)
                 self.__login = True
+                self.__req_ver = req_versions or VersionSpec(['7.21.0+'])
             except HTTP401Error:
                 raise
             except Exception as e:
                 pass
+        else:
+            self.__req_ver = req_versions or VersionSpec(['6.1.0+'])
 
         if not self.__login:
             # because we accept encoded credentials, we'll manually attach here
@@ -498,6 +506,7 @@ class Connection:
                 {'Authorization': f'Basic {self.__basic_auth.decode()}'}
             )
 
+        self.__req_ver.check(self.version)
         self.__get_system_markets()
         self.__market_uuid = self.get_markets(uuid='Market')[0]['uuid']
         self.__login = True
@@ -619,7 +628,9 @@ class Connection:
     @property
     def version(self):
         if self.__version is None:
-            self.__version = Version(self.request('admin/versions')[0])
+            for base in ['/api/v3/', '/api/v2/', '/vmturbo/rest/']:
+                self.base_path = base
+                self.__version = Version(self.request('admin/versions')[0])
 
         return self.__version
 
