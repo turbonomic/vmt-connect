@@ -13,7 +13,7 @@
 
 __title__ = 'vmtconnect'
 __description__ = 'Turbonomic API Client'
-__version__ = '3.0.5.dev2'
+__version__ = '3.0.5.dev5'
 __author__ = 'R.A. Stern'
 __author_email__ = 'rastern@gmail.com'
 __license__ = 'Apache 2.0'

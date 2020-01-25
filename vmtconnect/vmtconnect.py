@@ -423,7 +423,9 @@ class Connection:
         version (:class:`Version`): Turbonomic instance version object.
 
     Notes:
-        The default minimum version has been bumped up to Turbonomic 6.1.x. Using a previous version will trigger a version warning. To avoid this warning, you will need to explicitly pass in a :class:`~VMTVersionSpec` object for the version desired.
+        The default minimum version for classic builds is 6.1.x, and for XL it is 7.21.x Using a previous version will trigger a version warning. To avoid this warning, you will need to explicitly pass in a :class:`~VMTVersionSpec` object for the version desired.
+
+        Due to XL token authentication, all connections to XL will be changed to a session regardless of the state of ``use_session``.
 
         Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS connection. Because of this, vmt-connect defaults to using SSL. Versions prior to 6.0 using HTTP will need to manually set ssl to False.
         If verify is given a path to a directory, the directory must have been processed using the c_rehash utility supplied with OpenSSL.
@@ -437,28 +439,13 @@ class Connection:
 
     def __init__(self, host=None, username=None, password=None, auth=None,
                  base_url=None, req_versions=None, disable_hateoas=True,
-                 ssl=True, verify=False, cert=None, headers=None, use_session=False):
+                 ssl=True, verify=False, cert=None, headers=None, use_session=True):
 
-        if use_session:
-            self.session = True
-            self.__session = requests.Session()
+        # temporary for initial discovery connections
+        self.__use_session(False)
 
-            # possible fix for urllib3 connection timing issue - https://github.com/requests/requests/issues/4664
-            adapter = requests.adapters.HTTPAdapter(max_retries=3)
-            self.__session.mount('http://', adapter)
-            self.__session.mount('https://', adapter)
-
-            self.__conn = self.__session.request
-        else:
-            self.session = False
-            self.__session = False
-            self.__conn = requests.request
-
-        # /vmturbo/rest is the "unversioned" path
-        # /api/v2 is the v2 path intended for classic, but some XL instances use it
-        # /api/v3 is the v3 path intended for XL, but not all XL instances support it
         self.host = host or 'localhost'
-        self.base_path = base_url
+        self.base_path = None
         self.protocol = 'https' if ssl else 'http'
         self.disable_hateoas = disable_hateoas
 
@@ -469,6 +456,12 @@ class Connection:
         self.headers = headers or {}
         self.cookies = None
         self.update_headers = {}
+
+        # because the unversioned base path /vmturbo/rest is flagged for deprication
+        # we have a circular dependency:
+        #   we need to know the version to know which base path to use
+        #   we need the base path to query the version
+        self.base_path = self.__resolve_base_path(base_url)
 
         # set auth encoding
         if auth:
@@ -481,12 +474,9 @@ class Connection:
         else:
             raise VMTConnectionError('Missing credentials')
 
-
-        # check required version
-        self.version
-
         if self.is_xl():
             try:
+                self.__use_session(True)
                 # XL requires a form submission
                 u, p = (base64.b64decode(self.__basic_auth)).decode().split(':')
                 body = {'username': (None, u), 'password': (None, p)}
@@ -498,18 +488,20 @@ class Connection:
             except Exception as e:
                 pass
         else:
+            self.__use_session(use_session)
             self.__req_ver = req_versions or VersionSpec(['6.1.0+'])
 
         if not self.__login:
-            # because we accept encoded credentials, we'll manually attach here
+            # because classic accepts encoded credentials, we'll manually attach here
             self.headers.update(
                 {'Authorization': f'Basic {self.__basic_auth.decode()}'}
             )
+            self.__login = True
 
         self.__req_ver.check(self.version)
         self.__get_system_markets()
         self.__market_uuid = self.get_markets(uuid='Market')[0]['uuid']
-        self.__login = True
+        self.__basic_auth = None
 
         # for inventory caching - used to prevent thrashing the API with
         # repeated calls for full inventory lookups within some expensive calls
@@ -628,11 +620,43 @@ class Connection:
     @property
     def version(self):
         if self.__version is None:
-            for base in ['/api/v3/', '/api/v2/', '/vmturbo/rest/']:
-                self.base_path = base
-                self.__version = Version(self.request('admin/versions')[0])
+            self.__version = Version(self.request('admin/versions')[0])
 
         return self.__version
+
+    def __use_session(self, value):
+        if value:
+            self.session = True
+            self.__session = requests.Session()
+
+            # possible fix for urllib3 connection timing issue - https://github.com/requests/requests/issues/4664
+            adapter = requests.adapters.HTTPAdapter(max_retries=3)
+            self.__session.mount('http://', adapter)
+            self.__session.mount('https://', adapter)
+
+            self.__conn = self.__session.request
+        else:
+            self.session = False
+            self.__conn = requests.request
+
+    def __resolve_base_path(self, path=None):
+        # /vmturbo/rest is the "unversioned" path
+        # /api/v2 is the v2 path intended for classic, but some XL instances use it
+        # /api/v3 is the v3 path intended for XL, but not all XL instances support it
+        if path is not None:
+            return path
+
+        if path is None:
+            for base in ['/api/v3/', '/api/v2/', '/vmturbo/rest/']:
+                try:
+                    self.base_path = base
+                    v = self.version
+                    return base
+                except Exception:
+                    self.base_path = None
+                    continue
+
+        raise VMTUnknownVersion('Unable to determine base path')
 
     def __is_cache_valid(self, id):
         if id in self.__inventory_cache and \
