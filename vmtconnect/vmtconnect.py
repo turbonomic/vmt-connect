@@ -221,12 +221,13 @@ class Version:
     @staticmethod
     def parse(obj):
         re_product = r'^([\S]+)\s'
-        re_version = r'^.* Manager ([\d.]+) \(Build (\")?\d+(\")?\)'
+        re_version = r'^.* Manager ([\d.]+)([-\w]+)? \(Build (\")?\d+(\")?\)'
         fields = ('version', 'branch', 'build', 'marketVersion')
         sep = '\n'
         ver = defaultdict(lambda: None)
         ver['product'] = re.search(re_product, obj['versionInfo']).group(1)
         ver['version'] = re.search(re_version, obj['versionInfo']).group(1)
+        ver['snapshot'] = True if re.search(re_version, obj['versionInfo']).group(2) else False
 
         for x in fields:
             if x in ('version', 'build', 'branch'):
@@ -643,6 +644,7 @@ class Connection:
         # /vmturbo/rest is the "unversioned" path
         # /api/v2 is the v2 path intended for classic, but some XL instances use it
         # /api/v3 is the v3 path intended for XL, but not all XL instances support it
+        # there's also /t8c/v1
         if path is not None:
             return path
 
