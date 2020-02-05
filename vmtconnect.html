@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>vmtconnect — Developer Interfaces &mdash; vmt-connect 3.0.4 documentation</title>
+  <title>vmtconnect — Developer Interfaces &mdash; vmt-connect 3.0.5 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                3.0.4
+                3.0.5
               </div>
             
           
@@ -207,7 +207,7 @@ product.</p>
 
 <dl class="class">
 <dt id="vmtconnect.VersionSpec">
-<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">VersionSpec</code><span class="sig-paren">(</span><em>versions=None</em>, <em>exclude=None</em>, <em>required=False</em>, <em>cmp_base=True</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VersionSpec" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">VersionSpec</code><span class="sig-paren">(</span><em>versions=None</em>, <em>exclude=None</em>, <em>required=False</em>, <em>snapshot=False</em>, <em>cmp_base=True</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VersionSpec" title="Permalink to this definition">¶</a></dt>
 <dd><p>Turbonomic version specification object</p>
 <p>The <a class="reference internal" href="#vmtconnect.VersionSpec" title="vmtconnect.VersionSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionSpec</span></code></a> object contains version compatibility and
 requirements information. Versions must be in dotted format, and may
@@ -216,7 +216,8 @@ to are acceptable. If using ‘+’, you only need to specify the minimum
 version required, as all later versions will be accepted independent of
 minor release branch. E.g. 6.0+ includes 6.1, 6.2, and all later branches.</p>
 <p class="rubric">Examples</p>
-<p>VersionSpec([‘6.0+’], exclude=[‘6.0.1’, ‘6.1.2’, ‘6.2.5’, ‘6.3.0’])</p>
+<p>VersionSpec([‘6.0+’], exclude=[‘6.0.1’, ‘6.1.2’, ‘6.2.5’, ‘6.3.0’])
+VersionSpec([‘7.21+’], snapshot=True)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -224,6 +225,8 @@ minor release branch. E.g. 6.0+ includes 6.1, 6.2, and all later branches.</p>
 <li><p><strong>exclude</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – A list of versions to explicitly exclude.</p></li>
 <li><p><strong>required</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If set to True, an error is thrown if no
 matching version is found when <code class="xref py py-meth docutils literal notranslate"><span class="pre">check()</span></code> is run.</p></li>
+<li><p><strong>snapshot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If set to True, will permit connection to
+snapshot builds tagged with ‘-SNAPSHOT’. (Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
 <li><p><strong>cmp_base</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, white label versions will be translated
 to their corresponding base Turbonomic version prior to comparison. If
 False, only the explicit product version will be compared. (Default: <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p></li>
@@ -258,7 +261,7 @@ Turbonomic HTML UI released with v6.0 of the core product.</p>
 
 <dl class="class">
 <dt id="vmtconnect.Connection">
-<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">Connection</code><span class="sig-paren">(</span><em>host=None</em>, <em>username=None</em>, <em>password=None</em>, <em>auth=None</em>, <em>base_url=None</em>, <em>req_versions=None</em>, <em>disable_hateoas=True</em>, <em>ssl=True</em>, <em>verify=False</em>, <em>cert=None</em>, <em>headers=None</em>, <em>use_session=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">Connection</code><span class="sig-paren">(</span><em>host=None</em>, <em>username=None</em>, <em>password=None</em>, <em>auth=None</em>, <em>base_url=None</em>, <em>req_versions=None</em>, <em>disable_hateoas=True</em>, <em>ssl=True</em>, <em>verify=False</em>, <em>cert=None</em>, <em>headers=None</em>, <em>use_session=True</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Turbonomic instance connection class</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -330,7 +333,8 @@ calls will be made. (default: <code class="docutils literal notranslate"><span c
 
 <div class="admonition-notes admonition">
 <p class="admonition-title">Notes</p>
-<p>The default minimum version has been bumped up to Turbonomic 6.1.x. Using a previous version will trigger a version warning. To avoid this warning, you will need to explicitly pass in a <code class="xref py py-class docutils literal notranslate"><span class="pre">VMTVersionSpec</span></code> object for the version desired.</p>
+<p>The default minimum version for classic builds is 6.1.x, and for XL it is 7.21.x Using a previous version will trigger a version warning. To avoid this warning, you will need to explicitly pass in a <code class="xref py py-class docutils literal notranslate"><span class="pre">VMTVersionSpec</span></code> object for the version desired.</p>
+<p>Due to XL token authentication, all connections to XL will be changed to a session regardless of the state of <code class="docutils literal notranslate"><span class="pre">use_session</span></code>.</p>
 <p>Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS connection. Because of this, vmt-connect defaults to using SSL. Versions prior to 6.0 using HTTP will need to manually set ssl to False.
 If verify is given a path to a directory, the directory must have been processed using the c_rehash utility supplied with OpenSSL.
 For client side certificates using <cite>cert</cite>: the private key to your local certificate must be unencrypted. Currently, Requests does not support using encrypted keys.
@@ -1747,7 +1751,7 @@ safely ignored.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017-2019, R.A. Stern
+        &copy; Copyright 2017-2020, R.A. Stern
 
     </p>
   </div>
