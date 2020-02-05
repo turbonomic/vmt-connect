@@ -9,6 +9,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 # libraries
 
 import re
@@ -98,7 +99,13 @@ _version_mappings = {
         '2.2.4': '6.3.10',
         '2.2.5': '6.3.13',
         '2.3.0': '6.4.2',
-        '3.0.0': '7.0.0' # stub for future compatibility
+        '2.3.1': '6.4.5',
+        '2.3.2': '6.4.6',
+        '2.3.3': '6.4.7',
+        '2.3.4': '6.4.8',
+        '2.3.5': '6.4.9',
+        '2.3.6': '6.4.10',
+        '3.0.0': '7.21.0' # stub for future compatibility
     }
 }
 
@@ -217,12 +224,14 @@ class Version:
     @staticmethod
     def parse(obj):
         re_product = r'^([\S]+)\s'
-        re_version = r'^.* Manager ([\d.]+) \(Build (\")?\d+(\")?\)'
+        re_version = r'^.* Manager ([\d.]+)([-\w]+)? \(Build (\")?\d+(\")?\)'
         fields = ('version', 'branch', 'build', 'marketVersion')
         sep = '\n'
         ver = defaultdict(lambda: None)
         ver['product'] = re.search(re_product, obj['versionInfo']).group(1)
         ver['version'] = re.search(re_version, obj['versionInfo']).group(1)
+        snapshot = re.search(re_version, obj['versionInfo']).group(2) or None
+        ver['snapshot'] = bool(snapshot)
 
         for x in fields:
             if x in ('version', 'build', 'branch'):
@@ -230,7 +239,11 @@ class Version:
             else:
                 label = x
 
-            ver[label] = obj.get(x)
+            # trim snapshot builds
+            try:
+                ver[label] = obj.get(x).rstrip(snapshot)
+            except Exception:
+                ver[label] = obj.get(x)
 
         # backwards compatibility pre 6.1 white label version mapping
         # forward versions of classic store this directly (usually), X
@@ -239,14 +252,13 @@ class Version:
                 ver['base_version'] = ver['version']
                 ver['base_branch'] = ver['version']
                 ver['base_build'] = re.search(re_version,
-                                              obj['versionInfo']).group(2)
+                                              obj['versionInfo']).group(3)
             elif ver['product'] in _product_names:
                 ver['base_version'] = Version.map_version(
                                           _product_names[ver['product']],
                                           ver['version'])
 
         ver['components'] = obj['versionInfo'].rstrip(sep).split(sep)
-
         # for manual XL detection, or other feature checking
         ver['base_major'] = int(ver['base_version'].split('.')[0])
         ver['base_minor'] = int(ver['base_version'].split('.')[1])
@@ -273,12 +285,15 @@ class VersionSpec:
 
     Examples:
         VersionSpec(['6.0+'], exclude=['6.0.1', '6.1.2', '6.2.5', '6.3.0'])
+        VersionSpec(['7.21+'], snapshot=True)
 
     Args:
         versions (list, optional): A list of acceptable versions.
         exclude (list, optional): A list of versions to explicitly exclude.
         required (bool, optional): If set to True, an error is thrown if no
             matching version is found when :meth:`~VMTVersion.check` is run.
+        snapshot (bool, optional): If set to True, will permit connection to
+            snapshot builds tagged with '-SNAPSHOT'. (Default: ``False``)
         cmp_base (bool, optional): If True, white label versions will be translated
             to their corresponding base Turbonomic version prior to comparison. If
             False, only the explicit product version will be compared. (Default: ``True``)
@@ -289,10 +304,12 @@ class VersionSpec:
         distinguish it from the "API 1.0" implementation available prior to the
         Turbonomic HTML UI released with v6.0 of the core product.
     """
-    def __init__(self, versions=None, exclude=None, required=False, cmp_base=True):
-        self.versions = versions or ['6.1.0+']  # API 2
+    def __init__(self, versions=None, exclude=None, required=False,
+                 snapshot=False, cmp_base=True):
+        self.versions = versions
         self.exclude = exclude or []
         self.required = required
+        self.allow_snapshot = snapshot
         self.cmp_base = cmp_base
 
         try:
@@ -312,8 +329,14 @@ class VersionSpec:
 
     @staticmethod
     def cmp_ver(a, b):
-        a1 = VersionSpec.str_to_ver(a)
-        b1 = VersionSpec.str_to_ver(b)
+        def pad(data, min=3):
+            while len(data) < 3:
+                data.append(0)
+
+            return data
+
+        a1 = pad(VersionSpec.str_to_ver(a), 3)
+        b1 = pad(VersionSpec.str_to_ver(b), 3)
 
         for x in range(0, len(a1)):
             if int(a1[x]) > int(b1[x]):
@@ -368,6 +391,13 @@ class VersionSpec:
         else:
             ver = version.version
 
+        # kick out or warn on snapshot builds
+        if version.snapshot:
+            if self.allow_snapshot:
+                warnings.warn('You are connecting to a snapshot / development build. API functionality may have changed, or be broken.', VMTVersionWarning)
+            else:
+                raise VMTVersionError(f'Snapshot build detected.')
+
         # kick out on excluded version match
         if self._check(ver, self.exclude, required=False, warn=False):
             return False
@@ -416,10 +446,13 @@ class Connection:
         disable_hateoas (bool): HATEOAS links state.
         headers (dict): Dictionary of custom headers for all calls.
         update_headers (dict): Dictionary of custom headers for put and post calls.
-        version (str): Turbonomic instance version.
+        version (:class:`Version`): Turbonomic instance version object.
 
     Notes:
-        The default minimum version has been bumped up to Turbonomic 6.1.x. Using a previous version will trigger a version warning. To avoid this warning, you will need to explicitly pass in a :class:`~VMTVersionSpec` object for the version desired.
+        The default minimum version for classic builds is 6.1.x, and for XL it is 7.21.x Using a previous version will trigger a version warning. To avoid this warning, you will need to explicitly pass in a :class:`~VMTVersionSpec` object for the version desired.
+
+        Due to XL token authentication, all connections to XL will be changed to a session regardless of the state of ``use_session``.
+
         Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS connection. Because of this, vmt-connect defaults to using SSL. Versions prior to 6.0 using HTTP will need to manually set ssl to False.
         If verify is given a path to a directory, the directory must have been processed using the c_rehash utility supplied with OpenSSL.
         For client side certificates using `cert`: the private key to your local certificate must be unencrypted. Currently, Requests does not support using encrypted keys.
@@ -432,35 +465,30 @@ class Connection:
 
     def __init__(self, host=None, username=None, password=None, auth=None,
                  base_url=None, req_versions=None, disable_hateoas=True,
-                 ssl=True, verify=False, cert=None, headers=None, use_session=False):
+                 ssl=True, verify=False, cert=None, headers=None, use_session=True):
 
-        if use_session:
-            self.__session = requests.Session()
-
-            # possible fix for urllib3 connection timing issue - https://github.com/requests/requests/issues/4664
-            adapter = requests.adapters.HTTPAdapter(max_retries=3)
-            self.__session.mount('http://', adapter)
-            self.__session.mount('https://', adapter)
-
-            self.__conn = self.__session.request
-        else:
-            self.__session = False
-            self.__conn = requests.request
+        # temporary for initial discovery connections
+        self.__use_session(False)
 
         self.host = host or 'localhost'
-        self.base_path = base_url or '/vmturbo/rest/'
+        self.base_path = None
         self.protocol = 'https' if ssl else 'http'
         self.disable_hateoas = disable_hateoas
 
         self.__verify = verify
         self.__version = None
-        self.__req_ver = isinstance(req_versions, VersionSpec) or VersionSpec()
-
         self.__cert = cert
         self.__login = False
         self.headers = headers or {}
         self.cookies = None
         self.update_headers = {}
+
+        # because the unversioned base path /vmturbo/rest is flagged for deprication
+        # we have a circular dependency:
+        #   we need to know the version to know which base path to use
+        #   we need the base path to query the version
+        self.__use_session(use_session)
+        self.base_path = self.__resolve_base_path(base_url)
 
         # set auth encoding
         if auth:
@@ -473,31 +501,29 @@ class Connection:
         else:
             raise VMTConnectionError('Missing credentials')
 
-
-        # check required version
-        self.__req_ver.check(self.version)
-
-        if self.is_xl():
-            try:
-                # XL requires a form submission
-                u, p = (base64.b64decode(self.__basic_auth)).decode().split(':')
-                body = {'username': (None, u), 'password': (None, p)}
-                self.request('login', 'POST', content_type=None, files=body)
-                self.__login = True
-            except HTTP401Error:
-                raise
-            except Exception as e:
-                pass
-
-        if not self.__login:
-            # because we accept encoded credentials, we'll manually attach here
+        try:
+            u, p = (base64.b64decode(self.__basic_auth)).decode().split(':')
+            body = {'username': (None, u), 'password': (None, p)}
+            self.request('login', 'POST', content_type=None, files=body)
+            self.__login = True
+        except HTTP401Error:
+            raise
+        except Exception:
+            # because classic accepts encoded credentials, we'll manually attach here
             self.headers.update(
                 {'Authorization': f'Basic {self.__basic_auth.decode()}'}
             )
+            self.__login = True
 
+        if self.is_xl():
+            self.__req_ver = req_versions or VersionSpec(['7.21+'])
+        else:
+            self.__req_ver = req_versions or VersionSpec(['6.1+'])
+
+        self.__req_ver.check(self.version)
         self.__get_system_markets()
         self.__market_uuid = self.get_markets(uuid='Market')[0]['uuid']
-        self.__login = True
+        self.__basic_auth = None
 
         # for inventory caching - used to prevent thrashing the API with
         # repeated calls for full inventory lookups within some expensive calls
@@ -616,9 +642,49 @@ class Connection:
     @property
     def version(self):
         if self.__version is None:
+            # temporarily disable hateoas, shouldn't matter though
+            hateoas = self.disable_hateoas
+            self.disable_hateoas = False
             self.__version = Version(self.request('admin/versions')[0])
+            self.disable_hateoas = hateoas
+
 
         return self.__version
+
+    def __use_session(self, value):
+        if value:
+            self.session = True
+            self.__session = requests.Session()
+
+            # possible fix for urllib3 connection timing issue - https://github.com/requests/requests/issues/4664
+            adapter = requests.adapters.HTTPAdapter(max_retries=3)
+            self.__session.mount('http://', adapter)
+            self.__session.mount('https://', adapter)
+
+            self.__conn = self.__session.request
+        else:
+            self.session = False
+            self.__conn = requests.request
+
+    def __resolve_base_path(self, path=None):
+        # /vmturbo/rest is the "unversioned" path
+        # /api/v2 is the v2 path intended for classic, but some XL instances use it
+        # /api/v3 is the v3 path intended for XL, but not all XL instances support it
+        # there's also possibly /t8c/v1
+        if path is not None:
+            return path
+
+        if path is None:
+            for base in ['/api/v3/', '/api/v2/', '/vmturbo/rest/']:
+                try:
+                    self.base_path = base
+                    v = self.version
+                    return base
+                except Exception:
+                    self.base_path = None
+                    continue
+
+        raise VMTUnknownVersion('Unable to determine base path')
 
     def __is_cache_valid(self, id):
         if id in self.__inventory_cache and \
@@ -649,6 +715,11 @@ class Connection:
         return results
 
     def is_xl(self):
+        """Checks if the connection is to an XL or Classic type instance.
+
+        Returns:
+            ``True`` if connected to an XL instance, ``False`` otherwise.
+        """
         if self.version.platform == 'xl':
             return True
 
@@ -758,11 +829,11 @@ class Connection:
         Args:
             type (str, optional): Entity type to filter on.
             uuid (str, optional): Specific UUID to lookup.
-            detail (bool, optional): Include entity aspect details. (default: `False`)
+            detail (bool, optional): Include entity aspect details. (default: ``False``)
                 This parameter works only when specifying an entity UUID.
             market (str, optional): Market to query. (default: `Market`)
             cache (bool, optional): If true, will retrieve entities from the
-                market cache. (default: `False`)
+                market cache. (default: ``False``)
 
         Returns:
             A list of entities in :obj:`dict` form.
@@ -1297,7 +1368,7 @@ class Session(Connection):
     See :class:`~Connection` for parameter details.
 
     Notes:
-        The value for ``session`` will always be set to ``True`` when using :class:`~Session`
+        The value for the :class:`~Connection.session` property will always be set to ``True`` when using :class:`~Session`
 
     """
     def __init__(self, *args, **kwargs):
@@ -1311,7 +1382,7 @@ class VMTConnection(Session):
     See :class:`~Connection` for parameter details.
 
     Notes:
-        The value for ``session`` will default to ``True`` when using :class:`~VMTConnection`
+        The value for :class:`~Connection.session` will default to ``True`` when using :class:`~VMTConnection`
         To be removed in a future branch.
     """
     def __init__(self, *args, **kwargs):
