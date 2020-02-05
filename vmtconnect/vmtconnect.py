@@ -102,7 +102,10 @@ _version_mappings = {
         '2.3.1': '6.4.5',
         '2.3.2': '6.4.6',
         '2.3.3': '6.4.7',
-        '3.0.0': '7.0.0' # stub for future compatibility
+        '2.3.4': '6.4.8',
+        '2.3.5': '6.4.9',
+        '2.3.6': '6.4.10',
+        '3.0.0': '7.21.0' # stub for future compatibility
     }
 }
 
@@ -227,7 +230,8 @@ class Version:
         ver = defaultdict(lambda: None)
         ver['product'] = re.search(re_product, obj['versionInfo']).group(1)
         ver['version'] = re.search(re_version, obj['versionInfo']).group(1)
-        ver['snapshot'] = True if re.search(re_version, obj['versionInfo']).group(2) else False
+        snapshot = re.search(re_version, obj['versionInfo']).group(2) or None
+        ver['snapshot'] = bool(snapshot)
 
         for x in fields:
             if x in ('version', 'build', 'branch'):
@@ -235,7 +239,11 @@ class Version:
             else:
                 label = x
 
-            ver[label] = obj.get(x)
+            # trim snapshot builds
+            try:
+                ver[label] = obj.get(x).rstrip(snapshot)
+            except Exception:
+                ver[label] = obj.get(x)
 
         # backwards compatibility pre 6.1 white label version mapping
         # forward versions of classic store this directly (usually), X
@@ -244,14 +252,13 @@ class Version:
                 ver['base_version'] = ver['version']
                 ver['base_branch'] = ver['version']
                 ver['base_build'] = re.search(re_version,
-                                              obj['versionInfo']).group(2)
+                                              obj['versionInfo']).group(3)
             elif ver['product'] in _product_names:
                 ver['base_version'] = Version.map_version(
                                           _product_names[ver['product']],
                                           ver['version'])
 
         ver['components'] = obj['versionInfo'].rstrip(sep).split(sep)
-
         # for manual XL detection, or other feature checking
         ver['base_major'] = int(ver['base_version'].split('.')[0])
         ver['base_minor'] = int(ver['base_version'].split('.')[1])
@@ -278,12 +285,15 @@ class VersionSpec:
 
     Examples:
         VersionSpec(['6.0+'], exclude=['6.0.1', '6.1.2', '6.2.5', '6.3.0'])
+        VersionSpec(['7.21+'], snapshot=True)
 
     Args:
         versions (list, optional): A list of acceptable versions.
         exclude (list, optional): A list of versions to explicitly exclude.
         required (bool, optional): If set to True, an error is thrown if no
             matching version is found when :meth:`~VMTVersion.check` is run.
+        snapshot (bool, optional): If set to True, will permit connection to
+            snapshot builds tagged with '-SNAPSHOT'. (Default: ``False``)
         cmp_base (bool, optional): If True, white label versions will be translated
             to their corresponding base Turbonomic version prior to comparison. If
             False, only the explicit product version will be compared. (Default: ``True``)
@@ -294,10 +304,12 @@ class VersionSpec:
         distinguish it from the "API 1.0" implementation available prior to the
         Turbonomic HTML UI released with v6.0 of the core product.
     """
-    def __init__(self, versions=None, exclude=None, required=False, cmp_base=True):
+    def __init__(self, versions=None, exclude=None, required=False,
+                 snapshot=False, cmp_base=True):
         self.versions = versions
         self.exclude = exclude or []
         self.required = required
+        self.allow_snapshot = snapshot
         self.cmp_base = cmp_base
 
         try:
@@ -317,8 +329,14 @@ class VersionSpec:
 
     @staticmethod
     def cmp_ver(a, b):
-        a1 = VersionSpec.str_to_ver(a)
-        b1 = VersionSpec.str_to_ver(b)
+        def pad(data, min=3):
+            while len(data) < 3:
+                data.append(0)
+
+            return data
+
+        a1 = pad(VersionSpec.str_to_ver(a), 3)
+        b1 = pad(VersionSpec.str_to_ver(b), 3)
 
         for x in range(0, len(a1)):
             if int(a1[x]) > int(b1[x]):
@@ -372,6 +390,13 @@ class VersionSpec:
                 raise VMTVersionError(f'Urecognized version: {version.product} {version.version}')
         else:
             ver = version.version
+
+        # kick out or warn on snapshot builds
+        if version.snapshot:
+            if self.allow_snapshot:
+                warnings.warn('You are connecting to a snapshot / development build. API functionality may have changed, or be broken.', VMTVersionWarning)
+            else:
+                raise VMTVersionError(f'Snapshot build detected.')
 
         # kick out on excluded version match
         if self._check(ver, self.exclude, required=False, warn=False):
@@ -462,6 +487,7 @@ class Connection:
         # we have a circular dependency:
         #   we need to know the version to know which base path to use
         #   we need the base path to query the version
+        self.__use_session(use_session)
         self.base_path = self.__resolve_base_path(base_url)
 
         # set auth encoding
@@ -475,29 +501,24 @@ class Connection:
         else:
             raise VMTConnectionError('Missing credentials')
 
-        if self.is_xl():
-            try:
-                self.__use_session(True)
-                # XL requires a form submission
-                u, p = (base64.b64decode(self.__basic_auth)).decode().split(':')
-                body = {'username': (None, u), 'password': (None, p)}
-                self.request('login', 'POST', content_type=None, files=body)
-                self.__login = True
-                self.__req_ver = req_versions or VersionSpec(['7.21.0+'])
-            except HTTP401Error:
-                raise
-            except Exception as e:
-                pass
-        else:
-            self.__use_session(use_session)
-            self.__req_ver = req_versions or VersionSpec(['6.1.0+'])
-
-        if not self.__login:
+        try:
+            u, p = (base64.b64decode(self.__basic_auth)).decode().split(':')
+            body = {'username': (None, u), 'password': (None, p)}
+            self.request('login', 'POST', content_type=None, files=body)
+            self.__login = True
+        except HTTP401Error:
+            raise
+        except Exception:
             # because classic accepts encoded credentials, we'll manually attach here
             self.headers.update(
                 {'Authorization': f'Basic {self.__basic_auth.decode()}'}
             )
             self.__login = True
+
+        if self.is_xl():
+            self.__req_ver = req_versions or VersionSpec(['7.21+'])
+        else:
+            self.__req_ver = req_versions or VersionSpec(['6.1+'])
 
         self.__req_ver.check(self.version)
         self.__get_system_markets()
@@ -621,7 +642,12 @@ class Connection:
     @property
     def version(self):
         if self.__version is None:
+            # temporarily disable hateoas, shouldn't matter though
+            hateoas = self.disable_hateoas
+            self.disable_hateoas = False
             self.__version = Version(self.request('admin/versions')[0])
+            self.disable_hateoas = hateoas
+
 
         return self.__version
 
@@ -644,7 +670,7 @@ class Connection:
         # /vmturbo/rest is the "unversioned" path
         # /api/v2 is the v2 path intended for classic, but some XL instances use it
         # /api/v3 is the v3 path intended for XL, but not all XL instances support it
-        # there's also /t8c/v1
+        # there's also possibly /t8c/v1
         if path is not None:
             return path
 

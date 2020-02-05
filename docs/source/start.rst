@@ -27,6 +27,9 @@ Python module, which could be placed in the same folder as the calling script.
 As of v2.2.3, *vmt-connect* is now distributed as a Python wheel package to be
 installed via pip. The package is not available on `PyPi`_ at this time.
 
+.. code:: bash
+
+   pip3 install vmtconnect-3.0.4-py3-none-any.whl
 
 Requirements
 ============
@@ -78,6 +81,7 @@ Bug Fixes:
 Additional QA:
   * Chris Sawtelle
   * Ray Mileo
+  * Ryan Geyer
 
 
 License
