@@ -9,6 +9,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 # libraries
 
 import re
@@ -90,7 +91,21 @@ _version_mappings = {
         '2.0.3': '6.1.12',
         '2.1.0': '6.2.2',
         '2.1.1': '6.2.7.1',
-        '2.1.2': '6.2.10'
+        '2.1.2': '6.2.10',
+        '2.2': '6.3.2',
+        '2.2.1': '6.3.5.0.1',
+        '2.2.2': '6.3.7',
+        '2.2.3': '6.3.7.1',
+        '2.2.4': '6.3.10',
+        '2.2.5': '6.3.13',
+        '2.3.0': '6.4.2',
+        '2.3.1': '6.4.5',
+        '2.3.2': '6.4.6',
+        '2.3.3': '6.4.7',
+        '2.3.4': '6.4.8',
+        '2.3.5': '6.4.9',
+        '2.3.6': '6.4.10',
+        '3.0.0': '7.21.0' # stub for future compatibility
     }
 }
 
@@ -136,6 +151,10 @@ class HTTPError(Exception):
     pass
 
 
+class HTTP400Error(HTTPError):
+    """Raised when an HTTP 400 error is returned."""
+    pass
+
 class HTTP401Error(HTTPError):
     """Raised when access fails, due to bad login or insufficient permissions."""
     pass
@@ -147,7 +166,7 @@ class HTTP404Error(HTTPError):
 
 
 class HTTP500Error(HTTPError):
-    """Raised when an HTTP 500 error returned."""
+    """Raised when an HTTP 500 error is returned."""
     pass
 
 
@@ -167,7 +186,7 @@ class HTTPWarn(Exception):
 # ----------------------------------------------------
 #  API Wrapper Classes
 # ----------------------------------------------------
-class Version(object):
+class Version:
     """Turbonomic instance version object
 
     The :class:`~Version` object contains instance version information, and
@@ -178,17 +197,24 @@ class Version(object):
         version (obj): Version object returned by Turbonomic instance.
 
     Attributes:
-        version: Reported Instance version
-        product: Reported Product name
-        base_version: Equivalent Turbonomic version
-        base_build: Equivalent Turbonomic build
-        base_branch: Equivalent Turbonomic branch
+        version (str): Reported Instance version
+        product (str): Reported Product name
+        snapshot (bool): ``True`` if the build is a snapshot / dev build, ``False``
+            otherwise.
+        base_version (str): Equivalent Turbonomic version
+        base_build (str): Equivalent Turbonomic build
+        base_branch (str): Equivalent Turbonomic branch
     """
+
     def __init__(self, version):
+        self.version = None
         keys = self.parse(version)
 
         for key in keys:
             setattr(self, key, keys[key])
+
+    def __str__(self):
+        return self.version
 
     @staticmethod
     def map_version(name, version):
@@ -199,13 +225,15 @@ class Version(object):
 
     @staticmethod
     def parse(obj):
+        re_product = r'^([\S]+)\s'
+        re_version = r'^.* Manager ([\d.]+)([-\w]+)? \(Build (\")?\d+(\")?\)'
         fields = ('version', 'branch', 'build', 'marketVersion')
         sep = '\n'
-        ver = defaultdict(lambda : None)
-
-        ver['product'] = re.search(r'^([\S]+)\s', obj['versionInfo']).group(1)
-        ver['version'] = re.search(r'Manager ([\d.]+) \(Build \d+\)',
-                                   obj['versionInfo']).group(1)
+        ver = defaultdict(lambda: None)
+        ver['product'] = re.search(re_product, obj['versionInfo']).group(1)
+        ver['version'] = re.search(re_version, obj['versionInfo']).group(1)
+        snapshot = re.search(re_version, obj['versionInfo']).group(2) or None
+        ver['snapshot'] = bool(snapshot)
 
         for x in fields:
             if x in ('version', 'build', 'branch'):
@@ -213,27 +241,41 @@ class Version(object):
             else:
                 label = x
 
-            ver[label] = obj[x] if x in obj else None
+            # trim snapshot builds
+            try:
+                ver[label] = obj.get(x).rstrip(snapshot)
+            except Exception:
+                ver[label] = obj.get(x)
 
         # backwards compatibility pre 6.1 white label version mapping
-        # forward versions store this directly
-        if 'branch' not in ver and 'version' not in ver:
+        # forward versions of classic store this directly (usually), X
+        if ver['base_branch'] is None or ver['base_version'] is None:
             if ver['product'] == 'Turbonomic':
                 ver['base_version'] = ver['version']
                 ver['base_branch'] = ver['version']
-                ver['base_build'] = re.search(r'Manager ([\d.]+) \(Build (\d+)\)',
-                                   obj['versionInfo']).group(2)
+                ver['base_build'] = re.search(re_version,
+                                              obj['versionInfo']).group(3)
             elif ver['product'] in _product_names:
                 ver['base_version'] = Version.map_version(
                                           _product_names[ver['product']],
                                           ver['version'])
 
         ver['components'] = obj['versionInfo'].rstrip(sep).split(sep)
+        # for manual XL detection, or other feature checking
+        ver['base_major'] = int(ver['base_version'].split('.')[0])
+        ver['base_minor'] = int(ver['base_version'].split('.')[1])
+        ver['base_patch'] = int(ver['base_version'].split('.')[2])
+
+        # XL platform specific detection
+        if 'action-orchestrator: ' in obj['versionInfo'] and ver['base_major'] >= 7:
+            ver['platform'] = 'xl'
+        else:
+            ver['platform'] = 'classic'
 
         return ver
 
 
-class VersionSpec(object):
+class VersionSpec:
     """Turbonomic version specification object
 
     The :class:`~VersionSpec` object contains version compatibility and
@@ -246,25 +288,31 @@ class VersionSpec(object):
     Examples:
         VersionSpec(['6.0+'], exclude=['6.0.1', '6.1.2', '6.2.5', '6.3.0'])
 
+        VersionSpec(['7.21+'], snapshot=True)
+
     Args:
         versions (list, optional): A list of acceptable versions.
         exclude (list, optional): A list of versions to explicitly exclude.
         required (bool, optional): If set to True, an error is thrown if no
             matching version is found when :meth:`~VMTVersion.check` is run.
+        snapshot (bool, optional): If set to True, will permit connection to
+            snapshot builds tagged with '-SNAPSHOT'. (Default: ``False``)
         cmp_base (bool, optional): If True, white label versions will be translated
             to their corresponding base Turbonomic version prior to comparison. If
             False, only the explicit product version will be compared. (Default: ``True``)
 
     Notes:
-        The Turbonomic API is not a versioned REST API, and each release is treated
-        as if it were a separate API, while retaining the name of "API 2.0" to
-        distinguish it from the "API 1.0" implementation available prior to the
-        Turbonomic HTML UI released with v6.0 of the core product.
+        The Turbonomic API is not a well versioned REST API, and each release is
+        treated as if it were a separate API, while retaining the name of
+        "API 2.0" to distinguish it from the "API 1.0" implementation available
+        prior to the Turbonomic HTML UI released with v6.0 of the core product.
     """
-    def __init__(self, versions=None, exclude=None, required=False, cmp_base=True):
-        self.versions = versions or ['6.1.0+']  # API 2
+    def __init__(self, versions=None, exclude=None, required=False,
+                 snapshot=False, cmp_base=True):
+        self.versions = versions
         self.exclude = exclude or []
         self.required = required
+        self.allow_snapshot = snapshot
         self.cmp_base = cmp_base
 
         try:
@@ -276,21 +324,27 @@ class VersionSpec(object):
     def str_to_ver(string):
         string = string.strip('+')
 
-        if not re.search(r'[\d.]+\d+', string) \
-           or not string.replace('.', '').isdigit():
+        if not re.search(r'[\d.]+\d+', string) or \
+           not string.replace('.', '').isdigit():
             raise VMTFormatError('Unrecognized version format')
 
         return string.split('.')
 
     @staticmethod
     def cmp_ver(a, b):
-        a1 = VersionSpec.str_to_ver(a)
-        b1 = VersionSpec.str_to_ver(b)
+        def pad(data, min=3):
+            while len(data) < 3:
+                data.append(0)
+
+            return data
+
+        a1 = pad(VersionSpec.str_to_ver(a), 3)
+        b1 = pad(VersionSpec.str_to_ver(b), 3)
 
         for x in range(0, len(a1)):
             if int(a1[x]) > int(b1[x]):
                 return 1
-            elif int(a1[x]) < int(b1[x]):
+            if int(a1[x]) < int(b1[x]):
                 return -1
 
         return 0
@@ -305,11 +359,14 @@ class VersionSpec(object):
 
         if required:
             raise VMTVersionError()
-        elif warn:
+
+        if warn:
             warnings.warn('Your version of Turbonomic does not meet the ' \
                           'minimum recommended version. You may experience ' \
                           'unexpected errors, and are strongly encouraged to ' \
                           'upgrade.', VMTMinimumVersionWarning)
+
+        return False
 
     def check(self, version):
         """Checks a :class:`~Version` for validity against the :class:`~VersionSpec`.
@@ -333,10 +390,16 @@ class VersionSpec(object):
                     ver = version.base_version
 
             except AttributeError:
-                raise VMTVersionError('Urecognized version: {} {}'.format(
-                                      version.product, version.version))
+                raise VMTVersionError(f'Urecognized version: {version.product} {version.version}')
         else:
             ver = version.version
+
+        # kick out or warn on snapshot builds
+        if version.snapshot:
+            if self.allow_snapshot:
+                warnings.warn('You are connecting to a snapshot / development build. API functionality may have changed, or be broken.', VMTVersionWarning)
+            else:
+                raise VMTVersionError(f'Snapshot build detected.')
 
         # kick out on excluded version match
         if self._check(ver, self.exclude, required=False, warn=False):
@@ -359,7 +422,7 @@ class VMTVersion(VersionSpec):
         super().__init__(versions=versions, exclude=exclude, required=require)
 
 
-class Connection(object):
+class Connection:
     """Turbonomic instance connection class
 
     Args:
@@ -386,14 +449,19 @@ class Connection(object):
         disable_hateoas (bool): HATEOAS links state.
         headers (dict): Dictionary of custom headers for all calls.
         update_headers (dict): Dictionary of custom headers for put and post calls.
-        version (str): Turbonomic instance version.
+        version (:class:`Version`): Turbonomic instance version object.
 
     Notes:
-        The default minimum version has been bumped up to Turbonomic 6.1.x. Using a previous version will trigger a version warning. To avoid this warning, you will need to explicitly pass in a :class:`~VMTVersionSpec` object for the version desired.
+        The default minimum version for classic builds is 6.1.x, and for XL it is 7.21.x Using a previous version will trigger a version warning. To avoid this warning, you will need to explicitly pass in a :class:`~VMTVersionSpec` object for the version desired.
+
         Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS connection. Because of this, vmt-connect defaults to using SSL. Versions prior to 6.0 using HTTP will need to manually set ssl to False.
         If verify is given a path to a directory, the directory must have been processed using the c_rehash utility supplied with OpenSSL.
         For client side certificates using `cert`: the private key to your local certificate must be unencrypted. Currently, Requests does not support using encrypted keys.
         Requests uses certificates from the package certifi.
+
+        The /api/v2 path was added in 6.4, and the /api/v3 path was added in XL
+        branch 7.21. The XL API is not intended to be an extension of the Classic
+        API. vmtconnect will attempt to detect which API you are connecting to.
     """
     # system level markets to block certain actions
     # this is done by name, and subject to breaking if names are abused
@@ -402,33 +470,30 @@ class Connection(object):
 
     def __init__(self, host=None, username=None, password=None, auth=None,
                  base_url=None, req_versions=None, disable_hateoas=True,
-                 ssl=True, verify=False, cert=None, headers=None, use_session=False):
+                 ssl=True, verify=False, cert=None, headers=None, use_session=True):
 
-        if use_session:
-            self.__session = requests.Session()
-
-            # possible fix for urllib3 connection timing issue - https://github.com/requests/requests/issues/4664
-            adapter = requests.adapters.HTTPAdapter(max_retries=3)
-            self.__session.mount('http://', adapter)
-            self.__session.mount('https://', adapter)
-
-            self.__conn = self.__session.request
-        else:
-            self.__session = False
-            self.__conn = requests.request
+        # temporary for initial discovery connections
+        self.__use_session(False)
 
         self.host = host or 'localhost'
-        self.base_path = base_url or '/vmturbo/rest/'
+        self.base_path = None
         self.protocol = 'https' if ssl else 'http'
         self.disable_hateoas = disable_hateoas
 
         self.__verify = verify
         self.__version = None
-        self.__req_ver = isinstance(req_versions, VersionSpec) or VersionSpec()
-
         self.__cert = cert
+        self.__login = False
         self.headers = headers or {}
-        self.update_headers = {'Content-Type': 'application/json'}
+        self.cookies = None
+        self.update_headers = {}
+
+        # because the unversioned base path /vmturbo/rest is flagged for deprication
+        # we have a circular dependency:
+        #   we need to know the version to know which base path to use
+        #   we need the base path to query the version
+        self.__use_session(use_session)
+        self.base_path = self.__resolve_base_path(base_url)
 
         # set auth encoding
         if auth:
@@ -437,44 +502,66 @@ class Connection(object):
             except AttributeError:
                 self.__basic_auth = auth
         elif (username and password):
-            self.__basic_auth = base64.b64encode('{}:{}'.format(
-                username, password).encode())
+            self.__basic_auth = base64.b64encode(f'{username}:{password}'.encode())
         else:
             raise VMTConnectionError('Missing credentials')
 
+        try:
+            u, p = (base64.b64decode(self.__basic_auth)).decode().split(':')
+            body = {'username': (None, u), 'password': (None, p)}
+            self.request('login', 'POST', content_type=None, files=body)
+            self.__login = True
+        except HTTP401Error:
+            raise
+        except Exception:
+            # because classic accepts encoded credentials, we'll manually attach here
+            self.headers.update(
+                {'Authorization': f'Basic {self.__basic_auth.decode()}'}
+            )
+            self.__login = True
 
-        # XL will use tokens, not yet available in 6.x
-        # because we accept encoded credentials, we'll manually attach here
-        self.headers.update(
-            {'Authorization': u'Basic {}'.format(self.__basic_auth.decode())}
-        )
+        if self.is_xl():
+            self.__req_ver = req_versions or VersionSpec(['7.21+'])
+        else:
+            self.__req_ver = req_versions or VersionSpec(['6.1+'])
 
-        # verify version
         self.__req_ver.check(self.version)
-
         self.__get_system_markets()
         self.__market_uuid = self.get_markets(uuid='Market')[0]['uuid']
+        self.__basic_auth = None
 
         # for inventory caching - used to prevent thrashing the API with
         # repeated calls for full inventory lookups within some expensive calls
-        self.__inventory_cache = None
         self.__inventory_cache_timeout = 600
-        self.__inventory_cache_expires = datetime.datetime.now()
+        self.__inventory_cache = {'Market': {'data': None,
+                                             'expires': datetime.datetime.now()
+                                            }
+                                 }
 
-    def _request(self, method, resource, query='', dto=None, **kwargs):
+    def _request(self, method, resource, query='', data=None, **kwargs):
         method = method.upper()
         url = urlunparse((self.protocol, self.host,
                           self.base_path + resource.lstrip('/'), '', query, ''))
 
+        if data is not None and kwargs['content_type'] is not None:
+            self.headers.update({'Content-Type': kwargs['content_type']})
+
+        # kwargs that must not be passed to requests
+        if 'content_type' in kwargs:
+            del kwargs['content_type']
+
         kwargs['verify'] = self.__verify
         kwargs['headers'] = {**self.headers, **kwargs.get('headers', {})}
+
+        if self.cookies:
+            kwargs['cookies'] = self.cookies
 
         if method in ('POST', 'PUT'):
             kwargs['headers'] = {**kwargs['headers'], **self.update_headers}
 
-            return self.__conn(method, url, data=dto, **kwargs)
-        else:
-            return self.__conn(method, url, **kwargs)
+            return self.__conn(method, url, data=data, **kwargs)
+
+        return self.__conn(method, url, **kwargs)
 
     def request(self, path, method='GET', query='', dto=None, uuid=None, **kwargs):
         """Constructs and sends an appropriate HTTP request.
@@ -488,7 +575,10 @@ class Connection(object):
             **kwargs: Additional :py:class:`Requests.Request` keyword arguments.
         """
         if uuid is not None:
-            path = '{}/{}'.format(path, uuid)
+            path = f'{path}/{uuid}'
+
+        if query is None:
+            query = ''
 
         # attempt to detect a misdirected POST
         if dto is not None and method == 'GET':
@@ -498,47 +588,46 @@ class Connection(object):
             query += ('&' if query != '' else '') + 'disable_hateoas=true'
 
         msg = ''
+        kwargs.update({'content_type': 'application/json'})
         response = self._request(method=method, resource=path, query=query,
-                                 dto=dto, **kwargs)
+                                 data=dto, **kwargs)
 
         try:
+            self.cookies = response.cookies
             res = response.json()
 
             if response.status_code/100 != 2:
-                msg = ': [{}]'.format(res['exception'])
+                msg = f': [{res["exception"]}]'
         except Exception:
             pass
 
         if response.status_code == 502:
-            raise HTTP502Error('(API) HTTP 502 - Bad Gateway{}'.format(msg))
-        elif response.status_code == 401:
-            raise HTTP401Error('(API) HTTP 401 - Unauthorized{}'.format(msg))
-        elif response.status_code == 404:
-            raise HTTP404Error('(API) HTTP 404 - Resource Not Found{}'.format(msg))
-        elif response.status_code/100 == 5:
-            raise HTTP500Error('(API) HTTP {} - Server Error{}'.format(response.status_code, msg))
-        elif response.status_code/100 != 2:
-            raise HTTPError('(API) HTTP Code {} returned{}'.format(response.status_code, msg))
-        elif response.text == 'true':
+            raise HTTP502Error(f'(API) HTTP 502 - Bad Gateway {msg}')
+        if response.status_code/100 == 5:
+            raise HTTP500Error(f'(API) HTTP {response.status_code} - Server Error {msg}')
+        if response.status_code == 401:
+            raise HTTP401Error(f'(API) HTTP 401 - Unauthorized {msg}')
+        if response.status_code == 404:
+            raise HTTP404Error(f'(API) HTTP 404 - Resource Not Found {msg}')
+        if response.status_code/100 == 4:
+            raise HTTP400Error(f'(API) HTTP {response.status_code} - Client Error {msg}')
+        if response.status_code/100 != 2:
+            raise HTTPError(f'(API) HTTP Code {response.status_code} returned {msg}')
+        if response.text == 'true':
             return True
-        elif response.text == 'false':
+        if response.text == 'false':
             return False
-        else:
-            return [res] if isinstance(res, dict) else res
+
+        return [res] if isinstance(res, dict) else res
 
     @staticmethod
     def _bool_to_text(value):
-        value = 'true' if value else 'false'
-
-        return value
+        return 'true' if value else 'false'
 
     @staticmethod
     def _search_criteria(op, value, filter_type, case_sensitive=False):
-        if op in _exp_type:
-            op = _exp_type[op]
-
         criteria = {
-            'expType': op,
+            'expType': _exp_type.get(op, op),
             'expVal': value,
             'caseSensitive': case_sensitive,
             'filterType': filter_type
@@ -549,6 +638,7 @@ class Connection(object):
     @staticmethod
     def _stats_filter(stats):
         statistics = []
+
         for stat in stats:
             statistics += [{'name': stat}]
 
@@ -557,13 +647,54 @@ class Connection(object):
     @property
     def version(self):
         if self.__version is None:
+            # temporarily disable hateoas, shouldn't matter though
+            hateoas = self.disable_hateoas
+            self.disable_hateoas = False
             self.__version = Version(self.request('admin/versions')[0])
+            self.disable_hateoas = hateoas
+
 
         return self.__version
 
-    def __is_cache_valid(self):
-        if datetime.datetime.now() <= self.__inventory_cache_expires and \
-           self.__inventory_cache is not None:
+    def __use_session(self, value):
+        if value:
+            self.session = True
+            self.__session = requests.Session()
+
+            # possible fix for urllib3 connection timing issue - https://github.com/requests/requests/issues/4664
+            adapter = requests.adapters.HTTPAdapter(max_retries=3)
+            self.__session.mount('http://', adapter)
+            self.__session.mount('https://', adapter)
+
+            self.__conn = self.__session.request
+        else:
+            self.session = False
+            self.__conn = requests.request
+
+    def __resolve_base_path(self, path=None):
+        # /vmturbo/rest is the "unversioned" path
+        # /api/v2 is the v2 path intended for classic, but some XL instances use it
+        # /api/v3 is the v3 path intended for XL, but not all XL instances support it
+        # there's also possibly /t8c/v1
+        if path is not None:
+            return path
+
+        if path is None:
+            for base in ['/api/v3/', '/api/v2/', '/vmturbo/rest/']:
+                try:
+                    self.base_path = base
+                    v = self.version
+                    return base
+                except Exception:
+                    self.base_path = None
+                    continue
+
+        raise VMTUnknownVersion('Unable to determine base path')
+
+    def __is_cache_valid(self, id):
+        if id in self.__inventory_cache and \
+           datetime.datetime.now() < self.__inventory_cache[id]['expires'] and \
+           self.__inventory_cache[id]['data']:
             return True
 
         return False
@@ -572,11 +703,12 @@ class Connection(object):
         res = self.get_markets()
         self.__system_market_ids = [x['uuid'] for x in res if x['displayName'] in self.__system_markets]
 
-    def _search_cache(self, name, type=None, case_sensitive=False):
+    def _search_cache(self, id, name, type=None, case_sensitive=False):
+        # populates internal cache, no need to duplicate in local var
+        self.get_cached_inventory(id)
         results = []
-        self.get_cached_inventory()
 
-        for e in self.__inventory_cache:
+        for e in self.__inventory_cache[id]['data']:
             if (case_sensitive and e['displayName'] != name) or \
                (e['displayName'].lower() != name.lower()):
                 continue
@@ -586,6 +718,17 @@ class Connection(object):
             results += [e]
 
         return results
+
+    def is_xl(self):
+        """Checks if the connection is to an XL or Classic type instance.
+
+        Returns:
+            ``True`` if connected to an XL instance, ``False`` otherwise.
+        """
+        if self.version.platform == 'xl':
+            return True
+
+        return False
 
     def get_actions(self, market='Market', uuid=None):
         """Returns a list of actions.
@@ -602,21 +745,27 @@ class Connection(object):
         Returns:
             A list of actions
         """
-        if uuid is not None:
+        if uuid:
             return self.request('actions', uuid=uuid)
 
-        return self.request('markets/{}/actions'.format(market))
+        return self.request(f'markets/{market}/actions')
 
-    def get_cached_inventory(self):
+    def get_cached_inventory(self, market):
         """Returns the market entities inventory from cache, populating the
         cache if necessary.
-        """
-        if not self.__is_cache_valid():
-            delta = datetime.timedelta(seconds=self.__inventory_cache_timeout)
-            self.__inventory_cache = self.request('markets/Market/entities')
-            self.__inventory_cache_expires = datetime.datetime.now() + delta
 
-        return self.__inventory_cache
+        Args:
+            market (str): Market id to get cached inventory for.
+
+        Returns:
+            A list of market entities in :obj:`dict` form.
+        """
+        if not self.__is_cache_valid(market):
+            delta = datetime.timedelta(seconds=self.__inventory_cache_timeout)
+            self.__inventory_cache[market]['data'] = self.request(f'markets/{market}/entities')
+            self.__inventory_cache[market]['expires'] = datetime.datetime.now() + delta
+
+        return self.__inventory_cache[market]['data']
 
     def get_current_user(self):
         """Returns the current user.
@@ -648,6 +797,17 @@ class Connection(object):
         """
         return self.request('markets', uuid=uuid)
 
+    def get_market_entities(self, uuid='Market'):
+        """Returns a list of entities in the given market.
+
+        Args:
+            uuid (str, optional): Market UUID. (default: `Market`)
+
+        Returns:
+            A list of market entities in :obj:`dict` form.
+        """
+        return self.request(f'markets/{uuid}/entities')
+
     def get_market_state(self, uuid='Market'):
         """Returns the state of a market.
 
@@ -669,39 +829,54 @@ class Connection(object):
         Returns:
             A list of stat objects in :obj:`dict` form.
         """
-        if filter is not None:
-            self.request('markets/{}/stats'.format(uuid), method='POST', dto=filter)
+        if filter:
+            return self.request(f'markets/{uuid}/stats', method='POST', dto=filter)
 
-        return self.request('markets/{}/stats'.format(uuid))
+        return self.request(f'markets/{uuid}/stats')
 
-    def get_entities(self, type=None, uuid=None, market='Market'):
+    def get_entities(self, type=None, uuid=None, detail=False, market='Market', cache=False):
         """Returns a list of entities in the given market.
 
         Args:
             type (str, optional): Entity type to filter on.
             uuid (str, optional): Specific UUID to lookup.
+            detail (bool, optional): Include entity aspect details. (default: ``False``)
+                This parameter works only when specifying an entity UUID.
             market (str, optional): Market to query. (default: `Market`)
+            cache (bool, optional): If true, will retrieve entities from the
+                market cache. (default: ``False``)
 
         Returns:
             A list of entities in :obj:`dict` form.
 
         """
-        if uuid is not None:
-            path = 'entities/{}'.format(uuid)
-        elif market == 'Market' or market == self.__market_uuid:
-            path = False
-        else:
-            path = 'markets/{}/entities'.format(market)
+        param = None
 
-        if not path:
-            entities = self.get_cached_inventory()
-        else:
-            entities = self.request(path)
+        if market == self.__market_uuid:
+            market = 'Market'
 
-        if type is not None:
+        if uuid:
+            path = f'entities/{uuid}'
+            market = None
+
+            if detail:
+                param = 'include_aspects=true'
+
+        if cache:
+            entities = self.get_cached_inventory(market)
+
+            if uuid:
+                entities = [x for x in entities if x['uuid'] == uuid]
+        else:
+            if market is not None:
+                entities = self.get_market_entities(market)
+            else:
+                entities = self.request(path, method='GET', query=param)
+
+        if type:
             return [x for x in entities if x['className'] == type]
-        else:
-            return entities
+
+        return entities
 
     def get_virtualmachines(self, uuid=None, market='Market'):
         """Returns a list of virtual machines in the given market.
@@ -760,36 +935,35 @@ class Connection(object):
         Returns:
             A list containing groups the entity belongs to.
         """
-        return self.request('entities/{}/groups'.format(uuid))
+        return self.request(f'entities/{uuid}/groups')
 
-    def get_entity_stats(self, scope, start_date=None, end_date=None,
-                         stats=None):
+    def get_entity_stats(self, scope, start_date=None, end_date=None, stats=None):
         """Returns stats for the specific scope of entities.
 
         Provides entity level stats with filtering.
 
         Args:
             scope (list): List of entities to scope to.
-            start_date (int): Unix timestamp in miliseconds. Uses current time
+            start_date (int, optional): Unix timestamp in miliseconds. Uses current time
                 if blank.
-            end_date (int): Unix timestamp in miliseconds. Uses current time if
+            end_date (int, optional): Unix timestamp in miliseconds. Uses current time if
                 blank.
-            stats (list): List of stats classes to retrieve.
+            stats (list, optional): List of stats classes to retrieve.
 
         Returns:
             A list of stats for all periods between start and end dates.
         """
         dto = {'scopes': scope}
-
         period = {}
-        if start_date is not None:
+
+        if start_date:
             period['startDate'] = start_date
-        if end_date is not None:
+        if end_date:
             period['endDate'] = end_date
-        if stats is not None and len(stats) > 0:
+        if stats:
             period['statistics'] = self._stats_filter(stats)
 
-        if len(period) > 0:
+        if period:
             dto['period'] = period
 
         dto = json.dumps(dto)
@@ -808,13 +982,12 @@ class Connection(object):
         Returns:
             A list of entities in :obj:`dict` form.
         """
-        entities = self.get_entities()
-        entities = [x for x in entities if 'remoteId' in x and x['remoteId'] == remote_id]
+        entities = [x for x in self.get_entities() if x.get('remoteId') == remote_id]
 
-        if target_name is not None:
+        if target_name and entities:
             entities = [x for x in entities if x['discoveredBy']['displayName'] == target_name]
 
-        if target_uuid is not None:
+        if target_uuid and entities:
             entities = [x for x in entities if x['discoveredBy']['uuid'] == target_uuid]
 
         return entities
@@ -829,6 +1002,17 @@ class Connection(object):
             A list of groups in :obj:`dict` form.
         """
         return self.request('groups', uuid=uuid)
+
+    def get_group_actions(self, uuid=None):
+        """Returns a list of group actions.
+
+        Args:
+            uuid (str): Group UUID.
+
+        Returns:
+            A list containing all actions for the given the group.
+        """
+        return self.request(f'groups/{uuid}/actions')
 
     def get_group_by_name(self, name):
         """Returns the first group that match `name`.
@@ -845,34 +1029,61 @@ class Connection(object):
             if grp['displayName'] == name:
                 return [grp]
 
-    def get_group_members(self, uuid):
-        """Returns a list of member entities that belong to the group.
+        return None
+
+    def get_group_entities(self, uuid):
+        """Returns a detailed list of member entities that belong to the group.
 
         Args:
             uuid (str): Group UUID.
 
         Returns:
-            A list containing all members of the group, of the appropriate group
-            type.
+            A list containing all members of the group and their related consumers.
         """
-        return self.request('groups/{}/members'.format(uuid))
+        return self.request(f'groups/{uuid}/entities')
 
-    def get_group_stats(self, uuid, stats_filter=None):
+    def get_group_members(self, uuid):
+        """Returns a list of members that belong to the group.
+
+        Args:
+            uuid (str): Group UUID.
+
+        Returns:
+            A list containing all members of the group.
+        """
+        return self.request(f'groups/{uuid}/members')
+
+    def get_group_stats(self, uuid, stats_filter=None, start_date=None, end_date=None):
         """Returns the aggregated statistics for a group.
 
         Args:
             uuid (str): Specific group UUID to lookup.
-            stats_filter (list): List of filters to apply.
+            stats_filter (list, optional): List of filters to apply.
+            start_date (str, optional): Unix timestamp in miliseconds or relative
+                time string.
+            end_date (int, optional): Unix timestamp in miliseconds or relative
+                time string.
 
         Returns:
             A list containing the group stats in :obj:`dict` form.
         """
         if stats_filter is None:
-            return self.request('groups/{}/stats'.format(uuid))
+            return self.request(f'groups/{uuid}/stats')
 
-        dto = json.dumps({'statistics': self._stats_filter(stats_filter)})
+        dto = {}
 
-        return self.request('groups/{}/stats'.format(uuid), method='POST', dto=dto)
+        if stats_filter:
+            dto['statistics'] = self._stats_filter(stats_filter)
+
+        if start_date:
+            dto['startDate'] = start_date
+
+        if end_date:
+            dto['endDate'] = end_date
+
+        dto = json.dumps(dto)
+
+        return self.request(f'groups/{uuid}/stats', method='POST', dto=dto)
 
     def get_scenarios(self, uuid=None):
         """Returns a list of scenarios.
@@ -912,7 +1123,7 @@ class Connection(object):
             Only one parameter is required. If both are supplied, uuid overrides.
             If a name lookup returns multiple entities, only the first is returned.
         """
-        if uuid is not None:
+        if uuid:
             entity = self.get_entities(uuid=uuid)
         else:
             entity = self.search_by_name(name, type)
@@ -971,7 +1182,7 @@ class Connection(object):
             members (list): List of member UUIDs.
 
         Returns:
-            Group object :obj:`dict` form.
+            Group object in :obj:`dict` form.
         """
         if members is None:
             members = []
@@ -997,15 +1208,21 @@ class Connection(object):
         if members is None:
             members = []
 
-        group = self.get_groups(uuid)[0]
-        members.extend(group['memberUuidList'])
+        group = self.get_group_members(uuid)
+        ext = [x['uuid'] for x in group]
 
-        dto = json.dumps({'displayName': group['displayName'],
-                          'groupType': group['groupType'],
-                          'memberUuidList': members}
-        )
+        return self.update_static_group_members(uuid, ext + members)
 
-        return self.request('groups', method='PUT', uuid=uuid, dto=dto)
+    def add_template(self, dto):
+        """Creates a template based on the supplied DTO object.
+
+        Args:
+            dto (obj): Template definition
+
+        Returns:
+            Template object in :obj:`dict` form.
+        """
+        return self.request('/templates', method='POST', dto=dto)
 
     def del_group(self, uuid):
         """Removes a group.
@@ -1033,9 +1250,8 @@ class Connection(object):
 
         if scenario:
             try:
-                market = self.get_markets(uuid)
-                self.del_scenario(market['scenario']['uuid'])
-            except Exception as e:
+                self.del_scenario(self.get_markets(uuid)[0]['scenario']['uuid'])
+            except Exception:
                 pass
 
         return self.request('markets', method='DELETE', uuid=uuid)
@@ -1082,7 +1298,7 @@ class Connection(object):
         query = {}
         vars = {'q': q, 'types': types, 'scopes': scopes, 'state': state, 'group_type': group_type}
 
-        for v in vars.keys():
+        for v in vars:
             if vars[v] is not None:
                 if v[-1] == 's':
                     query[v] = ','.join(vars[v])
@@ -1108,7 +1324,7 @@ class Connection(object):
         results = []
 
         if type is None:
-            search_classes = set([x for x in _entity_filter_class.values()])
+            search_classes = {x for x in _entity_filter_class.values()}
         elif isinstance(type, list):
             search_classes = [_entity_filter_class[x.lower()] for x in type]
         else:
@@ -1125,7 +1341,7 @@ class Connection(object):
                 dto = {'className': fclass, 'criteriaList': [criteria]}
 
                 results += self.search(json.dumps(dto))
-            except:
+            except Exception:
                 pass
 
         return results
@@ -1141,7 +1357,7 @@ class Connection(object):
             None
         """
         return self.request('actions', method='POST', uuid=uuid,
-                            query='accept={}'.format(self._bool_to_text(accept))
+                            query=f'accept={self._bool_to_text(accept)}'
         )
 
 
@@ -1158,7 +1374,7 @@ class Connection(object):
             The updated group definition.
         """
         group = self.get_groups(uuid)[0]
-        name = name if name is not None else group['displayName']
+        name = name if name else group['displayName']
 
         dto = json.dumps({'displayName': name,
                           'groupType': group['groupType'],
@@ -1174,7 +1390,7 @@ class Session(Connection):
     See :class:`~Connection` for parameter details.
 
     Notes:
-        The value for ``session`` will always be set to ``True`` when using :class:`~Session`
+        The value for the :class:`~Connection.session` property will always be set to ``True`` when using :class:`~Session`
 
     """
     def __init__(self, *args, **kwargs):
@@ -1188,7 +1404,7 @@ class VMTConnection(Session):
     See :class:`~Connection` for parameter details.
 
     Notes:
-        The value for ``session`` will default to ``True`` when using :class:`~VMTConnection`
+        The value for :class:`~Connection.session` will default to ``True`` when using :class:`~VMTConnection`
         To be removed in a future branch.
     """
     def __init__(self, *args, **kwargs):

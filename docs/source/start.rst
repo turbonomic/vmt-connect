@@ -27,6 +27,9 @@ Python module, which could be placed in the same folder as the calling script.
 As of v2.2.3, *vmt-connect* is now distributed as a Python wheel package to be
 installed via pip. The package is not available on `PyPi`_ at this time.
 
+.. code:: bash
+
+   pip3 install vmtconnect-3.0.6-py3-none-any.whl
 
 Requirements
 ============
@@ -36,7 +39,7 @@ Python, and install the Requests_ module.
 
 * Python:
 
-  - CPython_ >= 3.4
+  - CPython_ >= 3.5
 
 * Requests_ >= 2.10.0
 
@@ -78,12 +81,11 @@ Bug Fixes:
 Additional QA:
   * Chris Sawtelle
   * Ray Mileo
+  * Ryan Geyer
 
 
 License
 =======
 
-*vmt-plan* is distributed under the `Apache 2.0`_ software license, which may
+*vmt-connect* is distributed under the `Apache 2.0`_ software license, which may
 also be obtained from the Apache Software Foundation, http://www.apache.org/licenses/LICENSE-2.0
-
-vmt-plan is copyright 2017-2019  R.A. Stern
