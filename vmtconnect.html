@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>vmtconnect — Developer Interfaces &mdash; vmt-connect 3.0.5 documentation</title>
+  <title>vmtconnect — Developer Interfaces &mdash; vmt-connect 3.0.6 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                3.0.5
+                3.0.6
               </div>
             
           
@@ -177,30 +177,67 @@ product.</p>
 <dt id="vmtconnect.Version.version">
 <code class="descname">version</code><a class="headerlink" href="#vmtconnect.Version.version" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reported Instance version</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="vmtconnect.Version.product">
 <code class="descname">product</code><a class="headerlink" href="#vmtconnect.Version.product" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reported Product name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Version.snapshot">
+<code class="descname">snapshot</code><a class="headerlink" href="#vmtconnect.Version.snapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the build is a snapshot / dev build, <code class="docutils literal notranslate"><span class="pre">False</span></code>
+otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="vmtconnect.Version.base_version">
 <code class="descname">base_version</code><a class="headerlink" href="#vmtconnect.Version.base_version" title="Permalink to this definition">¶</a></dt>
 <dd><p>Equivalent Turbonomic version</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="vmtconnect.Version.base_build">
 <code class="descname">base_build</code><a class="headerlink" href="#vmtconnect.Version.base_build" title="Permalink to this definition">¶</a></dt>
 <dd><p>Equivalent Turbonomic build</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="vmtconnect.Version.base_branch">
 <code class="descname">base_branch</code><a class="headerlink" href="#vmtconnect.Version.base_branch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Equivalent Turbonomic branch</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -216,8 +253,8 @@ to are acceptable. If using ‘+’, you only need to specify the minimum
 version required, as all later versions will be accepted independent of
 minor release branch. E.g. 6.0+ includes 6.1, 6.2, and all later branches.</p>
 <p class="rubric">Examples</p>
-<p>VersionSpec([‘6.0+’], exclude=[‘6.0.1’, ‘6.1.2’, ‘6.2.5’, ‘6.3.0’])
-VersionSpec([‘7.21+’], snapshot=True)</p>
+<p>VersionSpec([‘6.0+’], exclude=[‘6.0.1’, ‘6.1.2’, ‘6.2.5’, ‘6.3.0’])</p>
+<p>VersionSpec([‘7.21+’], snapshot=True)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -235,10 +272,10 @@ False, only the explicit product version will be compared. (Default: <code class
 </dl>
 <div class="admonition-notes admonition">
 <p class="admonition-title">Notes</p>
-<p>The Turbonomic API is not a versioned REST API, and each release is treated
-as if it were a separate API, while retaining the name of “API 2.0” to
-distinguish it from the “API 1.0” implementation available prior to the
-Turbonomic HTML UI released with v6.0 of the core product.</p>
+<p>The Turbonomic API is not a well versioned REST API, and each release is
+treated as if it were a separate API, while retaining the name of
+“API 2.0” to distinguish it from the “API 1.0” implementation available
+prior to the Turbonomic HTML UI released with v6.0 of the core product.</p>
 </div>
 <dl class="method">
 <dt id="vmtconnect.VersionSpec.check">
@@ -334,11 +371,13 @@ calls will be made. (default: <code class="docutils literal notranslate"><span c
 <div class="admonition-notes admonition">
 <p class="admonition-title">Notes</p>
 <p>The default minimum version for classic builds is 6.1.x, and for XL it is 7.21.x Using a previous version will trigger a version warning. To avoid this warning, you will need to explicitly pass in a <code class="xref py py-class docutils literal notranslate"><span class="pre">VMTVersionSpec</span></code> object for the version desired.</p>
-<p>Due to XL token authentication, all connections to XL will be changed to a session regardless of the state of <code class="docutils literal notranslate"><span class="pre">use_session</span></code>.</p>
 <p>Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS connection. Because of this, vmt-connect defaults to using SSL. Versions prior to 6.0 using HTTP will need to manually set ssl to False.
 If verify is given a path to a directory, the directory must have been processed using the c_rehash utility supplied with OpenSSL.
 For client side certificates using <cite>cert</cite>: the private key to your local certificate must be unencrypted. Currently, Requests does not support using encrypted keys.
 Requests uses certificates from the package certifi.</p>
+<p>The /api/v2 path was added in 6.4, and the /api/v3 path was added in XL
+branch 7.21. The XL API is not intended to be an extension of the Classic
+API. vmtconnect will attempt to detect which API you are connecting to.</p>
 </div>
 <dl class="method">
 <dt id="vmtconnect.Connection.add_group">
@@ -477,9 +516,17 @@ parameter is provided, all actions from the real-time market will be listed.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_cached_inventory">
-<code class="descname">get_cached_inventory</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_cached_inventory" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_cached_inventory</code><span class="sig-paren">(</span><em>market</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_cached_inventory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the market entities inventory from cache, populating the
 cache if necessary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>market</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Market id to get cached inventory for.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of market entities in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></a> form.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -599,6 +646,20 @@ blank.</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A list of stats for all periods between start and end dates.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.Connection.get_group_actions">
+<code class="descname">get_group_actions</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_group_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of group actions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Group UUID.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list containing all actions for the given the group.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1132,9 +1193,17 @@ parameter is provided, all actions from the real-time market will be listed.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_cached_inventory">
-<code class="descname">get_cached_inventory</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_cached_inventory" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_cached_inventory</code><span class="sig-paren">(</span><em>market</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_cached_inventory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the market entities inventory from cache, populating the
 cache if necessary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>market</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Market id to get cached inventory for.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of market entities in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></a> form.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1254,6 +1323,20 @@ blank.</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A list of stats for all periods between start and end dates.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.Session.get_group_actions">
+<code class="descname">get_group_actions</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_group_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of group actions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Group UUID.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list containing all actions for the given the group.</p>
 </dd>
 </dl>
 </dd></dl>
