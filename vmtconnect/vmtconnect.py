@@ -197,11 +197,13 @@ class Version:
         version (obj): Version object returned by Turbonomic instance.
 
     Attributes:
-        version: Reported Instance version
-        product: Reported Product name
-        base_version: Equivalent Turbonomic version
-        base_build: Equivalent Turbonomic build
-        base_branch: Equivalent Turbonomic branch
+        version (str): Reported Instance version
+        product (str): Reported Product name
+        snapshot (bool): ``True`` if the build is a snapshot / dev build, ``False``
+            otherwise.
+        base_version (str): Equivalent Turbonomic version
+        base_build (str): Equivalent Turbonomic build
+        base_branch (str): Equivalent Turbonomic branch
     """
 
     def __init__(self, version):
@@ -285,6 +287,7 @@ class VersionSpec:
 
     Examples:
         VersionSpec(['6.0+'], exclude=['6.0.1', '6.1.2', '6.2.5', '6.3.0'])
+
         VersionSpec(['7.21+'], snapshot=True)
 
     Args:
@@ -299,10 +302,10 @@ class VersionSpec:
             False, only the explicit product version will be compared. (Default: ``True``)
 
     Notes:
-        The Turbonomic API is not a versioned REST API, and each release is treated
-        as if it were a separate API, while retaining the name of "API 2.0" to
-        distinguish it from the "API 1.0" implementation available prior to the
-        Turbonomic HTML UI released with v6.0 of the core product.
+        The Turbonomic API is not a well versioned REST API, and each release is
+        treated as if it were a separate API, while retaining the name of
+        "API 2.0" to distinguish it from the "API 1.0" implementation available
+        prior to the Turbonomic HTML UI released with v6.0 of the core product.
     """
     def __init__(self, versions=None, exclude=None, required=False,
                  snapshot=False, cmp_base=True):
@@ -451,12 +454,14 @@ class Connection:
     Notes:
         The default minimum version for classic builds is 6.1.x, and for XL it is 7.21.x Using a previous version will trigger a version warning. To avoid this warning, you will need to explicitly pass in a :class:`~VMTVersionSpec` object for the version desired.
 
-        Due to XL token authentication, all connections to XL will be changed to a session regardless of the state of ``use_session``.
-
         Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS connection. Because of this, vmt-connect defaults to using SSL. Versions prior to 6.0 using HTTP will need to manually set ssl to False.
         If verify is given a path to a directory, the directory must have been processed using the c_rehash utility supplied with OpenSSL.
         For client side certificates using `cert`: the private key to your local certificate must be unencrypted. Currently, Requests does not support using encrypted keys.
         Requests uses certificates from the package certifi.
+
+        The /api/v2 path was added in 6.4, and the /api/v3 path was added in XL
+        branch 7.21. The XL API is not intended to be an extension of the Classic
+        API. vmtconnect will attempt to detect which API you are connecting to.
     """
     # system level markets to block certain actions
     # this is done by name, and subject to breaking if names are abused
@@ -745,16 +750,22 @@ class Connection:
 
         return self.request(f'markets/{market}/actions')
 
-    def get_cached_inventory(self, id):
+    def get_cached_inventory(self, market):
         """Returns the market entities inventory from cache, populating the
         cache if necessary.
-        """
-        if not self.__is_cache_valid(id):
-            delta = datetime.timedelta(seconds=self.__inventory_cache_timeout)
-            self.__inventory_cache[id]['data'] = self.request(f'markets/{id}/entities')
-            self.__inventory_cache[id]['expires'] = datetime.datetime.now() + delta
 
-        return self.__inventory_cache[id]['data']
+        Args:
+            market (str): Market id to get cached inventory for.
+
+        Returns:
+            A list of market entities in :obj:`dict` form.
+        """
+        if not self.__is_cache_valid(market):
+            delta = datetime.timedelta(seconds=self.__inventory_cache_timeout)
+            self.__inventory_cache[market]['data'] = self.request(f'markets/{market}/entities')
+            self.__inventory_cache[market]['expires'] = datetime.datetime.now() + delta
+
+        return self.__inventory_cache[market]['data']
 
     def get_current_user(self):
         """Returns the current user.
@@ -991,6 +1002,17 @@ class Connection:
             A list of groups in :obj:`dict` form.
         """
         return self.request('groups', uuid=uuid)
+
+    def get_group_actions(self, uuid=None):
+        """Returns a list of group actions.
+
+        Args:
+            uuid (str): Group UUID.
+
+        Returns:
+            A list containing all actions for the given the group.
+        """
+        return self.request(f'groups/{uuid}/actions')
 
     def get_group_by_name(self, name):
         """Returns the first group that match `name`.
