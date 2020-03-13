@@ -105,7 +105,10 @@ _version_mappings = {
         '2.3.4': '6.4.8',
         '2.3.5': '6.4.9',
         '2.3.6': '6.4.10',
-        '3.0.0': '7.21.0' # stub for future compatibility
+        '2.3.7': '6.4.11',
+        '2.3.8': '6.4.12',
+        '2.3.9': '6.4.13',
+        '2.3.10': '6.4.14'
     }
 }
 
@@ -146,6 +149,11 @@ class VMTFormatError(Exception):
     pass
 
 
+class VMTNextCursorMissingError(VMTConnectionError):
+    """Raised if the paging cursor header is not provided when expected"""
+    pass
+
+
 class HTTPError(Exception):
     """Raised when an blocking or unknown HTTP error is returned."""
     pass
@@ -155,12 +163,12 @@ class HTTP400Error(HTTPError):
     """Raised when an HTTP 400 error is returned."""
     pass
 
-class HTTP401Error(HTTPError):
+class HTTP401Error(HTTP400Error):
     """Raised when access fails, due to bad login or insufficient permissions."""
     pass
 
 
-class HTTP404Error(HTTPError):
+class HTTP404Error(HTTP400Error):
     """Raised when a requested resource cannot be located."""
     pass
 
@@ -174,6 +182,13 @@ class HTTP502Error(HTTP500Error):
     """Raised when an HTTP 502 Bad Gateway error is returned. In most cases this
     indicates a timeout issue with synchronous calls to Turbonomic and can be
     safely ignored."""
+    pass
+
+
+class HTTP503Error(HTTP500Error):
+    """Raised when an HTTP 503 Service Unavailable error is returned. Subsequent
+    calls should be expected to fail, and this should be treated as terminal to
+    the session."""
     pass
 
 
@@ -445,9 +460,12 @@ class Connection:
             will be created, otherwise individual :py:class:`Requests.Request`
             calls will be made. (default: ``True``)
 
+
     Attributes:
         disable_hateoas (bool): HATEOAS links state.
+        fetch_all (bool): Fetch all cursor results.
         headers (dict): Dictionary of custom headers for all calls.
+        results_limit (int): Results set limiting & curor stepping.
         update_headers (dict): Dictionary of custom headers for put and post calls.
         version (:class:`Version`): Turbonomic instance version object.
 
@@ -461,7 +479,8 @@ class Connection:
 
         The /api/v2 path was added in 6.4, and the /api/v3 path was added in XL
         branch 7.21. The XL API is not intended to be an extension of the Classic
-        API. vmtconnect will attempt to detect which API you are connecting to.
+        API, though there is significant parity. vmtconnect will attempt to
+        detect which API you are connecting to.
     """
     # system level markets to block certain actions
     # this is done by name, and subject to breaking if names are abused
@@ -476,7 +495,6 @@ class Connection:
         self.__use_session(False)
 
         self.host = host or 'localhost'
-        self.base_path = None
         self.protocol = 'https' if ssl else 'http'
         self.disable_hateoas = disable_hateoas
 
@@ -484,6 +502,8 @@ class Connection:
         self.__version = None
         self.__cert = cert
         self.__login = False
+        self.fetch_all = True
+        self.results_limit = 0
         self.headers = headers or {}
         self.cookies = None
         self.update_headers = {}
@@ -538,7 +558,63 @@ class Connection:
                                             }
                                  }
 
-    def _request(self, method, resource, query='', data=None, **kwargs):
+    def __collected_request(self, method, url, **kwargs):
+        r = self.__conn(method, url, **kwargs)
+
+        if 'x-next-cursor' in r.headers:
+            next = r.headers['x-next-cursor']
+            response = requests.Response()
+            response.record_count = 0
+
+            # not implemented completely in all versions (OM-55522, OM-55655)
+            if 'x-total-record-count' not in response.headers:
+                warnings.warn('Endpoint returned a cursor without the expected "x-total-record-count" header.')
+                response.record_total = None
+            else:
+                response.record_total = r.headers['x-total-record-count']
+
+            while True:
+                next = getattr(r.headers, 'x-next-cursor', None)
+                response.status_code = r.status_code
+                response.cookies = r.cookies
+                response.headers = r.headers
+                response.record_count += len(r._content)
+
+                # we expect cursors to always return lists, even for single values
+                if response._content:
+                    response._content = response._content.rstrip(b'] ')
+                    response._content += b',' + r._content.lstrip(b' [')
+                else:
+                    response._content = r._content
+
+                # TODO: see if there's a better way to handle this,
+                # it may have to return a broken / partial response
+                if r.status_code /100 != 2:
+                    return response
+
+                # some endpoints return non-functional cursors (OM-55522)
+                if next is not None and next.isdigit():
+                    if 'cursor' in url:
+                        next_url = re.sub(r'cursor=([\d]+)', f'cursor={next}', url)
+                    else:
+                        next_url = url + ('&' if '?' in url else '?') + f'cursor={next}'
+
+                    r = self.__conn(method, next_url, **kwargs)
+                elif response.record_total is not None and \
+                     response.record_count < response.record_total:
+                    raise VMTNextCursorMissingError(f'Expected a follup cursor, none provided. Received {response.record_count} of {response.record_total} expected values.')
+                else:
+                    # should be end of cursor
+                    return response
+
+            # end loop ----------
+
+            return response
+        else:
+            # non-cursor result
+            return r
+
+    def _request(self, method, resource, query='', data=None, fetch_all=True, **kwargs):
         method = method.upper()
         url = urlunparse((self.protocol, self.host,
                           self.base_path + resource.lstrip('/'), '', query, ''))
@@ -546,7 +622,7 @@ class Connection:
         if data is not None and kwargs['content_type'] is not None:
             self.headers.update({'Content-Type': kwargs['content_type']})
 
-        # kwargs that must not be passed to requests
+        # strip kwargs that must not be passed to requests
         if 'content_type' in kwargs:
             del kwargs['content_type']
 
@@ -558,12 +634,15 @@ class Connection:
 
         if method in ('POST', 'PUT'):
             kwargs['headers'] = {**kwargs['headers'], **self.update_headers}
+            kwargs['data'] = data
 
-            return self.__conn(method, url, data=data, **kwargs)
+        if fetch_all:
+            return self.__collected_request(method, url, **kwargs)
 
         return self.__conn(method, url, **kwargs)
 
-    def request(self, path, method='GET', query='', dto=None, uuid=None, **kwargs):
+    def request(self, path, method='GET', query='', dto=None, uuid=None,
+                fetch_all=True, results_limit=0, **kwargs):
         """Constructs and sends an appropriate HTTP request.
 
         Args:
@@ -572,6 +651,11 @@ class Connection:
             query (str, optional): Query string parameters to attach.
             dto (str, optional): Data transfer object to send to the server.
             uuid (str, optional): Turbonomic object UUID to operate on.
+            fetch_all (bool, optional): If set to ``True``, will fetch all results
+                when a cursor is returned, otherwise only the current result set is
+                returned. (default: ``True``)
+            results_limit (int, optional): If set, use the results limit stepping
+                specified. A value of 0 indicates use system default. (default: 0)
             **kwargs: Additional :py:class:`Requests.Request` keyword arguments.
         """
         if uuid is not None:
@@ -584,13 +668,16 @@ class Connection:
         if dto is not None and method == 'GET':
             method = 'POST'
 
-        if method == 'GET' and self.disable_hateoas:
+        if self.disable_hateoas:
             query += ('&' if query != '' else '') + 'disable_hateoas=true'
+
+        if results_limit > 0:
+            query += ('&' if query != '' else '') + f'limit={results_limit}'
 
         msg = ''
         kwargs.update({'content_type': 'application/json'})
         response = self._request(method=method, resource=path, query=query,
-                                 data=dto, **kwargs)
+                                 data=dto, fetch_all=fetch_all, **kwargs)
 
         try:
             self.cookies = response.cookies
@@ -598,21 +685,27 @@ class Connection:
 
             if response.status_code/100 != 2:
                 msg = f': [{res["exception"]}]'
-        except Exception:
-            pass
+        except Exception as e:
+            res = None
 
+        if response.status_code == 503:
+            if 'Retry-After' in response.headers:
+                retry = 'Retry after: ' + response.headers['Retry-After']
+            else:
+                retry = 'No retry provided.'
+            raise HTTP503Error(f'HTTP 503 - Service Unavailable: {retry}')
         if response.status_code == 502:
-            raise HTTP502Error(f'(API) HTTP 502 - Bad Gateway {msg}')
+            raise HTTP502Error(f'HTTP 502 - Bad Gateway {msg}')
         if response.status_code/100 == 5:
-            raise HTTP500Error(f'(API) HTTP {response.status_code} - Server Error {msg}')
+            raise HTTP500Error(f'HTTP {response.status_code} - Server Error {msg}')
         if response.status_code == 401:
-            raise HTTP401Error(f'(API) HTTP 401 - Unauthorized {msg}')
+            raise HTTP401Error(f'HTTP 401 - Unauthorized {msg}')
         if response.status_code == 404:
-            raise HTTP404Error(f'(API) HTTP 404 - Resource Not Found {msg}')
+            raise HTTP404Error(f'HTTP 404 - Resource Not Found {msg}')
         if response.status_code/100 == 4:
-            raise HTTP400Error(f'(API) HTTP {response.status_code} - Client Error {msg}')
+            raise HTTP400Error(f'HTTP {response.status_code} - Client Error {msg}')
         if response.status_code/100 != 2:
-            raise HTTPError(f'(API) HTTP Code {response.status_code} returned {msg}')
+            raise HTTPError(f'HTTP Code {response.status_code} returned {msg}')
         if response.text == 'true':
             return True
         if response.text == 'false':
@@ -650,9 +743,11 @@ class Connection:
             # temporarily disable hateoas, shouldn't matter though
             hateoas = self.disable_hateoas
             self.disable_hateoas = False
-            self.__version = Version(self.request('admin/versions')[0])
-            self.disable_hateoas = hateoas
 
+            try:
+                self.__version = Version(self.request('admin/versions')[0])
+            finally:
+                self.disable_hateoas = hateoas
 
         return self.__version
 
@@ -673,9 +768,9 @@ class Connection:
 
     def __resolve_base_path(self, path=None):
         # /vmturbo/rest is the "unversioned" path
-        # /api/v2 is the v2 path intended for classic, but some XL instances use it
-        # /api/v3 is the v3 path intended for XL, but not all XL instances support it
-        # there's also possibly /t8c/v1
+        # /api/v2 is the v2 path intended for classic; some XL instances use it
+        # /api/v3 is the v3 path intended for XL; not all XL instances support it
+        # there's also possibly /t8c/v1 and /api/v4 ... go figure
         if path is not None:
             return path
 
@@ -685,9 +780,11 @@ class Connection:
                     self.base_path = base
                     v = self.version
                     return base
-                except Exception:
+                except HTTP400Error:
                     self.base_path = None
                     continue
+                except Exception:
+                    raise
 
         raise VMTUnknownVersion('Unable to determine base path')
 
@@ -704,7 +801,7 @@ class Connection:
         self.__system_market_ids = [x['uuid'] for x in res if x['displayName'] in self.__system_markets]
 
     def _search_cache(self, id, name, type=None, case_sensitive=False):
-        # populates internal cache, no need to duplicate in local var
+        # populates internal cache
         self.get_cached_inventory(id)
         results = []
 
@@ -730,7 +827,7 @@ class Connection:
 
         return False
 
-    def get_actions(self, market='Market', uuid=None):
+    def get_actions(self, market='Market', uuid=None, **kwargs):
         """Returns a list of actions.
 
         The get_actions method returns a list of actions from a given market,
@@ -746,11 +843,11 @@ class Connection:
             A list of actions
         """
         if uuid:
-            return self.request('actions', uuid=uuid)
+            return self.request('actions', uuid=uuid, **kwargs)
 
-        return self.request(f'markets/{market}/actions')
+        return self.request(f'markets/{market}/actions', **kwargs)
 
-    def get_cached_inventory(self, market):
+    def get_cached_inventory(self, market, **kwargs):
         """Returns the market entities inventory from cache, populating the
         cache if necessary.
 
@@ -762,20 +859,20 @@ class Connection:
         """
         if not self.__is_cache_valid(market):
             delta = datetime.timedelta(seconds=self.__inventory_cache_timeout)
-            self.__inventory_cache[market]['data'] = self.request(f'markets/{market}/entities')
+            self.__inventory_cache[market]['data'] = self.request(f'markets/{market}/entities', **kwargs)
             self.__inventory_cache[market]['expires'] = datetime.datetime.now() + delta
 
         return self.__inventory_cache[market]['data']
 
-    def get_current_user(self):
+    def get_current_user(self, **kwargs):
         """Returns the current user.
 
         Returns:
             A list of one user object in :obj:`dict` form.
         """
-        return self.request('users/me')
+        return self.request('users/me', **kwargs)
 
-    def get_users(self, uuid=None):
+    def get_users(self, uuid=None, **kwargs):
         """Returns a list of users.
 
         Args:
@@ -784,9 +881,9 @@ class Connection:
         Returns:
             A list of user objects in :obj:`dict` form.
         """
-        return self.request('users', uuid=uuid)
+        return self.request('users', uuid=uuid, **kwargs)
 
-    def get_markets(self, uuid=None):
+    def get_markets(self, uuid=None, **kwargs):
         """Returns a list of markets.
 
         Args:
@@ -795,9 +892,9 @@ class Connection:
         Returns:
             A list of markets in :obj:`dict` form.
         """
-        return self.request('markets', uuid=uuid)
+        return self.request('markets', uuid=uuid, **kwargs)
 
-    def get_market_entities(self, uuid='Market'):
+    def get_market_entities(self, uuid='Market', **kwargs):
         """Returns a list of entities in the given market.
 
         Args:
@@ -806,9 +903,9 @@ class Connection:
         Returns:
             A list of market entities in :obj:`dict` form.
         """
-        return self.request(f'markets/{uuid}/entities')
+        return self.request(f'markets/{uuid}/entities', **kwargs)
 
-    def get_market_state(self, uuid='Market'):
+    def get_market_state(self, uuid='Market', **kwargs):
         """Returns the state of a market.
 
         Args:
@@ -817,9 +914,9 @@ class Connection:
         Returns:
             A string representation of the market state.
         """
-        return self.get_markets(uuid)[0]['state']
+        return self.get_markets(uuid, **kwargs)[0]['state']
 
-    def get_market_stats(self, uuid='Market', filter=None):
+    def get_market_stats(self, uuid='Market', filter=None, **kwargs):
         """Returns a list of market statistics.
 
         Args:
@@ -830,11 +927,12 @@ class Connection:
             A list of stat objects in :obj:`dict` form.
         """
         if filter:
-            return self.request(f'markets/{uuid}/stats', method='POST', dto=filter)
+            return self.request(f'markets/{uuid}/stats', method='POST', dto=filter, **kwargs)
 
-        return self.request(f'markets/{uuid}/stats')
+        return self.request(f'markets/{uuid}/stats', **kwargs)
 
-    def get_entities(self, type=None, uuid=None, detail=False, market='Market', cache=False):
+    def get_entities(self, type=None, uuid=None, detail=False, market='Market',
+                     cache=False, **kwargs):
         """Returns a list of entities in the given market.
 
         Args:
@@ -869,16 +967,16 @@ class Connection:
                 entities = [x for x in entities if x['uuid'] == uuid]
         else:
             if market is not None:
-                entities = self.get_market_entities(market)
+                entities = self.get_market_entities(market, **kwargs)
             else:
-                entities = self.request(path, method='GET', query=param)
+                entities = self.request(path, method='GET', query=param, **kwargs)
 
         if type:
             return [x for x in entities if x['className'] == type]
 
         return entities
 
-    def get_virtualmachines(self, uuid=None, market='Market'):
+    def get_virtualmachines(self, uuid=None, market='Market', **kwargs):
         """Returns a list of virtual machines in the given market.
 
         Args:
@@ -888,9 +986,9 @@ class Connection:
         Returns:
             A list of virtual machines in :obj:`dict` form.
         """
-        return self.get_entities('VirtualMachine', uuid=uuid, market=market)
+        return self.get_entities('VirtualMachine', uuid=uuid, market=market, **kwargs)
 
-    def get_physicalmachines(self, uuid=None, market='Market'):
+    def get_physicalmachines(self, uuid=None, market='Market', **kwargs):
         """Returns a list of hosts in the given market.
 
         Args:
@@ -900,9 +998,9 @@ class Connection:
         Returns:
             A list of hosts in :obj:`dict` form.
         """
-        return self.get_entities('PhysicalMachine', uuid=uuid, market=market)
+        return self.get_entities('PhysicalMachine', uuid=uuid, market=market, **kwargs)
 
-    def get_datacenters(self, uuid=None, market='Market'):
+    def get_datacenters(self, uuid=None, market='Market', **kwargs):
         """Returns a list of datacenters in the given market.
 
         Args:
@@ -912,9 +1010,9 @@ class Connection:
         Returns:
             A list of datacenters in :obj:`dict` form.
         """
-        return self.get_entities('DataCenter', uuid=uuid, market=market)
+        return self.get_entities('DataCenter', uuid=uuid, market=market, **kwargs)
 
-    def get_datastores(self, uuid=None, market='Market'):
+    def get_datastores(self, uuid=None, market='Market', **kwargs):
         """Returns a list of datastores in the given market.
 
         Args:
@@ -924,9 +1022,9 @@ class Connection:
         Returns:
             A list of datastores in :obj:`dict` form.
         """
-        return self.get_entities('Storage', uuid=uuid, market=market)
+        return self.get_entities('Storage', uuid=uuid, market=market, **kwargs)
 
-    def get_entity_groups(self, uuid):
+    def get_entity_groups(self, uuid, **kwargs):
         """Returns a list of groups the entity belongs to.
 
         Args:
@@ -935,9 +1033,10 @@ class Connection:
         Returns:
             A list containing groups the entity belongs to.
         """
-        return self.request(f'entities/{uuid}/groups')
+        return self.request(f'entities/{uuid}/groups', **kwargs)
 
-    def get_entity_stats(self, scope, start_date=None, end_date=None, stats=None):
+    def get_entity_stats(self, scope, start_date=None, end_date=None,
+                         stats=None, **kwargs):
         """Returns stats for the specific scope of entities.
 
         Provides entity level stats with filtering.
@@ -968,10 +1067,11 @@ class Connection:
 
         dto = json.dumps(dto)
 
-        return self.request('stats', method='POST', dto=dto)
+        return self.request('stats', method='POST', dto=dto, **kwargs)
 
     # TODO: vmsByAltName is supposed to do this - broken
-    def get_entity_by_remoteid(self, remote_id, target_name=None, target_uuid=None):
+    def get_entity_by_remoteid(self, remote_id, target_name=None,
+                               target_uuid=None, **kwargs):
         """Returns a list of entities from the real-time market for a given remoteId
 
         Args:
@@ -982,7 +1082,7 @@ class Connection:
         Returns:
             A list of entities in :obj:`dict` form.
         """
-        entities = [x for x in self.get_entities() if x.get('remoteId') == remote_id]
+        entities = [x for x in self.get_entities(**kwargs) if x.get('remoteId') == remote_id]
 
         if target_name and entities:
             entities = [x for x in entities if x['discoveredBy']['displayName'] == target_name]
@@ -992,7 +1092,7 @@ class Connection:
 
         return entities
 
-    def get_groups(self, uuid=None):
+    def get_groups(self, uuid=None, **kwargs):
         """Returns a list of groups in the given market
 
         Args:
@@ -1001,9 +1101,9 @@ class Connection:
         Returns:
             A list of groups in :obj:`dict` form.
         """
-        return self.request('groups', uuid=uuid)
+        return self.request('groups', uuid=uuid, **kwargs)
 
-    def get_group_actions(self, uuid=None):
+    def get_group_actions(self, uuid=None, **kwargs):
         """Returns a list of group actions.
 
         Args:
@@ -1012,9 +1112,9 @@ class Connection:
         Returns:
             A list containing all actions for the given the group.
         """
-        return self.request(f'groups/{uuid}/actions')
+        return self.request(f'groups/{uuid}/actions', **kwargs)
 
-    def get_group_by_name(self, name):
+    def get_group_by_name(self, name, **kwargs):
         """Returns the first group that match `name`.
 
         Args:
@@ -1023,7 +1123,7 @@ class Connection:
         Returns:
             A list containing the group in :obj:`dict` form.
         """
-        groups = self.get_groups()
+        groups = self.get_groups(**kwargs)
 
         for grp in groups:
             if grp['displayName'] == name:
@@ -1031,7 +1131,7 @@ class Connection:
 
         return None
 
-    def get_group_entities(self, uuid):
+    def get_group_entities(self, uuid, **kwargs):
         """Returns a detailed list of member entities that belong to the group.
 
         Args:
@@ -1040,9 +1140,9 @@ class Connection:
         Returns:
             A list containing all members of the group and their related consumers.
         """
-        return self.request(f'groups/{uuid}/entities')
+        return self.request(f'groups/{uuid}/entities', **kwargs)
 
-    def get_group_members(self, uuid):
+    def get_group_members(self, uuid, **kwargs):
         """Returns a list of members that belong to the group.
 
         Args:
@@ -1051,9 +1151,10 @@ class Connection:
         Returns:
             A list containing all members of the group.
         """
-        return self.request(f'groups/{uuid}/members')
+        return self.request(f'groups/{uuid}/members', **kwargs)
 
-    def get_group_stats(self, uuid, stats_filter=None, start_date=None, end_date=None):
+    def get_group_stats(self, uuid, stats_filter=None, start_date=None,
+                        end_date=None, **kwargs):
         """Returns the aggregated statistics for a group.
 
         Args:
@@ -1068,7 +1169,7 @@ class Connection:
             A list containing the group stats in :obj:`dict` form.
         """
         if stats_filter is None:
-            return self.request(f'groups/{uuid}/stats')
+            return self.request(f'groups/{uuid}/stats', **kwargs)
 
         dto = {}
 
@@ -1083,7 +1184,7 @@ class Connection:
 
         dto = json.dumps(dto)
 
-        return self.request(f'groups/{uuid}/stats', method='POST', dto=dto)
+        return self.request(f'groups/{uuid}/stats', method='POST', dto=dto, **kwargs)
 
     def get_scenarios(self, uuid=None):
         """Returns a list of scenarios.
@@ -1094,9 +1195,9 @@ class Connection:
         Returns:
             A list of scenarios in :obj:`dict` form.
         """
-        return self.request('scenarios', uuid=uuid)
+        return self.request('scenarios', uuid=uuid, **kwargs)
 
-    def get_targets(self, uuid=None):
+    def get_targets(self, uuid=None, **kwargs):
         """Returns a list of targets.
 
         Args:
@@ -1105,9 +1206,10 @@ class Connection:
         Returns:
             A list containing targets in :obj:`dict` form.
         """
-        return self.request('targets', uuid=uuid)
+        return self.request('targets', uuid=uuid, **kwargs)
 
-    def get_target_for_entity(self, uuid=None, name=None, type='VirtualMachine'):
+    def get_target_for_entity(self, uuid=None, name=None,
+                              type='VirtualMachine', **kwargs):
         """Returns a list of templates.
 
         Args:
@@ -1124,13 +1226,13 @@ class Connection:
             If a name lookup returns multiple entities, only the first is returned.
         """
         if uuid:
-            entity = self.get_entities(uuid=uuid)
+            entity = self.get_entities(uuid=uuid, **kwargs)[0]
         else:
-            entity = self.search_by_name(name, type)
+            entity = self.search_by_name(name, type)[0]
 
-        return self.request('targets', uuid=entity[0]['discoveredBy']['uuid'])
+        return self.request('targets', uuid=entity['discoveredBy']['uuid'], **kwargs)
 
-    def get_templates(self, uuid=None):
+    def get_templates(self, uuid=None, **kwargs):
         """Returns a list of templates.
 
         Args:
@@ -1139,9 +1241,9 @@ class Connection:
         Returns:
             A list containing templates in :obj:`dict` form.
         """
-        return self.request('templates', uuid=uuid)
+        return self.request('templates', uuid=uuid, **kwargs)
 
-    def get_template_by_name(self, name):
+    def get_template_by_name(self, name, **kwargs):
         """Returns a template by name.
 
         Args:
@@ -1150,7 +1252,7 @@ class Connection:
         Returns:
             A list containing the template in :obj:`dict` form.
         """
-        templates = self.get_templates()
+        templates = self.get_templates(**kwargs)
 
         for tpl in templates:
             # not all contain displayName
@@ -1267,7 +1369,8 @@ class Connection:
         """
         return self.request('scenarios', method='DELETE', uuid=uuid)
 
-    def search(self, dto=None, q=None, types=None, scopes=None, state=None, group_type=None):
+    def search(self, dto=None, q=None, types=None, scopes=None, state=None,
+               group_type=None, **kwargs):
         """Raw search method.
 
         Provides a basic interface for issuing direct queries to the Turbonomic
@@ -1307,7 +1410,8 @@ class Connection:
 
         return self.request('search', query=urlencode(query))
 
-    def search_by_name(self, name, type=None, case_sensitive=False, from_cache=False):
+    def search_by_name(self, name, type=None, case_sensitive=False,
+                       from_cache=False, **kwargs):
         """Searches for an entity by name.
 
         Args:

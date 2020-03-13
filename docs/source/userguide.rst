@@ -1,5 +1,5 @@
 .. # Links
-.. _API: https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf
+.. _API: https://greencircle.vmturbo.com/community/products/pages/documentation
 .. _Turbonomic: http://www.turbonomic.com
 
 ==========
