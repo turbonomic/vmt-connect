@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>vmtconnect — Developer Interfaces &mdash; vmt-connect 3.0.6 documentation</title>
+  <title>vmtconnect — Developer Interfaces &mdash; vmt-connect 3.1.0 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                3.0.6
+                3.1.0
               </div>
             
           
@@ -336,12 +336,34 @@ calls will be made. (default: <code class="docutils literal notranslate"><span c
 </dd></dl>
 
 <dl class="attribute">
+<dt id="vmtconnect.Connection.fetch_all">
+<code class="descname">fetch_all</code><a class="headerlink" href="#vmtconnect.Connection.fetch_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch all cursor results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="vmtconnect.Connection.headers">
 <code class="descname">headers</code><a class="headerlink" href="#vmtconnect.Connection.headers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dictionary of custom headers for all calls.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Connection.results_limit">
+<code class="descname">results_limit</code><a class="headerlink" href="#vmtconnect.Connection.results_limit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Results set limiting &amp; curor stepping.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -377,7 +399,8 @@ For client side certificates using <cite>cert</cite>: the private key to your lo
 Requests uses certificates from the package certifi.</p>
 <p>The /api/v2 path was added in 6.4, and the /api/v3 path was added in XL
 branch 7.21. The XL API is not intended to be an extension of the Classic
-API. vmtconnect will attempt to detect which API you are connecting to.</p>
+API, though there is significant parity. vmtconnect will attempt to
+detect which API you are connecting to.</p>
 </div>
 <dl class="method">
 <dt id="vmtconnect.Connection.add_group">
@@ -495,7 +518,7 @@ and the <a class="reference external" href="http://rsnyc.sdf.org/vmt/">Unofficia
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_actions">
-<code class="descname">get_actions</code><span class="sig-paren">(</span><em>market='Market'</em>, <em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_actions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_actions</code><span class="sig-paren">(</span><em>market='Market'</em>, <em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_actions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of actions.</p>
 <p>The get_actions method returns a list of actions from a given market,
 or can be used to lookup a specific action by its uuid. The options are
@@ -516,7 +539,7 @@ parameter is provided, all actions from the real-time market will be listed.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_cached_inventory">
-<code class="descname">get_cached_inventory</code><span class="sig-paren">(</span><em>market</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_cached_inventory" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_cached_inventory</code><span class="sig-paren">(</span><em>market</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_cached_inventory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the market entities inventory from cache, populating the
 cache if necessary.</p>
 <dl class="field-list simple">
@@ -531,7 +554,7 @@ cache if necessary.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_current_user">
-<code class="descname">get_current_user</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_current_user" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_current_user</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_current_user" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the current user.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -542,7 +565,7 @@ cache if necessary.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_datacenters">
-<code class="descname">get_datacenters</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_datacenters" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_datacenters</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_datacenters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of datacenters in the given market.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -559,7 +582,7 @@ cache if necessary.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_datastores">
-<code class="descname">get_datastores</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_datastores" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_datastores</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_datastores" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of datastores in the given market.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -576,7 +599,7 @@ cache if necessary.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_entities">
-<code class="descname">get_entities</code><span class="sig-paren">(</span><em>type=None</em>, <em>uuid=None</em>, <em>detail=False</em>, <em>market='Market'</em>, <em>cache=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_entities" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_entities</code><span class="sig-paren">(</span><em>type=None</em>, <em>uuid=None</em>, <em>detail=False</em>, <em>market='Market'</em>, <em>cache=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_entities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of entities in the given market.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -598,7 +621,7 @@ market cache. (default: <code class="docutils literal notranslate"><span class="
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_entity_by_remoteid">
-<code class="descname">get_entity_by_remoteid</code><span class="sig-paren">(</span><em>remote_id</em>, <em>target_name=None</em>, <em>target_uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_entity_by_remoteid" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_entity_by_remoteid</code><span class="sig-paren">(</span><em>remote_id</em>, <em>target_name=None</em>, <em>target_uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_entity_by_remoteid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of entities from the real-time market for a given remoteId</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -616,7 +639,7 @@ market cache. (default: <code class="docutils literal notranslate"><span class="
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_entity_groups">
-<code class="descname">get_entity_groups</code><span class="sig-paren">(</span><em>uuid</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_entity_groups" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_entity_groups</code><span class="sig-paren">(</span><em>uuid</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_entity_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of groups the entity belongs to.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -630,7 +653,7 @@ market cache. (default: <code class="docutils literal notranslate"><span class="
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_entity_stats">
-<code class="descname">get_entity_stats</code><span class="sig-paren">(</span><em>scope</em>, <em>start_date=None</em>, <em>end_date=None</em>, <em>stats=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_entity_stats" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_entity_stats</code><span class="sig-paren">(</span><em>scope</em>, <em>start_date=None</em>, <em>end_date=None</em>, <em>stats=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_entity_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns stats for the specific scope of entities.</p>
 <p>Provides entity level stats with filtering.</p>
 <dl class="field-list simple">
@@ -652,7 +675,7 @@ blank.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_group_actions">
-<code class="descname">get_group_actions</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_group_actions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_group_actions</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_group_actions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of group actions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -666,7 +689,7 @@ blank.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_group_by_name">
-<code class="descname">get_group_by_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_group_by_name" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_group_by_name</code><span class="sig-paren">(</span><em>name</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_group_by_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the first group that match <cite>name</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -680,7 +703,7 @@ blank.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_group_entities">
-<code class="descname">get_group_entities</code><span class="sig-paren">(</span><em>uuid</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_group_entities" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_group_entities</code><span class="sig-paren">(</span><em>uuid</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_group_entities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a detailed list of member entities that belong to the group.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -694,7 +717,7 @@ blank.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_group_members">
-<code class="descname">get_group_members</code><span class="sig-paren">(</span><em>uuid</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_group_members" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_group_members</code><span class="sig-paren">(</span><em>uuid</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_group_members" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of members that belong to the group.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -708,7 +731,7 @@ blank.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_group_stats">
-<code class="descname">get_group_stats</code><span class="sig-paren">(</span><em>uuid</em>, <em>stats_filter=None</em>, <em>start_date=None</em>, <em>end_date=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_group_stats" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_group_stats</code><span class="sig-paren">(</span><em>uuid</em>, <em>stats_filter=None</em>, <em>start_date=None</em>, <em>end_date=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_group_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the aggregated statistics for a group.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -729,7 +752,7 @@ time string.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_groups">
-<code class="descname">get_groups</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_groups" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_groups</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of groups in the given market</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -743,7 +766,7 @@ time string.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_market_entities">
-<code class="descname">get_market_entities</code><span class="sig-paren">(</span><em>uuid='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_market_entities" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_market_entities</code><span class="sig-paren">(</span><em>uuid='Market'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_market_entities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of entities in the given market.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -757,7 +780,7 @@ time string.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_market_state">
-<code class="descname">get_market_state</code><span class="sig-paren">(</span><em>uuid='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_market_state" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_market_state</code><span class="sig-paren">(</span><em>uuid='Market'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_market_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the state of a market.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -771,7 +794,7 @@ time string.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_market_stats">
-<code class="descname">get_market_stats</code><span class="sig-paren">(</span><em>uuid='Market'</em>, <em>filter=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_market_stats" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_market_stats</code><span class="sig-paren">(</span><em>uuid='Market'</em>, <em>filter=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_market_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of market statistics.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -788,7 +811,7 @@ time string.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_markets">
-<code class="descname">get_markets</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_markets" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_markets</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_markets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of markets.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -802,7 +825,7 @@ time string.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_physicalmachines">
-<code class="descname">get_physicalmachines</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_physicalmachines" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_physicalmachines</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_physicalmachines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of hosts in the given market.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -833,7 +856,7 @@ time string.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_target_for_entity">
-<code class="descname">get_target_for_entity</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>name=None</em>, <em>type='VirtualMachine'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_target_for_entity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_target_for_entity</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>name=None</em>, <em>type='VirtualMachine'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_target_for_entity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of templates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -857,7 +880,7 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_targets">
-<code class="descname">get_targets</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_targets" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_targets</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_targets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of targets.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -871,7 +894,7 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_template_by_name">
-<code class="descname">get_template_by_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_template_by_name" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_template_by_name</code><span class="sig-paren">(</span><em>name</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_template_by_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a template by name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -885,7 +908,7 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_templates">
-<code class="descname">get_templates</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_templates" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_templates</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_templates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of templates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -899,7 +922,7 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_users">
-<code class="descname">get_users</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_users" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_users</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_users" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of users.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -913,7 +936,7 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_virtualmachines">
-<code class="descname">get_virtualmachines</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_virtualmachines" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_virtualmachines</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_virtualmachines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of virtual machines in the given market.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -941,7 +964,7 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.request">
-<code class="descname">request</code><span class="sig-paren">(</span><em>path</em>, <em>method='GET'</em>, <em>query=''</em>, <em>dto=None</em>, <em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.request" title="Permalink to this definition">¶</a></dt>
+<code class="descname">request</code><span class="sig-paren">(</span><em>path</em>, <em>method='GET'</em>, <em>query=''</em>, <em>dto=None</em>, <em>uuid=None</em>, <em>fetch_all=True</em>, <em>results_limit=0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructs and sends an appropriate HTTP request.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -951,6 +974,11 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 <li><p><strong>query</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Query string parameters to attach.</p></li>
 <li><p><strong>dto</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Data transfer object to send to the server.</p></li>
 <li><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Turbonomic object UUID to operate on.</p></li>
+<li><p><strong>fetch_all</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, will fetch all results
+when a cursor is returned, otherwise only the current result set is
+returned. (default: <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p></li>
+<li><p><strong>results_limit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – If set, use the results limit stepping
+specified. A value of 0 indicates use system default. (default: 0)</p></li>
 <li><p><strong>**kwargs</strong> – Additional <code class="xref py py-class docutils literal notranslate"><span class="pre">Requests.Request</span></code> keyword arguments.</p></li>
 </ul>
 </dd>
@@ -959,7 +987,7 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.search">
-<code class="descname">search</code><span class="sig-paren">(</span><em>dto=None</em>, <em>q=None</em>, <em>types=None</em>, <em>scopes=None</em>, <em>state=None</em>, <em>group_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.search" title="Permalink to this definition">¶</a></dt>
+<code class="descname">search</code><span class="sig-paren">(</span><em>dto=None</em>, <em>q=None</em>, <em>types=None</em>, <em>scopes=None</em>, <em>state=None</em>, <em>group_type=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.search" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raw search method.</p>
 <p>Provides a basic interface for issuing direct queries to the Turbonomic
 search endpoint.</p>
@@ -989,7 +1017,7 @@ and the <a class="reference external" href="http://rsnyc.sdf.org/vmt/">Unofficia
 
 <dl class="method">
 <dt id="vmtconnect.Connection.search_by_name">
-<code class="descname">search_by_name</code><span class="sig-paren">(</span><em>name</em>, <em>type=None</em>, <em>case_sensitive=False</em>, <em>from_cache=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.search_by_name" title="Permalink to this definition">¶</a></dt>
+<code class="descname">search_by_name</code><span class="sig-paren">(</span><em>name</em>, <em>type=None</em>, <em>case_sensitive=False</em>, <em>from_cache=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.search_by_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Searches for an entity by name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1172,7 +1200,7 @@ and the <a class="reference external" href="http://rsnyc.sdf.org/vmt/">Unofficia
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_actions">
-<code class="descname">get_actions</code><span class="sig-paren">(</span><em>market='Market'</em>, <em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_actions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_actions</code><span class="sig-paren">(</span><em>market='Market'</em>, <em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_actions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of actions.</p>
 <p>The get_actions method returns a list of actions from a given market,
 or can be used to lookup a specific action by its uuid. The options are
@@ -1193,7 +1221,7 @@ parameter is provided, all actions from the real-time market will be listed.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_cached_inventory">
-<code class="descname">get_cached_inventory</code><span class="sig-paren">(</span><em>market</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_cached_inventory" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_cached_inventory</code><span class="sig-paren">(</span><em>market</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_cached_inventory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the market entities inventory from cache, populating the
 cache if necessary.</p>
 <dl class="field-list simple">
@@ -1208,7 +1236,7 @@ cache if necessary.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_current_user">
-<code class="descname">get_current_user</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_current_user" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_current_user</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_current_user" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the current user.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -1219,7 +1247,7 @@ cache if necessary.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_datacenters">
-<code class="descname">get_datacenters</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_datacenters" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_datacenters</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_datacenters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of datacenters in the given market.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1236,7 +1264,7 @@ cache if necessary.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_datastores">
-<code class="descname">get_datastores</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_datastores" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_datastores</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_datastores" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of datastores in the given market.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1253,7 +1281,7 @@ cache if necessary.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_entities">
-<code class="descname">get_entities</code><span class="sig-paren">(</span><em>type=None</em>, <em>uuid=None</em>, <em>detail=False</em>, <em>market='Market'</em>, <em>cache=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_entities" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_entities</code><span class="sig-paren">(</span><em>type=None</em>, <em>uuid=None</em>, <em>detail=False</em>, <em>market='Market'</em>, <em>cache=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_entities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of entities in the given market.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1275,7 +1303,7 @@ market cache. (default: <code class="docutils literal notranslate"><span class="
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_entity_by_remoteid">
-<code class="descname">get_entity_by_remoteid</code><span class="sig-paren">(</span><em>remote_id</em>, <em>target_name=None</em>, <em>target_uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_entity_by_remoteid" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_entity_by_remoteid</code><span class="sig-paren">(</span><em>remote_id</em>, <em>target_name=None</em>, <em>target_uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_entity_by_remoteid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of entities from the real-time market for a given remoteId</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1293,7 +1321,7 @@ market cache. (default: <code class="docutils literal notranslate"><span class="
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_entity_groups">
-<code class="descname">get_entity_groups</code><span class="sig-paren">(</span><em>uuid</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_entity_groups" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_entity_groups</code><span class="sig-paren">(</span><em>uuid</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_entity_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of groups the entity belongs to.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1307,7 +1335,7 @@ market cache. (default: <code class="docutils literal notranslate"><span class="
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_entity_stats">
-<code class="descname">get_entity_stats</code><span class="sig-paren">(</span><em>scope</em>, <em>start_date=None</em>, <em>end_date=None</em>, <em>stats=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_entity_stats" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_entity_stats</code><span class="sig-paren">(</span><em>scope</em>, <em>start_date=None</em>, <em>end_date=None</em>, <em>stats=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_entity_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns stats for the specific scope of entities.</p>
 <p>Provides entity level stats with filtering.</p>
 <dl class="field-list simple">
@@ -1329,7 +1357,7 @@ blank.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_group_actions">
-<code class="descname">get_group_actions</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_group_actions" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_group_actions</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_group_actions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of group actions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1343,7 +1371,7 @@ blank.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_group_by_name">
-<code class="descname">get_group_by_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_group_by_name" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_group_by_name</code><span class="sig-paren">(</span><em>name</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_group_by_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the first group that match <cite>name</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1357,7 +1385,7 @@ blank.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_group_entities">
-<code class="descname">get_group_entities</code><span class="sig-paren">(</span><em>uuid</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_group_entities" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_group_entities</code><span class="sig-paren">(</span><em>uuid</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_group_entities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a detailed list of member entities that belong to the group.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1371,7 +1399,7 @@ blank.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_group_members">
-<code class="descname">get_group_members</code><span class="sig-paren">(</span><em>uuid</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_group_members" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_group_members</code><span class="sig-paren">(</span><em>uuid</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_group_members" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of members that belong to the group.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1385,7 +1413,7 @@ blank.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_group_stats">
-<code class="descname">get_group_stats</code><span class="sig-paren">(</span><em>uuid</em>, <em>stats_filter=None</em>, <em>start_date=None</em>, <em>end_date=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_group_stats" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_group_stats</code><span class="sig-paren">(</span><em>uuid</em>, <em>stats_filter=None</em>, <em>start_date=None</em>, <em>end_date=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_group_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the aggregated statistics for a group.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1406,7 +1434,7 @@ time string.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_groups">
-<code class="descname">get_groups</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_groups" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_groups</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of groups in the given market</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1420,7 +1448,7 @@ time string.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_market_entities">
-<code class="descname">get_market_entities</code><span class="sig-paren">(</span><em>uuid='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_market_entities" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_market_entities</code><span class="sig-paren">(</span><em>uuid='Market'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_market_entities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of entities in the given market.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1434,7 +1462,7 @@ time string.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_market_state">
-<code class="descname">get_market_state</code><span class="sig-paren">(</span><em>uuid='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_market_state" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_market_state</code><span class="sig-paren">(</span><em>uuid='Market'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_market_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the state of a market.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1448,7 +1476,7 @@ time string.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_market_stats">
-<code class="descname">get_market_stats</code><span class="sig-paren">(</span><em>uuid='Market'</em>, <em>filter=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_market_stats" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_market_stats</code><span class="sig-paren">(</span><em>uuid='Market'</em>, <em>filter=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_market_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of market statistics.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1465,7 +1493,7 @@ time string.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_markets">
-<code class="descname">get_markets</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_markets" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_markets</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_markets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of markets.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1479,7 +1507,7 @@ time string.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_physicalmachines">
-<code class="descname">get_physicalmachines</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_physicalmachines" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_physicalmachines</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_physicalmachines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of hosts in the given market.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1510,7 +1538,7 @@ time string.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_target_for_entity">
-<code class="descname">get_target_for_entity</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>name=None</em>, <em>type='VirtualMachine'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_target_for_entity" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_target_for_entity</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>name=None</em>, <em>type='VirtualMachine'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_target_for_entity" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of templates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1534,7 +1562,7 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_targets">
-<code class="descname">get_targets</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_targets" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_targets</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_targets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of targets.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1548,7 +1576,7 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_template_by_name">
-<code class="descname">get_template_by_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_template_by_name" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_template_by_name</code><span class="sig-paren">(</span><em>name</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_template_by_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a template by name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1562,7 +1590,7 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_templates">
-<code class="descname">get_templates</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_templates" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_templates</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_templates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of templates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1576,7 +1604,7 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_users">
-<code class="descname">get_users</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_users" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_users</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_users" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of users.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1590,7 +1618,7 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_virtualmachines">
-<code class="descname">get_virtualmachines</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_virtualmachines" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_virtualmachines</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>market='Market'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_virtualmachines" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of virtual machines in the given market.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1618,7 +1646,7 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Session.request">
-<code class="descname">request</code><span class="sig-paren">(</span><em>path</em>, <em>method='GET'</em>, <em>query=''</em>, <em>dto=None</em>, <em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.request" title="Permalink to this definition">¶</a></dt>
+<code class="descname">request</code><span class="sig-paren">(</span><em>path</em>, <em>method='GET'</em>, <em>query=''</em>, <em>dto=None</em>, <em>uuid=None</em>, <em>fetch_all=True</em>, <em>results_limit=0</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructs and sends an appropriate HTTP request.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1628,6 +1656,11 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 <li><p><strong>query</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Query string parameters to attach.</p></li>
 <li><p><strong>dto</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Data transfer object to send to the server.</p></li>
 <li><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Turbonomic object UUID to operate on.</p></li>
+<li><p><strong>fetch_all</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, will fetch all results
+when a cursor is returned, otherwise only the current result set is
+returned. (default: <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p></li>
+<li><p><strong>results_limit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – If set, use the results limit stepping
+specified. A value of 0 indicates use system default. (default: 0)</p></li>
 <li><p><strong>**kwargs</strong> – Additional <code class="xref py py-class docutils literal notranslate"><span class="pre">Requests.Request</span></code> keyword arguments.</p></li>
 </ul>
 </dd>
@@ -1636,7 +1669,7 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 
 <dl class="method">
 <dt id="vmtconnect.Session.search">
-<code class="descname">search</code><span class="sig-paren">(</span><em>dto=None</em>, <em>q=None</em>, <em>types=None</em>, <em>scopes=None</em>, <em>state=None</em>, <em>group_type=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.search" title="Permalink to this definition">¶</a></dt>
+<code class="descname">search</code><span class="sig-paren">(</span><em>dto=None</em>, <em>q=None</em>, <em>types=None</em>, <em>scopes=None</em>, <em>state=None</em>, <em>group_type=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.search" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raw search method.</p>
 <p>Provides a basic interface for issuing direct queries to the Turbonomic
 search endpoint.</p>
@@ -1666,7 +1699,7 @@ and the <a class="reference external" href="http://rsnyc.sdf.org/vmt/">Unofficia
 
 <dl class="method">
 <dt id="vmtconnect.Session.search_by_name">
-<code class="descname">search_by_name</code><span class="sig-paren">(</span><em>name</em>, <em>type=None</em>, <em>case_sensitive=False</em>, <em>from_cache=False</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.search_by_name" title="Permalink to this definition">¶</a></dt>
+<code class="descname">search_by_name</code><span class="sig-paren">(</span><em>name</em>, <em>type=None</em>, <em>case_sensitive=False</em>, <em>from_cache=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.search_by_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Searches for an entity by name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
