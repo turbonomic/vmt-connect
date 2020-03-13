@@ -2,14 +2,14 @@
    sphinx-quickstart on Tue Jul 18 10:49:54 2017.
 
 .. # Links
-.. _API 2.0: https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf
+.. _API: https://greencircle.vmturbo.com/community/products/pages/documentation
 
 ==================================
 vmt-connect Documentation Contents
 ==================================
 
 *vmt-connect* provides a set of wrapper classes and utility methods used to handle
-connecting to the Turbonomic `API 2.0`_.
+connecting to the Turbonomic `API`_.
 
 
 .. toctree::
