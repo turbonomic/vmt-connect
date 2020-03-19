@@ -931,6 +931,43 @@ class Connection:
 
         return self.request(f'markets/{uuid}/stats', **kwargs)
 
+    def get_market_supplychains(self, market='Market', types=None, states=None,
+                                detail=None, environment=None, aspects=None,
+                                health=False, **kwargs):
+        """Returns a set of supplychains for the given market.
+
+        Args:
+            market (str, optional): Market UUID. (default: `Market`)
+            types (list, optional): List of entity types.
+            states: (list, optional): List of entity states to filter by.
+            detail: (str, optional): Entity detail level.
+            environment: (str, optional): Environment to filter by.
+            aspects: (list, optional): List of entity aspects to filter by.
+            health: (bool, optional): If ``True`` entity health information will
+                included. (default: ``False``)
+        """
+        param = None
+
+        if types is not None:
+            param += ('&' if query != '' else '') + 'types=' + {','.join(types)}
+
+        if states is not None:
+            param += ('&' if query != '' else '') + 'entity_states=' + {','.join(states)}
+
+        if detail is not None:
+            param += ('&' if query != '' else '') + 'detail_type=' + detail
+
+        if environment is not None:
+            param += ('&' if query != '' else '') + 'environment_type=' + environment
+
+        if aspects is not None:
+            param += ('&' if query != '' else '') + 'aspect_names=' + {','.join(aspects)}
+
+        if health:
+            param += ('&' if query != '' else '') + 'health=true'
+
+        return self.request(f'markest/{market}/supplychains', query=param, **kwargs)
+
     def get_entities(self, type=None, uuid=None, detail=False, market='Market',
                      cache=False, **kwargs):
         """Returns a list of entities in the given market.
