@@ -16,6 +16,7 @@ import re
 import warnings
 import base64
 import json
+import math
 import requests
 import datetime
 
@@ -263,7 +264,7 @@ class Version:
                 ver[label] = obj.get(x)
 
         # backwards compatibility pre 6.1 white label version mapping
-        # forward versions of classic store this directly (usually), X
+        # forward versions of classic store this directly (usually)
         if ver['base_branch'] is None or ver['base_version'] is None:
             if ver['product'] == 'Turbonomic':
                 ver['base_version'] = ver['version']
@@ -437,8 +438,138 @@ class VMTVersion(VersionSpec):
         super().__init__(versions=versions, exclude=exclude, required=require)
 
 
+class Pager:
+    """API request pager class
+
+    A :class:`~Pager` is a special request handler which permits the processing
+    of paged :py:meth:`~Connection.request` results, keeping state between each
+    successive call. Although you can instantiate a :class:`~Pager` directly,
+    it is generally better to request one by adding ``pager=True`` to your
+    existing :py:class:`Connection` method call.
+
+    Args:
+        conn (:py:class:`Connection`): Connection object to associate the pager
+            to.
+        response (:py:class:`requests.Response`): Requests :py:class:`requests.Response`
+            object to build the pager from. This must be the object, and not the
+            JSON parsed output.
+        **kwargs: Additional :py:class:`requests.Request` keyword arguments.
+
+    Attributes:
+        all (list): List of all responses combined.
+        complete (bool): Flag indicating the cursor has been exhausted.
+        next (list): Next response object. Calling this
+            updates the :py:class:`~Pager` internal state.
+        page (int): Current page index.
+        pages_fetched (int): Cumulative count of pages received.
+        pages_total (int): Calculated count of pages based on page size and total record count.
+        records (int): Count of records in the current page.
+        records_fetched (int): Cumulative count of records received.
+        records_total (int): Count of records reported by the API.
+        response (:py:class:`requests.Request`): Most recent response object.
+
+    Notes:
+    """
+    def __init__(self, conn, response, **kwargs):
+        self.__conn = conn
+        self.__response = response
+        self.__complete = False
+        self.__kwargs = kwargs
+        self.__next = 0
+
+        self.page = 0
+        self.pages_total = 0
+        self.records = 0
+        self.records_fetched = 0
+        self.records_total = 0
+
+    def _complete(self):
+        self.__next = -1
+        self.__complete = True
+
+    def prepare_next(self):
+        if 'cursor' in self.__response.url:
+            self.__url = re.sub(r'(?<=\?|&)cursor=([\d]+)', f'cursor={self.__next}', self.__response.url)
+        else:
+            self.__url = self.__response.url + ('&' if '?' in self.__response.url else '?') + f'cursor={self.__next}'
+
+    @property
+    def all(self):
+        data = []
+
+        while True:
+            _page = self.next
+
+            if _page is None:
+                self.__complete = True
+                break
+
+            data += _page
+
+        return data
+
+    @property
+    def complete(self):
+        return self.__complete
+
+    @property
+    def next(self):
+        if self.complete:
+            return None
+        elif self.__next > 0:
+            # get next
+            self.__response = self.__conn._request(self.__method, self.__url, **self.__kwargs)
+
+        #if 'x-total-record-count' not in self.__response.headers:
+        #    warnings.warn('Endpoint returned a cursor without the expected "x-total-record-count" header.')
+        self.__conn.request_check_error(self.__response)
+
+        try:
+            self.__next = int(self.__response.headers['x-next-cursor'])
+        except (ValueError, KeyError):
+            self._complete()
+
+        res = self.__response.json()
+        self.__conn.cookies = self.__response.cookies
+        self.page += 1
+        self.records += len(res)
+        self.records_fetched += self.records
+
+        if self.page == 1:
+            self.__method = self.__response.request.method
+            self.records_total = int(self.__response.headers.get('x-total-record-count', -1))
+            pagesize = self.__conn.results_limit if self.__conn.results_limit > 0 else self.__next
+            self.pages_total = math.ceil(self.records_total / pagesize) if pagesize > 0 else -1
+
+        if self.__next > 0:
+            self.prepare_next()
+        elif self.records_total > 0 and self.records_fetched < self.records_total:
+            raise VMTNextCursorMissingError(f'Expected a follow-up cursor, none provided. Received {self.records_fetched} of {self.records_total} expected values.')
+        else:
+            self._complete()
+
+        return [res] if isinstance(res, dict) else res
+
+    @property
+    def response_object(self):
+        return self.__response
+
+    @property
+    def response(self):
+        res = self.__response.json()
+        return [res] if isinstance(res, dict) else res
+
 class Connection:
     """Turbonomic instance connection class
+
+    The primary API interface. In addition to the noted method parameters, each
+    method also supports a per call ``fetch_all`` flag, as well as a ``pager`` flag.
+    Each of these override the connection global property, and will be safely
+    ignored if the endpoint does not support or does not required paging the
+    results. Additionally, you may pass :py:class:`requests.Request` keyword
+    arguments to each call if required (such as `timeout <https://requests.readthedocs.io/en/master/user/quickstart/#timeouts>`_).
+    Care should be taken, as some parameters may break *vmt-connect* calls if they
+    conflict with existing headers, or alter expected results.
 
     Args:
         host (str, optional): The hostname or IP address to connect to. (default:
@@ -456,10 +587,9 @@ class Connection:
         verify (string, optional): SSL certificate bundle path. (default: ``False``)
         cert (string, optional): Local client side certificate file.
         headers (dict, optional): Dicitonary of additional persistent headers.
-        use_session (bool, optional): If set to ``True``, a :py:class:`Requests.Session`
-            will be created, otherwise individual :py:class:`Requests.Request`
+        use_session (bool, optional): If set to ``True``, a :py:class:`requests.Session`
+            will be created, otherwise individual :py:class:`requests.Request`
             calls will be made. (default: ``True``)
-
 
     Attributes:
         disable_hateoas (bool): HATEOAS links state.
@@ -470,16 +600,23 @@ class Connection:
         version (:class:`Version`): Turbonomic instance version object.
 
     Notes:
-        The default minimum version for classic builds is 6.1.x, and for XL it is 7.21.x Using a previous version will trigger a version warning. To avoid this warning, you will need to explicitly pass in a :class:`~VMTVersionSpec` object for the version desired.
+        The default minimum version for classic builds is 6.1.x, and for XL it
+        is 7.21.x Using a previous version will trigger a version warning. To
+        avoid this warning, you will need to explicitly pass in a :class:`~VMTVersionSpec`
+        object for the version desired.
 
-        Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS connection. Because of this, vmt-connect defaults to using SSL. Versions prior to 6.0 using HTTP will need to manually set ssl to False.
-        If verify is given a path to a directory, the directory must have been processed using the c_rehash utility supplied with OpenSSL.
-        For client side certificates using `cert`: the private key to your local certificate must be unencrypted. Currently, Requests does not support using encrypted keys.
-        Requests uses certificates from the package certifi.
+        Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS
+        connection. Because of this, vmt-connect defaults to using SSL. Versions
+        prior to 6.0 using HTTP will need to manually set ssl to ``False``. If
+        verify is given a path to a directory, the directory must have been
+        processed using the c_rehash utility supplied with OpenSSL. For client
+        side certificates using `cert`: the private key to your local certificate
+        must be unencrypted. Currently, Requests does not support using encrypted
+        keys. Requests uses certificates from the package certifi.
 
         The /api/v2 path was added in 6.4, and the /api/v3 path was added in XL
         branch 7.21. The XL API is not intended to be an extension of the Classic
-        API, though there is significant parity. vmtconnect will attempt to
+        API, though there is extensive parity. *vmt-connect* will attempt to
         detect which API you are connecting to.
     """
     # system level markets to block certain actions
@@ -494,16 +631,17 @@ class Connection:
         # temporary for initial discovery connections
         self.__use_session(False)
 
-        self.host = host or 'localhost'
-        self.protocol = 'https' if ssl else 'http'
-        self.disable_hateoas = disable_hateoas
-
         self.__verify = verify
         self.__version = None
         self.__cert = cert
         self.__login = False
-        self.fetch_all = True
+
+        self.host = host or 'localhost'
+        self.protocol = 'https' if ssl else 'http'
+        self.disable_hateoas = disable_hateoas
+        self.fetch_all = False
         self.results_limit = 0
+        self.content_type = 'application/json'
         self.headers = headers or {}
         self.cookies = None
         self.update_headers = {}
@@ -558,69 +696,13 @@ class Connection:
                                             }
                                  }
 
-    def __collected_request(self, method, url, **kwargs):
-        r = self.__conn(method, url, **kwargs)
-
-        if 'x-next-cursor' in r.headers:
-            next = r.headers['x-next-cursor']
-            response = requests.Response()
-            response.record_count = 0
-
-            # not implemented completely in all versions (OM-55522, OM-55655)
-            if 'x-total-record-count' not in response.headers:
-                warnings.warn('Endpoint returned a cursor without the expected "x-total-record-count" header.')
-                response.record_total = None
-            else:
-                response.record_total = r.headers['x-total-record-count']
-
-            while True:
-                next = getattr(r.headers, 'x-next-cursor', None)
-                response.status_code = r.status_code
-                response.cookies = r.cookies
-                response.headers = r.headers
-                response.record_count += len(r._content)
-
-                # we expect cursors to always return lists, even for single values
-                if response._content:
-                    response._content = response._content.rstrip(b'] ')
-                    response._content += b',' + r._content.lstrip(b' [')
-                else:
-                    response._content = r._content
-
-                # TODO: see if there's a better way to handle this,
-                # it may have to return a broken / partial response
-                if r.status_code /100 != 2:
-                    return response
-
-                # some endpoints return non-functional cursors (OM-55522)
-                if next is not None and next.isdigit():
-                    if 'cursor' in url:
-                        next_url = re.sub(r'cursor=([\d]+)', f'cursor={next}', url)
-                    else:
-                        next_url = url + ('&' if '?' in url else '?') + f'cursor={next}'
-
-                    r = self.__conn(method, next_url, **kwargs)
-                elif response.record_total is not None and \
-                     response.record_count < response.record_total:
-                    raise VMTNextCursorMissingError(f'Expected a follup cursor, none provided. Received {response.record_count} of {response.record_total} expected values.')
-                else:
-                    # should be end of cursor
-                    return response
-
-            # end loop ----------
-
-            return response
-        else:
-            # non-cursor result
-            return r
-
-    def _request(self, method, resource, query='', data=None, fetch_all=True, **kwargs):
+    def _request(self, method, resource, query='', data=None, fetch_all=False, **kwargs):
         method = method.upper()
         url = urlunparse((self.protocol, self.host,
                           self.base_path + resource.lstrip('/'), '', query, ''))
 
-        if data is not None and kwargs['content_type'] is not None:
-            self.headers.update({'Content-Type': kwargs['content_type']})
+        if data is not None:
+            self.headers.update({'Content-Type': kwargs.get('content_type', self.content_type)})
 
         # strip kwargs that must not be passed to requests
         if 'content_type' in kwargs:
@@ -636,57 +718,26 @@ class Connection:
             kwargs['headers'] = {**kwargs['headers'], **self.update_headers}
             kwargs['data'] = data
 
-        if fetch_all:
-            return self.__collected_request(method, url, **kwargs)
+        try:
+            return self.__conn(method, url, **kwargs)
+        except requests.exceptions.ConnectionError as e:
+            raise VMTConnectionError(e)
+        except Exception:
+            raise
 
-        return self.__conn(method, url, **kwargs)
-
-    def request(self, path, method='GET', query='', dto=None, uuid=None,
-                fetch_all=True, results_limit=0, **kwargs):
-        """Constructs and sends an appropriate HTTP request.
-
-        Args:
-            path (str): API resource to utilize, relative to ``base_path``.
-            method (str, optional): HTTP method to use for the request. (default: `GET`)
-            query (str, optional): Query string parameters to attach.
-            dto (str, optional): Data transfer object to send to the server.
-            uuid (str, optional): Turbonomic object UUID to operate on.
-            fetch_all (bool, optional): If set to ``True``, will fetch all results
-                when a cursor is returned, otherwise only the current result set is
-                returned. (default: ``True``)
-            results_limit (int, optional): If set, use the results limit stepping
-                specified. A value of 0 indicates use system default. (default: 0)
-            **kwargs: Additional :py:class:`Requests.Request` keyword arguments.
-        """
-        if uuid is not None:
-            path = f'{path}/{uuid}'
-
-        if query is None:
-            query = ''
-
-        # attempt to detect a misdirected POST
-        if dto is not None and method == 'GET':
-            method = 'POST'
-
-        if self.disable_hateoas:
-            query += ('&' if query != '' else '') + 'disable_hateoas=true'
-
-        if results_limit > 0:
-            query += ('&' if query != '' else '') + f'limit={results_limit}'
+    def request_check_error(self, response):
+        if response.status_code/100 == 2:
+            return False
 
         msg = ''
-        kwargs.update({'content_type': 'application/json'})
-        response = self._request(method=method, resource=path, query=query,
-                                 data=dto, fetch_all=fetch_all, **kwargs)
 
         try:
-            self.cookies = response.cookies
-            res = response.json()
-
-            if response.status_code/100 != 2:
-                msg = f': [{res["exception"]}]'
-        except Exception as e:
-            res = None
+            msg = f': [{response.json()}]'
+        except Exception:
+            try:
+                msg = f': [{response.content}]'
+            except Exception:
+                pass
 
         if response.status_code == 503:
             if 'Retry-After' in response.headers:
@@ -706,11 +757,74 @@ class Connection:
             raise HTTP400Error(f'HTTP {response.status_code} - Client Error {msg}')
         if response.status_code/100 != 2:
             raise HTTPError(f'HTTP Code {response.status_code} returned {msg}')
-        if response.text == 'true':
-            return True
-        if response.text == 'false':
-            return False
 
+    def request(self, path, method='GET', query='', dto=None, **kwargs):
+        """Constructs and sends an appropriate HTTP request.
+
+        Most responses will be returned as a list of one or more objects, as
+        parsed from the JSON response. As of v3.2.0 paged results will return
+        a :py:class:`~Pager` instance. The `pager` and `fetch_all` parameters
+        may be used to alter the response behaviour.
+
+        Args:
+            path (str): API resource to utilize, relative to ``base_path``.
+            method (str, optional): HTTP method to use for the request. (default: `GET`)
+            query (dict, optional): A dictionary of key-value paires to attach.
+                A single pre-processed string may also be used, for backwards
+                compatibility.
+            dto (str, optional): Data transfer object to send to the server.
+            pager (bool, optional): If set to ``True``, a :py:class:`~Pager`
+                instance will be returned, instead of a single response of
+                the cursor. (default: ``False``)
+            fetch_all (bool, optional): If set to ``True``, will fetch all results
+                into a single response when a cursor is returned, otherwise only
+                the current result set is returned. This option overrides the
+                `pager` parameter. (default: ``False``)
+            **kwargs: Additional :py:class:`requests.Request` keyword arguments.
+
+        Notes:
+            The `fetch_all` parameter default was changed in v3.2 from ``True``
+            to ``False`` with the addition of the :py:class:`~Pager` response
+            class.
+        """
+        # attempt to detect a misdirected POST
+        if dto is not None and method == 'GET':
+            method = 'POST'
+
+        if query and isinstance(query, dict):
+            if self.results_limit > 0:
+                query['limit'] = self.results_limit
+            if self.disable_hateoas:
+                query['disable_hateoas'] = 'true'
+
+            query = '&'.join([f'{k}={v}' for k,v in query.items()])
+
+        # assign and then remove non-requests kwargs
+        fetch_all = kwargs.get('fetch_all', self.fetch_all)
+        pager = kwargs.get('pager', False)
+        uuid = kwargs.get('uuid', None)
+        path += f'/{uuid}' if uuid is not None else ''
+
+        for x in ['fetch_all', 'pager', 'uuid']:
+            try:
+                del kwargs[x]
+            except KeyError:
+                pass
+
+        response = self._request(method, path, query, dto, **kwargs)
+        self.request_check_error(response)
+
+        if 'x-next-cursor' in response.headers or pager:
+            res = Pager(self, response, **kwargs)
+
+            if fetch_all:
+                return res.all
+            elif pager:# or response.headers['x-next-cursor'] is not None:
+                return res
+            else:
+                return res.next
+
+        res = response.json()
         return [res] if isinstance(res, dict) else res
 
     @staticmethod
@@ -859,7 +973,7 @@ class Connection:
         """
         if not self.__is_cache_valid(market):
             delta = datetime.timedelta(seconds=self.__inventory_cache_timeout)
-            self.__inventory_cache[market]['data'] = self.request(f'markets/{market}/entities', **kwargs)
+            self.__inventory_cache[market]['data'] = self.request(f'markets/{market}/entities', fetch_all=True, **kwargs)
             self.__inventory_cache[market]['expires'] = datetime.datetime.now() + delta
 
         return self.__inventory_cache[market]['data']
@@ -905,6 +1019,21 @@ class Connection:
         """
         return self.request(f'markets/{uuid}/entities', **kwargs)
 
+    def get_market_entities_stats(self, uuid='Market', filter=None, **kwargs):
+        """Returns a list of market entity statistics.
+
+        Args:
+            uuid (str, optional): Market UUID. (default: `Market`)
+            filter (dict, optional): DTO style filter to limit stats returned.
+
+        Returns:
+            A list of entity stats objects in :obj:`dict` form.
+        """
+        if filter:
+            return self.request(f'markets/{uuid}/entities/stats', method='POST', dto=filter, **kwargs)
+
+        return self.request(f'markets/{uuid}/entities/stats', **kwargs)
+
     def get_market_state(self, uuid='Market', **kwargs):
         """Returns the state of a market.
 
@@ -946,27 +1075,18 @@ class Connection:
             health: (bool, optional): If ``True`` entity health information will
                 included. (default: ``False``)
         """
-        param = None
+        args = {
+            'types': ','.join(types) if types else None,
+            'entity_states': ','.join(states) if states else None,
+            'detail_type': detail,
+            'environment_type': environment,
+            'aspect_names': ','.join(aspects) if aspects else None,
+            'health': health
+        }
 
-        if types is not None:
-            param += ('&' if query != '' else '') + 'types=' + {','.join(types)}
-
-        if states is not None:
-            param += ('&' if query != '' else '') + 'entity_states=' + {','.join(states)}
-
-        if detail is not None:
-            param += ('&' if query != '' else '') + 'detail_type=' + detail
-
-        if environment is not None:
-            param += ('&' if query != '' else '') + 'environment_type=' + environment
-
-        if aspects is not None:
-            param += ('&' if query != '' else '') + 'aspect_names=' + {','.join(aspects)}
-
-        if health:
-            param += ('&' if query != '' else '') + 'health=true'
-
-        return self.request(f'markest/{market}/supplychains', query=param, **kwargs)
+        return self.request(f'markets/{market}/supplychains',
+                            query={k:v for k,v in args.items() if v is not None},
+                            **kwargs)
 
     def get_entities(self, type=None, uuid=None, detail=False, market='Market',
                      cache=False, **kwargs):
@@ -985,7 +1105,7 @@ class Connection:
             A list of entities in :obj:`dict` form.
 
         """
-        param = None
+        query = {}
 
         if market == self.__market_uuid:
             market = 'Market'
@@ -995,7 +1115,7 @@ class Connection:
             market = None
 
             if detail:
-                param = 'include_aspects=true'
+                query['include_aspects'] = True
 
         if cache:
             entities = self.get_cached_inventory(market)
@@ -1006,7 +1126,7 @@ class Connection:
             if market is not None:
                 entities = self.get_market_entities(market, **kwargs)
             else:
-                entities = self.request(path, method='GET', query=param, **kwargs)
+                entities = self.request(path, method='GET', query=query, **kwargs)
 
         if type:
             return [x for x in entities if x['className'] == type]
@@ -1094,8 +1214,10 @@ class Connection:
 
         if start_date:
             period['startDate'] = start_date
+
         if end_date:
             period['endDate'] = end_date
+
         if stats:
             period['statistics'] = self._stats_filter(stats)
 
@@ -1326,11 +1448,12 @@ class Connection:
         if members is None:
             members = []
 
-        dto = {'displayName': name,
-               'isStatic': True,
-               'groupType': type,
-               'memberUuidList': members
-               }
+        dto = {
+            'displayName': name,
+            'isStatic': True,
+            'groupType': type,
+            'memberUuidList': members
+        }
 
         return self.add_group(json.dumps(dto))
 
@@ -1406,8 +1529,7 @@ class Connection:
         """
         return self.request('scenarios', method='DELETE', uuid=uuid)
 
-    def search(self, dto=None, q=None, types=None, scopes=None, state=None,
-               group_type=None, **kwargs):
+    def search(self, dto=None, **kwargs):
         """Raw search method.
 
         Provides a basic interface for issuing direct queries to the Turbonomic
@@ -1420,7 +1542,12 @@ class Connection:
             types (list, optional): Types of entities to return.
             scopes (list, optional): Entities to scope to.
             state (str, optional): State filter.
+            environment_type (str, optional): Environment filter.
             group_type (str, optional): Group type filter.
+            detail_type (str, optional): Entity detail filter.
+            entity_types (list, optional): Member entity types filter.
+            probe_types (list, optional): Target probe type filter.
+            regex (bool, optional): Flag for regex query string searching.
 
         Returns:
             A list of search results.
@@ -1433,19 +1560,26 @@ class Connection:
             Search criteria list: `http://<host>/vmturbo/rest/search/criteria`
         """
         if dto is not None:
-            return self.request('search', method='POST', dto=dto)
+            return self.request('search', method='POST', dto=dto, **kwargs)
 
         query = {}
-        vars = {'q': q, 'types': types, 'scopes': scopes, 'state': state, 'group_type': group_type}
+        remove = []
+        args = ['q', 'types', 'scopes', 'state', 'environment_type', 'group_type',
+        'detail_type', 'entity_types', 'regex', 'probe_types']
 
-        for v in vars:
-            if vars[v] is not None:
-                if v[-1] == 's':
-                    query[v] = ','.join(vars[v])
+        for k,v in kwargs.items():
+            if v is not None:
+                if k in ['types', 'scopes', 'entity_types', 'probe_types']:
+                    query[k] = ','.join(v)
                 else:
-                    query[v] = vars[v]
+                    query[k] = v
 
-        return self.request('search', query=urlencode(query))
+                remove += [k]
+
+        for x in remove:
+            del kwargs[x]
+
+        return self.request('search', query=query, **kwargs)
 
     def search_by_name(self, name, type=None, case_sensitive=False,
                        from_cache=False, **kwargs):

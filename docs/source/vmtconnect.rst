@@ -17,6 +17,9 @@ Connections
 .. autoclass:: VersionSpec
    :members:
 
+.. autoclass:: Pager
+   :members:
+
 .. autoclass:: Connection
    :members:
 

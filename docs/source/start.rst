@@ -6,7 +6,7 @@
 .. _repository: https://github.com/rastern/vmt-connect
 .. _releases: https://github.com/rastern/vmt-connect/releases
 .. _Apache 2.0: https://github.com/rastern/vmt-connect/blob/master/LICENSE
-.. _Turbonomic: http://www.turbonomic.com
+.. _Turbonomic: https://www.turbonomic.com
 
 ===============
 Getting Started
@@ -43,6 +43,10 @@ Python, and install the Requests_ module.
 
 * Requests_ >= 2.10.0
 
+* Turbonomic_
+
+  - Classic >= 5.9
+  - XL >= 7.21
 
 Importing
 =========

@@ -16,7 +16,7 @@ first is a standard REST based :class:`~vmtconnect.Connection`, while the second
 is a session based connection class, :class:`~vmtconnect.Session`. There is also
 a legacy class :class:`~vmtconnect.VMTConnection` that serves as an alias to
 :class:`~vmtconnect.Session` for backwards compatibility. This will be removed
-in a future version, and code should be updated to the proper connection class.
+in v4.0, and code should be updated to the proper connection class.
 
 
 Getting Connected
