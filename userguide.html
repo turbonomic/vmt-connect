@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>User Guide &mdash; vmt-connect 3.1.0 documentation</title>
+  <title>User Guide &mdash; vmt-connect 3.2.0 documentation</title>
   
 
   
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                3.1.0
+                3.2.0
               </div>
             
           
@@ -168,9 +168,9 @@
 <p>vmt-connect provides two interfaces for connecting to the Turbonomic <a class="reference external" href="https://greencircle.vmturbo.com/community/products/pages/documentation">API</a>. The
 first is a standard REST based <a class="reference internal" href="vmtconnect.html#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a>, while the second
 is a session based connection class, <a class="reference internal" href="vmtconnect.html#vmtconnect.Session" title="vmtconnect.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a>. There is also
-a legacy class <a class="reference internal" href="vmtconnect.html#vmtconnect.VMTConnection" title="vmtconnect.VMTConnection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VMTConnection</span></code></a> that serves as an alias to
+a legacy class <code class="xref py py-class docutils literal notranslate"><span class="pre">VMTConnection</span></code> that serves as an alias to
 <a class="reference internal" href="vmtconnect.html#vmtconnect.Session" title="vmtconnect.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a> for backwards compatibility. This will be removed
-in a future version, and code should be updated to the proper connection class.</p>
+in v4.0, and code should be updated to the proper connection class.</p>
 <div class="section" id="getting-connected">
 <h3>Getting Connected<a class="headerlink" href="#getting-connected" title="Permalink to this headline">¶</a></h3>
 <p>Using the <a class="reference internal" href="vmtconnect.html#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a> class to connect to Turbonomic is very simple.</p>
@@ -195,7 +195,7 @@ vCenter instance.</p>
 </div>
 <div class="section" id="legacy-connections">
 <h3>Legacy Connections<a class="headerlink" href="#legacy-connections" title="Permalink to this headline">¶</a></h3>
-<p>Any existing code using the <a class="reference internal" href="vmtconnect.html#vmtconnect.VMTConnection" title="vmtconnect.VMTConnection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VMTConnection</span></code></a> class should continue
+<p>Any existing code using the <code class="xref py py-class docutils literal notranslate"><span class="pre">VMTConnection</span></code> class should continue
 to operate as before. The underlying communication will be handled by the <a class="reference internal" href="vmtconnect.html#vmtconnect.Session" title="vmtconnect.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a>
 class, and code should be updated to the new class names as soon as possible.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">vmtconnect</span> <span class="kn">as</span> <span class="nn">vc</span>
@@ -250,7 +250,7 @@ on, continuing from the earlier example.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2017-2020, R.A. Stern
+        &copy; Copyright 
 
     </p>
   </div>
