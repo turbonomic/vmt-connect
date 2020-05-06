@@ -31,7 +31,7 @@ Basic Connection
    vms = conn.get_virtualmachines()
    print(vms)
 
-The `user guide <https://turbonomic.github.io/vmt-connect/userguide.html`_ is a
+The `user guide <https://turbonomic.github.io/vmt-connect/userguide.html>`_ is a
 good place to start.
 
 
