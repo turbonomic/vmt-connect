@@ -3,9 +3,9 @@
 .. _PyPi: http://pypi.org/
 .. _Requests: http://docs.python-requests.org/en/master/
 .. _IronPython: http://http://ironpython.net/
-.. _repository: https://github.com/rastern/vmt-connect
-.. _releases: https://github.com/rastern/vmt-connect/releases
-.. _Apache 2.0: https://github.com/rastern/vmt-connect/blob/master/LICENSE
+.. _GitHub: https://github.com/turbonomic/vmt-connect
+.. _releases: https://github.com/turbonomic/vmt-connect/releases
+.. _Apache 2.0: https://github.com/turbonomic/vmt-connect/blob/master/LICENSE
 .. _Turbonomic: https://www.turbonomic.com
 
 ===============
@@ -29,7 +29,7 @@ installed via pip. The package is not available on `PyPi`_ at this time.
 
 .. code:: bash
 
-   pip3 install vmtconnect-3.1.0-py3-none-any.whl
+   pip3 install vmtconnect-3.2.0-py3-none-any.whl
 
 Requirements
 ============
@@ -64,10 +64,11 @@ However, you may find it more useful to alias the import
    import vmtconnect as vc
 
 
-GitHub Source
-=============
+Source Code
+===========
 
-The source code for vmt-connect is provided via a read-only GitHub repository_.
+*vmt-connect* is now an official Turbonomic_ Open Source project. The source code
+continues to be hosted on GitHub_.
 
 Individual release archives may be found `here`__.
 

@@ -24,6 +24,7 @@ from collections import defaultdict
 from urllib.parse import urlunparse, urlencode
 
 
+
 _entity_filter_class = {
     'application': 'Application',
     'applicationserver': 'ApplicationServer',
@@ -109,7 +110,10 @@ _version_mappings = {
         '2.3.7': '6.4.11',
         '2.3.8': '6.4.12',
         '2.3.9': '6.4.13',
-        '2.3.10': '6.4.14'
+        '2.3.10': '6.4.14',
+        '2.3.11': '6.4.15',
+        '2.3.12': '6.4.16',
+        '2.3.13': '6.4.17'
     }
 }
 
@@ -129,7 +133,7 @@ class VMTVersionError(Exception):
         if message is None:
             message = 'Your version of Turbonomic does not meet the minimum ' \
                       'required version for this program to run.'
-        super(VMTVersionError, self).__init__(message)
+        super().__init__(message)
 
 
 class VMTUnknownVersion(Exception):
@@ -220,6 +224,9 @@ class Version:
         base_version (str): Equivalent Turbonomic version
         base_build (str): Equivalent Turbonomic build
         base_branch (str): Equivalent Turbonomic branch
+
+    Raises:
+        VMTUnknownVersion: a
     """
 
     def __init__(self, version):
@@ -292,6 +299,7 @@ class Version:
 
 
 class VersionSpec:
+    #TODO Additionally, you may use python version prefixes: >=, >, <, <=, ==
     """Turbonomic version specification object
 
     The :class:`~VersionSpec` object contains version compatibility and
@@ -311,19 +319,27 @@ class VersionSpec:
         exclude (list, optional): A list of versions to explicitly exclude.
         required (bool, optional): If set to True, an error is thrown if no
             matching version is found when :meth:`~VMTVersion.check` is run.
+            (Default: ``True``)
         snapshot (bool, optional): If set to True, will permit connection to
             snapshot builds tagged with '-SNAPSHOT'. (Default: ``False``)
-        cmp_base (bool, optional): If True, white label versions will be translated
-            to their corresponding base Turbonomic version prior to comparison. If
-            False, only the explicit product version will be compared. (Default: ``True``)
+        cmp_base (bool, optional): If ``True``, white label versions will be
+            translated to their corresponding base Turbonomic version prior to
+            comparison. If ``False``, only the explicit product version will be
+            compared. (Default: ``True``)
+
+    Raises:
+        VMTFormatError: If the version format cannot be parsed.
+        VMTVersionError: If version requirement is not met.
 
     Notes:
         The Turbonomic API is not a well versioned REST API, and each release is
         treated as if it were a separate API, while retaining the name of
         "API 2.0" to distinguish it from the "API 1.0" implementation available
         prior to the Turbonomic HTML UI released with v6.0 of the core product.
+
+        As of v3.2.0 `required` now defaults to ``True``.
     """
-    def __init__(self, versions=None, exclude=None, required=False,
+    def __init__(self, versions=None, exclude=None, required=True,
                  snapshot=False, cmp_base=True):
         self.versions = versions
         self.exclude = exclude or []
@@ -342,7 +358,7 @@ class VersionSpec:
 
         if not re.search(r'[\d.]+\d+', string) or \
            not string.replace('.', '').isdigit():
-            raise VMTFormatError('Unrecognized version format')
+            raise VMTFormatError(f'Unrecognized version format. This may be due to a broken snapshot build: {string}')
 
         return string.split('.')
 
@@ -370,11 +386,11 @@ class VersionSpec:
         for v in versions:
             res = VersionSpec.cmp_ver(current, v)
 
-            if (res > 0 and v[-1] == '+') or res == 0:
+            if (res >= 0 and v[-1] == '+') or res == 0:
                 return True
 
         if required:
-            raise VMTVersionError()
+            raise VMTVersionError('Required version not met')
 
         if warn:
             warnings.warn('Your version of Turbonomic does not meet the ' \
@@ -400,7 +416,9 @@ class VersionSpec:
         if self.cmp_base:
             try:
                 if version.base_version is None:
-                    warnings.warn('Version does not contain a base version, using primary version as base.', VMTVersionWarning)
+                    warnings.warn('Version does not contain a base version, ' \
+                                  'using primary version as base.',
+                                  VMTVersionWarning)
                     ver = version.version
                 else:
                     ver = version.base_version
@@ -413,7 +431,8 @@ class VersionSpec:
         # kick out or warn on snapshot builds
         if version.snapshot:
             if self.allow_snapshot:
-                warnings.warn('You are connecting to a snapshot / development build. API functionality may have changed, or be broken.', VMTVersionWarning)
+                warnings.warn('You are connecting to a snapshot / development' \
+                ' build. API functionality may have changed, or be broken.', VMTVersionWarning)
             else:
                 raise VMTVersionError(f'Snapshot build detected.')
 
@@ -429,7 +448,7 @@ class VersionSpec:
 
 
 class VMTVersion(VersionSpec):
-    """Alias for :class:`~VersionSpec` to provide backwards compatibility.
+    """Alias for :py:class:`~VersionSpec` to provide backwards compatibility.
 
     Notes:
         To be removed in a future branch.
@@ -441,10 +460,10 @@ class VMTVersion(VersionSpec):
 class Pager:
     """API request pager class
 
-    A :class:`~Pager` is a special request handler which permits the processing
+    A :py:class:`~Pager` is a special request handler which permits the processing
     of paged :py:meth:`~Connection.request` results, keeping state between each
     successive call. Although you can instantiate a :class:`~Pager` directly,
-    it is generally better to request one by adding ``pager=True`` to your
+    it is strongly recommended to request one by adding ``pager=True`` to your
     existing :py:class:`Connection` method call.
 
     Args:
@@ -456,19 +475,31 @@ class Pager:
         **kwargs: Additional :py:class:`requests.Request` keyword arguments.
 
     Attributes:
-        all (list): List of all responses combined.
+        all (list): Collect and list of all responses combined.
         complete (bool): Flag indicating the cursor has been exhausted.
         next (list): Next response object. Calling this
             updates the :py:class:`~Pager` internal state.
         page (int): Current page index.
         pages_fetched (int): Cumulative count of pages received.
-        pages_total (int): Calculated count of pages based on page size and total record count.
+        pages_total (int): Calculated count of pages based on page size and
+            total record count.
         records (int): Count of records in the current page.
         records_fetched (int): Cumulative count of records received.
         records_total (int): Count of records reported by the API.
         response (:py:class:`requests.Request`): Most recent response object.
 
+    Raises:
+        VMTNextCursorMissingError: When cursor headers are broken or missing.
+
     Notes:
+        The use of the :py:attr:`~Pager.all` property negates all memory savings by
+        caching all responses before returning any results. This should be used
+        sparringly to prevent unnecessary and excessive memory usage for extremely
+        large datasets.
+
+        Some versions of Turbonomic have endpoints that return malformed, or
+        non-working pagination headers. These are chiefly XL versions prior to
+        7.21.2.
     """
     def __init__(self, conn, response, **kwargs):
         self.__conn = conn
@@ -514,14 +545,15 @@ class Pager:
 
     @property
     def next(self):
+        # newly initiated objects will have a __next value of 0, and we should
+        # try to return the first result set, we'll throw an error when we try
+        # to get the next result
         if self.complete:
             return None
         elif self.__next > 0:
             # get next
             self.__response = self.__conn._request(self.__method, self.__url, **self.__kwargs)
 
-        #if 'x-total-record-count' not in self.__response.headers:
-        #    warnings.warn('Endpoint returned a cursor without the expected "x-total-record-count" header.')
         self.__conn.request_check_error(self.__response)
 
         try:
@@ -563,12 +595,12 @@ class Connection:
     """Turbonomic instance connection class
 
     The primary API interface. In addition to the noted method parameters, each
-    method also supports a per call ``fetch_all`` flag, as well as a ``pager`` flag.
+    method also supports a per call **fetch_all** flag, as well as a **pager** flag.
     Each of these override the connection global property, and will be safely
-    ignored if the endpoint does not support or does not required paging the
+    ignored if the endpoint does not support, or does not require paging the
     results. Additionally, you may pass :py:class:`requests.Request` keyword
-    arguments to each call if required (such as `timeout <https://requests.readthedocs.io/en/master/user/quickstart/#timeouts>`_).
-    Care should be taken, as some parameters may break *vmt-connect* calls if they
+    arguments to each call if required (e.g. `timeout <https://requests.readthedocs.io/en/master/user/quickstart/#timeouts>`_).
+    Care should be taken, as some parameters will break *vmt-connect* calls if they
     conflict with existing headers, or alter expected results.
 
     Args:
@@ -580,7 +612,7 @@ class Connection:
             may be used in place of a ``username`` and ``password`` pair.
         base_url (str, optional): Base endpoint path to use. (default:
             `/vmturbo/rest/`)
-        req_versions (:class:`VersionSpec`, optional): Versions requirements object.
+        req_versions (:py:class:`VersionSpec`, optional): Versions requirements object.
         disable_hateoas (bool, optional): Removes HATEOAS navigation links.
             (default: ``True``)
         ssl (bool, optional): Use SSL or not. (default: ``True``)
@@ -593,11 +625,18 @@ class Connection:
 
     Attributes:
         disable_hateoas (bool): HATEOAS links state.
-        fetch_all (bool): Fetch all cursor results.
+        fetch_all (bool): Fetch all cursor results state.
         headers (dict): Dictionary of custom headers for all calls.
-        results_limit (int): Results set limiting & curor stepping.
+        last_response (:py:class:`requests.Response`): The last response object
+            received.
+        results_limit (int): Results set limiting & curor stepping value.
         update_headers (dict): Dictionary of custom headers for put and post calls.
-        version (:class:`Version`): Turbonomic instance version object.
+        version (:py:class:`Version`): Turbonomic instance version object.
+
+    Raises:
+        VMTConnectionError: If connection to the server failed.
+        VMTUnknownVersion: When unable to determine the API base path.
+        HTTP401Error: When access is denied.
 
     Notes:
         The default minimum version for classic builds is 6.1.x, and for XL it
@@ -610,14 +649,15 @@ class Connection:
         prior to 6.0 using HTTP will need to manually set ssl to ``False``. If
         verify is given a path to a directory, the directory must have been
         processed using the c_rehash utility supplied with OpenSSL. For client
-        side certificates using `cert`: the private key to your local certificate
+        side certificates using **cert**: the private key to your local certificate
         must be unencrypted. Currently, Requests does not support using encrypted
         keys. Requests uses certificates from the package certifi.
 
         The /api/v2 path was added in 6.4, and the /api/v3 path was added in XL
         branch 7.21. The XL API is not intended to be an extension of the Classic
         API, though there is extensive parity. *vmt-connect* will attempt to
-        detect which API you are connecting to.
+        detect which API you are connecting to and adjust accordingly where
+        possible.
     """
     # system level markets to block certain actions
     # this is done by name, and subject to breaking if names are abused
@@ -645,6 +685,7 @@ class Connection:
         self.headers = headers or {}
         self.cookies = None
         self.update_headers = {}
+        self.last_response = None
 
         # because the unversioned base path /vmturbo/rest is flagged for deprication
         # we have a circular dependency:
@@ -726,6 +767,17 @@ class Connection:
             raise
 
     def request_check_error(self, response):
+        """Checks a request response for common errors and raises their corresponding exception.
+
+        Raises:
+            HTTPError: All unhandled non 200 level HTTP codes.
+            HTTP400Error: All unhandled 400 level client errors.
+            HTTP401Error: When access to the resource is not authorized.
+            HTTP404Error: When requested resource is not found.
+            HTTP500Error: All unhandled 500 level server errors.
+            HTTP502Error: When a gateway times out.
+            HTTP503Error: When a service is unavailable.
+        """
         if response.status_code/100 == 2:
             return False
 
@@ -762,9 +814,9 @@ class Connection:
         """Constructs and sends an appropriate HTTP request.
 
         Most responses will be returned as a list of one or more objects, as
-        parsed from the JSON response. As of v3.2.0 paged results will return
-        a :py:class:`~Pager` instance. The `pager` and `fetch_all` parameters
-        may be used to alter the response behaviour.
+        parsed from the JSON response. As of v3.2.0 you may request a :py:class:`~Pager`
+        instance instead. The **pager** and **fetch_all** parameters may be used to
+        alter the response behaviour.
 
         Args:
             path (str): API resource to utilize, relative to ``base_path``.
@@ -783,8 +835,8 @@ class Connection:
             **kwargs: Additional :py:class:`requests.Request` keyword arguments.
 
         Notes:
-            The `fetch_all` parameter default was changed in v3.2 from ``True``
-            to ``False`` with the addition of the :py:class:`~Pager` response
+            The **fetch_all** parameter default was changed in v3.2 from ``True``
+            to ``False`` with the addition of the :py:class:`Pager` response
             class.
         """
         # attempt to detect a misdirected POST
@@ -811,11 +863,11 @@ class Connection:
             except KeyError:
                 pass
 
-        response = self._request(method, path, query, dto, **kwargs)
-        self.request_check_error(response)
+        self.last_response = self._request(method, path, query, dto, **kwargs)
+        self.request_check_error(self.last_response)
 
-        if 'x-next-cursor' in response.headers or pager:
-            res = Pager(self, response, **kwargs)
+        if 'x-next-cursor' in self.last_response.headers or pager:
+            res = Pager(self, self.last_response, **kwargs)
 
             if fetch_all:
                 return res.all
@@ -824,7 +876,7 @@ class Connection:
             else:
                 return res.next
 
-        res = response.json()
+        res = self.last_response.json()
         return [res] if isinstance(res, dict) else res
 
     @staticmethod
@@ -947,7 +999,8 @@ class Connection:
         The get_actions method returns a list of actions from a given market,
         or can be used to lookup a specific action by its uuid. The options are
         mutually exclusive, and a uuid will override a market lookup. If neither
-        parameter is provided, all actions from the real-time market will be listed.
+        parameter is provided, all actions from the real-time market will be
+        listed.
 
         Args:
             market (str, optional): The market to list actions from
@@ -1095,9 +1148,9 @@ class Connection:
         Args:
             type (str, optional): Entity type to filter on.
             uuid (str, optional): Specific UUID to lookup.
-            detail (bool, optional): Include entity aspect details. (default: ``False``)
-                This parameter works only when specifying an entity UUID.
-            market (str, optional): Market to query. (default: `Market`)
+            detail (bool, optional): Include entity aspect details. This
+                parameter works only when specifying an entity UUID. (default: ``False``)
+            market (str, optional): Market to query. (default: ``Market``)
             cache (bool, optional): If true, will retrieve entities from the
                 market cache. (default: ``False``)
 
@@ -1200,10 +1253,10 @@ class Connection:
 
         Args:
             scope (list): List of entities to scope to.
-            start_date (int, optional): Unix timestamp in miliseconds. Uses current time
-                if blank.
-            end_date (int, optional): Unix timestamp in miliseconds. Uses current time if
-                blank.
+            start_date (int, optional): Unix timestamp in miliseconds. Uses
+                current time if blank.
+            end_date (int, optional): Unix timestamp in miliseconds. Uses current
+                time if blank.
             stats (list, optional): List of stats classes to retrieve.
 
         Returns:
@@ -1235,8 +1288,10 @@ class Connection:
 
         Args:
             remote_id (str): Remote id to lookup.
-            target_name (str, optional): Name of Turbonomic target known to host the entity.
-            target_uuid (str, optional): UUID of Turbonomic target known to host the entity.
+            target_name (str, optional): Name of Turbonomic target known to host
+                the entity.
+            target_uuid (str, optional): UUID of Turbonomic target known to host
+                the entity.
 
         Returns:
             A list of entities in :obj:`dict` form.
@@ -1345,7 +1400,7 @@ class Connection:
 
         return self.request(f'groups/{uuid}/stats', method='POST', dto=dto, **kwargs)
 
-    def get_scenarios(self, uuid=None):
+    def get_scenarios(self, uuid=None, **kwargs):
         """Returns a list of scenarios.
 
         Args:
@@ -1381,7 +1436,7 @@ class Connection:
 
         Notes:
             Use of UUIDs is strongly encouraged to avoid collisions.
-            Only one parameter is required. If both are supplied, uuid overrides.
+            Only one parameter is required. If both are supplied, **uuid** overrides.
             If a name lookup returns multiple entities, only the first is returned.
         """
         if uuid:
@@ -1529,25 +1584,31 @@ class Connection:
         """
         return self.request('scenarios', method='DELETE', uuid=uuid)
 
-    def search(self, dto=None, **kwargs):
+    def search(self, **kwargs):
         """Raw search method.
 
         Provides a basic interface for issuing direct queries to the Turbonomic
-        search endpoint.
+        search endpoint. There are three sets of possible parameters, which must
+        not be mixed.
 
         Args:
-            dto (str, optional): JSON representation of the StatScopesApiInputDTO.
-
+            Set
             q (str, optional): Query string.
-            types (list, optional): Types of entities to return.
+            types (list): Types of entities to return. Must include either
+                `types` or `group_type`.
             scopes (list, optional): Entities to scope to.
             state (str, optional): State filter.
             environment_type (str, optional): Environment filter.
-            group_type (str, optional): Group type filter.
+            group_type (str): Group type filter. Must include either `types` or
+                `group_type`.
             detail_type (str, optional): Entity detail filter.
             entity_types (list, optional): Member entity types filter.
             probe_types (list, optional): Target probe type filter.
             regex (bool, optional): Flag for regex query string searching.
+            Set
+            uuid (str): UUID of an object to lookup.
+            Set
+            dto (str): JSON representation of the StatScopesApiInputDTO.
 
         Returns:
             A list of search results.
@@ -1559,7 +1620,14 @@ class Connection:
 
             Search criteria list: `http://<host>/vmturbo/rest/search/criteria`
         """
-        if dto is not None:
+        if 'uuid' in kwargs and kwargs.get('uuid') is not None:
+            uuid = kwargs['uuid']
+            del kwargs['uuid']
+            return self.request('search', method='GET', uuid=uuid, **kwargs)
+
+        if 'dto' in kwargs and kwargs.get('dto') is not None:
+            dto = kwargs['dto']
+            del kwargs['dto']
             return self.request('search', method='POST', dto=dto, **kwargs)
 
         query = {}
@@ -1567,7 +1635,8 @@ class Connection:
         args = ['q', 'types', 'scopes', 'state', 'environment_type', 'group_type',
         'detail_type', 'entity_types', 'regex', 'probe_types']
 
-        for k,v in kwargs.items():
+        for k in args:
+            v = kwargs.get(k)
             if v is not None:
                 if k in ['types', 'scopes', 'entity_types', 'probe_types']:
                     query[k] = ','.join(v)
