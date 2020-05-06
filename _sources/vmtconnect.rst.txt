@@ -1,24 +1,13 @@
-===================================
-vmtconnect --- Developer Interfaces
-===================================
+====================
+Developer Interfaces
+====================
 
 .. module:: vmtconnect
 
-*vmt-connect* provides two connection interface classes, and several exceptions
-for communicating with Turbonomic instances.
-
+This part of the documentation covers all the interfaces of vmt-connect.
 
 Connections
 ===========
-
-.. autoclass:: Version
-   :members:
-
-.. autoclass:: VersionSpec
-   :members:
-
-.. autoclass:: Pager
-   :members:
 
 .. autoclass:: Connection
    :members:
@@ -26,6 +15,23 @@ Connections
 .. autoclass:: Session
    :show-inheritance:
    :inherited-members:
+   :members:
+
+
+Response Handlers
+=================
+
+.. autoclass:: Pager
+   :members:
+
+
+Versioning
+==========
+
+.. autoclass:: Version
+   :members:
+
+.. autoclass:: VersionSpec
    :members:
 
 

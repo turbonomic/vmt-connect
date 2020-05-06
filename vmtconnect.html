@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>vmtconnect — Developer Interfaces &mdash; vmt-connect 3.2.0 documentation</title>
+  <title>Developer Interfaces &mdash; vmt-connect 3.2.0 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="User Guide" href="userguide.html" /> 
+    <link rel="prev" title="Advanced User Guide" href="advancedguide.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -85,9 +85,12 @@
             
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="userguide.html">User Guide</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">vmtconnect — Developer Interfaces</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="userguide.html">Basic User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advancedguide.html">Advanced User Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Developer Interfaces</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#connections">Connections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#response-handlers">Response Handlers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#versioning">Versioning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#exceptions">Exceptions</a></li>
 </ul>
 </li>
@@ -136,7 +139,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>vmtconnect — Developer Interfaces</li>
+      <li>Developer Interfaces</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -156,292 +159,21 @@
            <div itemprop="articleBody">
             
   <div class="section" id="module-vmtconnect">
-<span id="vmtconnect-developer-interfaces"></span><h1>vmtconnect — Developer Interfaces<a class="headerlink" href="#module-vmtconnect" title="Permalink to this headline">¶</a></h1>
-<p><em>vmt-connect</em> provides two connection interface classes, and several exceptions
-for communicating with Turbonomic instances.</p>
+<span id="developer-interfaces"></span><h1>Developer Interfaces<a class="headerlink" href="#module-vmtconnect" title="Permalink to this headline">¶</a></h1>
+<p>This part of the documentation covers all the interfaces of vmt-connect.</p>
 <div class="section" id="connections">
 <h2>Connections<a class="headerlink" href="#connections" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="vmtconnect.Version">
-<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">Version</code><span class="sig-paren">(</span><em>version</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Version" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turbonomic instance version object</p>
-<p>The <a class="reference internal" href="#vmtconnect.Version" title="vmtconnect.Version"><code class="xref py py-class docutils literal notranslate"><span class="pre">Version</span></code></a> object contains instance version information, and
-equivalent Turbonomic version information in the case of a white label
-product.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>version</strong> (<em>obj</em>) – Version object returned by Turbonomic instance.</p>
-</dd>
-</dl>
-<dl class="attribute">
-<dt id="vmtconnect.Version.version">
-<code class="descname">version</code><a class="headerlink" href="#vmtconnect.Version.version" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reported Instance version</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.Version.product">
-<code class="descname">product</code><a class="headerlink" href="#vmtconnect.Version.product" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reported Product name</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.Version.snapshot">
-<code class="descname">snapshot</code><a class="headerlink" href="#vmtconnect.Version.snapshot" title="Permalink to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the build is a snapshot / dev build, <code class="docutils literal notranslate"><span class="pre">False</span></code>
-otherwise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.Version.base_version">
-<code class="descname">base_version</code><a class="headerlink" href="#vmtconnect.Version.base_version" title="Permalink to this definition">¶</a></dt>
-<dd><p>Equivalent Turbonomic version</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.Version.base_build">
-<code class="descname">base_build</code><a class="headerlink" href="#vmtconnect.Version.base_build" title="Permalink to this definition">¶</a></dt>
-<dd><p>Equivalent Turbonomic build</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.Version.base_branch">
-<code class="descname">base_branch</code><a class="headerlink" href="#vmtconnect.Version.base_branch" title="Permalink to this definition">¶</a></dt>
-<dd><p>Equivalent Turbonomic branch</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="vmtconnect.VersionSpec">
-<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">VersionSpec</code><span class="sig-paren">(</span><em>versions=None</em>, <em>exclude=None</em>, <em>required=False</em>, <em>snapshot=False</em>, <em>cmp_base=True</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VersionSpec" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turbonomic version specification object</p>
-<p>The <a class="reference internal" href="#vmtconnect.VersionSpec" title="vmtconnect.VersionSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionSpec</span></code></a> object contains version compatibility and
-requirements information. Versions must be in dotted format, and may
-optionally have a ‘+’ postfix to indicate versions greater than or equal
-to are acceptable. If using ‘+’, you only need to specify the minimum
-version required, as all later versions will be accepted independent of
-minor release branch. E.g. 6.0+ includes 6.1, 6.2, and all later branches.</p>
-<p class="rubric">Examples</p>
-<p>VersionSpec([‘6.0+’], exclude=[‘6.0.1’, ‘6.1.2’, ‘6.2.5’, ‘6.3.0’])</p>
-<p>VersionSpec([‘7.21+’], snapshot=True)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>versions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – A list of acceptable versions.</p></li>
-<li><p><strong>exclude</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – A list of versions to explicitly exclude.</p></li>
-<li><p><strong>required</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If set to True, an error is thrown if no
-matching version is found when <code class="xref py py-meth docutils literal notranslate"><span class="pre">check()</span></code> is run.</p></li>
-<li><p><strong>snapshot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If set to True, will permit connection to
-snapshot builds tagged with ‘-SNAPSHOT’. (Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
-<li><p><strong>cmp_base</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, white label versions will be translated
-to their corresponding base Turbonomic version prior to comparison. If
-False, only the explicit product version will be compared. (Default: <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition-notes admonition">
-<p class="admonition-title">Notes</p>
-<p>The Turbonomic API is not a well versioned REST API, and each release is
-treated as if it were a separate API, while retaining the name of
-“API 2.0” to distinguish it from the “API 1.0” implementation available
-prior to the Turbonomic HTML UI released with v6.0 of the core product.</p>
-</div>
-<dl class="method">
-<dt id="vmtconnect.VersionSpec.check">
-<code class="descname">check</code><span class="sig-paren">(</span><em>version</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VersionSpec.check" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks a <a class="reference internal" href="#vmtconnect.Version" title="vmtconnect.Version"><code class="xref py py-class docutils literal notranslate"><span class="pre">Version</span></code></a> for validity against the <a class="reference internal" href="#vmtconnect.VersionSpec" title="vmtconnect.VersionSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionSpec</span></code></a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>version</strong> (<em>obj</em>) – The <a class="reference internal" href="#vmtconnect.Version" title="vmtconnect.Version"><code class="xref py py-class docutils literal notranslate"><span class="pre">Version</span></code></a> to check.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>True if valid, False if the version is excluded or not found.</p>
-</dd>
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#vmtconnect.VMTVersionError" title="vmtconnect.VMTVersionError"><strong>VMTVersionError</strong></a> – If version requirement is not met.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="vmtconnect.Pager">
-<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">Pager</code><span class="sig-paren">(</span><em>conn</em>, <em>response</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Pager" title="Permalink to this definition">¶</a></dt>
-<dd><p>API request pager class</p>
-<p>A <a class="reference internal" href="#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> is a special request handler which permits the processing
-of paged <a class="reference internal" href="#vmtconnect.Connection.request" title="vmtconnect.Connection.request"><code class="xref py py-meth docutils literal notranslate"><span class="pre">request()</span></code></a> results, keeping state between each
-successive call. Although you can instantiate a <a class="reference internal" href="#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> directly,
-it is generally better to request one by adding <code class="docutils literal notranslate"><span class="pre">pager=True</span></code> to your
-existing <a class="reference internal" href="#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a> method call.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>conn</strong> (<a class="reference internal" href="#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a>) – Connection object to associate the pager
-to.</p></li>
-<li><p><strong>response</strong> (<a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Response" title="(in Requests v2.23.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code></a>) – Requests <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Response" title="(in Requests v2.23.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code></a>
-object to build the pager from. This must be the object, and not the
-JSON parsed output.</p></li>
-<li><p><strong>**kwargs</strong> – Additional <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.23.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a> keyword arguments.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="attribute">
-<dt id="vmtconnect.Pager.all">
-<code class="descname">all</code><a class="headerlink" href="#vmtconnect.Pager.all" title="Permalink to this definition">¶</a></dt>
-<dd><p>List of all responses combined.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.Pager.complete">
-<code class="descname">complete</code><a class="headerlink" href="#vmtconnect.Pager.complete" title="Permalink to this definition">¶</a></dt>
-<dd><p>Flag indicating the cursor has been exhausted.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.Pager.next">
-<code class="descname">next</code><a class="headerlink" href="#vmtconnect.Pager.next" title="Permalink to this definition">¶</a></dt>
-<dd><p>Next response object. Calling this
-updates the <a class="reference internal" href="#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> internal state.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.Pager.page">
-<code class="descname">page</code><a class="headerlink" href="#vmtconnect.Pager.page" title="Permalink to this definition">¶</a></dt>
-<dd><p>Current page index.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.Pager.pages_fetched">
-<code class="descname">pages_fetched</code><a class="headerlink" href="#vmtconnect.Pager.pages_fetched" title="Permalink to this definition">¶</a></dt>
-<dd><p>Cumulative count of pages received.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.Pager.pages_total">
-<code class="descname">pages_total</code><a class="headerlink" href="#vmtconnect.Pager.pages_total" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculated count of pages based on page size and total record count.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.Pager.records">
-<code class="descname">records</code><a class="headerlink" href="#vmtconnect.Pager.records" title="Permalink to this definition">¶</a></dt>
-<dd><p>Count of records in the current page.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.Pager.records_fetched">
-<code class="descname">records_fetched</code><a class="headerlink" href="#vmtconnect.Pager.records_fetched" title="Permalink to this definition">¶</a></dt>
-<dd><p>Cumulative count of records received.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.Pager.records_total">
-<code class="descname">records_total</code><a class="headerlink" href="#vmtconnect.Pager.records_total" title="Permalink to this definition">¶</a></dt>
-<dd><p>Count of records reported by the API.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="vmtconnect.Pager.response">
-<code class="descname">response</code><a class="headerlink" href="#vmtconnect.Pager.response" title="Permalink to this definition">¶</a></dt>
-<dd><p>Most recent response object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.23.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<p>Notes:</p>
-</dd></dl>
-
 <dl class="class">
 <dt id="vmtconnect.Connection">
 <em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">Connection</code><span class="sig-paren">(</span><em>host=None</em>, <em>username=None</em>, <em>password=None</em>, <em>auth=None</em>, <em>base_url=None</em>, <em>req_versions=None</em>, <em>disable_hateoas=True</em>, <em>ssl=True</em>, <em>verify=False</em>, <em>cert=None</em>, <em>headers=None</em>, <em>use_session=True</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Turbonomic instance connection class</p>
 <p>The primary API interface. In addition to the noted method parameters, each
-method also supports a per call <code class="docutils literal notranslate"><span class="pre">fetch_all</span></code> flag, as well as a <code class="docutils literal notranslate"><span class="pre">pager</span></code> flag.
+method also supports a per call <strong>fetch_all</strong> flag, as well as a <strong>pager</strong> flag.
 Each of these override the connection global property, and will be safely
-ignored if the endpoint does not support or does not required paging the
+ignored if the endpoint does not support, or does not require paging the
 results. Additionally, you may pass <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.23.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a> keyword
-arguments to each call if required (such as <a class="reference external" href="https://requests.readthedocs.io/en/master/user/quickstart/#timeouts">timeout</a>).
-Care should be taken, as some parameters may break <em>vmt-connect</em> calls if they
+arguments to each call if required (e.g. <a class="reference external" href="https://requests.readthedocs.io/en/master/user/quickstart/#timeouts">timeout</a>).
+Care should be taken, as some parameters will break <em>vmt-connect</em> calls if they
 conflict with existing headers, or alter expected results.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -481,7 +213,7 @@ calls will be made. (default: <code class="docutils literal notranslate"><span c
 <dl class="attribute">
 <dt id="vmtconnect.Connection.fetch_all">
 <code class="descname">fetch_all</code><a class="headerlink" href="#vmtconnect.Connection.fetch_all" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fetch all cursor results.</p>
+<dd><p>Fetch all cursor results state.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
@@ -501,9 +233,21 @@ calls will be made. (default: <code class="docutils literal notranslate"><span c
 </dd></dl>
 
 <dl class="attribute">
+<dt id="vmtconnect.Connection.last_response">
+<code class="descname">last_response</code><a class="headerlink" href="#vmtconnect.Connection.last_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>The last response object
+received.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Response" title="(in Requests v2.23.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="vmtconnect.Connection.results_limit">
 <code class="descname">results_limit</code><a class="headerlink" href="#vmtconnect.Connection.results_limit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Results set limiting &amp; curor stepping.</p>
+<dd><p>Results set limiting &amp; curor stepping value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
@@ -533,6 +277,15 @@ calls will be made. (default: <code class="docutils literal notranslate"><span c
 </dl>
 </dd></dl>
 
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#vmtconnect.VMTConnectionError" title="vmtconnect.VMTConnectionError"><strong>VMTConnectionError</strong></a> – If connection to the server failed.</p></li>
+<li><p><a class="reference internal" href="#vmtconnect.VMTUnknownVersion" title="vmtconnect.VMTUnknownVersion"><strong>VMTUnknownVersion</strong></a> – When unable to determine the API base path.</p></li>
+<li><p><a class="reference internal" href="#vmtconnect.HTTP401Error" title="vmtconnect.HTTP401Error"><strong>HTTP401Error</strong></a> – When access is denied.</p></li>
+</ul>
+</dd>
+</dl>
 <div class="admonition-notes admonition">
 <p class="admonition-title">Notes</p>
 <p>The default minimum version for classic builds is 6.1.x, and for XL it
@@ -544,13 +297,14 @@ connection. Because of this, vmt-connect defaults to using SSL. Versions
 prior to 6.0 using HTTP will need to manually set ssl to <code class="docutils literal notranslate"><span class="pre">False</span></code>. If
 verify is given a path to a directory, the directory must have been
 processed using the c_rehash utility supplied with OpenSSL. For client
-side certificates using <cite>cert</cite>: the private key to your local certificate
+side certificates using <strong>cert</strong>: the private key to your local certificate
 must be unencrypted. Currently, Requests does not support using encrypted
 keys. Requests uses certificates from the package certifi.</p>
 <p>The /api/v2 path was added in 6.4, and the /api/v3 path was added in XL
 branch 7.21. The XL API is not intended to be an extension of the Classic
 API, though there is extensive parity. <em>vmt-connect</em> will attempt to
-detect which API you are connecting to.</p>
+detect which API you are connecting to and adjust accordingly where
+possible.</p>
 </div>
 <dl class="method">
 <dt id="vmtconnect.Connection.add_group">
@@ -673,7 +427,8 @@ and the <a class="reference external" href="http://rsnyc.sdf.org/vmt/">Unofficia
 <p>The get_actions method returns a list of actions from a given market,
 or can be used to lookup a specific action by its uuid. The options are
 mutually exclusive, and a uuid will override a market lookup. If neither
-parameter is provided, all actions from the real-time market will be listed.</p>
+parameter is provided, all actions from the real-time market will be
+listed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -756,9 +511,9 @@ cache if necessary.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Entity type to filter on.</p></li>
 <li><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</p></li>
-<li><p><strong>detail</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Include entity aspect details. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)
-This parameter works only when specifying an entity UUID.</p></li>
-<li><p><strong>market</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Market to query. (default: <cite>Market</cite>)</p></li>
+<li><p><strong>detail</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Include entity aspect details. This
+parameter works only when specifying an entity UUID. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+<li><p><strong>market</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Market to query. (default: <code class="docutils literal notranslate"><span class="pre">Market</span></code>)</p></li>
 <li><p><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If true, will retrieve entities from the
 market cache. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
 </ul>
@@ -777,8 +532,10 @@ market cache. (default: <code class="docutils literal notranslate"><span class="
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>remote_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Remote id to lookup.</p></li>
-<li><p><strong>target_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Name of Turbonomic target known to host the entity.</p></li>
-<li><p><strong>target_uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – UUID of Turbonomic target known to host the entity.</p></li>
+<li><p><strong>target_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Name of Turbonomic target known to host
+the entity.</p></li>
+<li><p><strong>target_uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – UUID of Turbonomic target known to host
+the entity.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -810,10 +567,10 @@ market cache. (default: <code class="docutils literal notranslate"><span class="
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>scope</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – List of entities to scope to.</p></li>
-<li><p><strong>start_date</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – Unix timestamp in miliseconds. Uses current time
-if blank.</p></li>
-<li><p><strong>end_date</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – Unix timestamp in miliseconds. Uses current time if
-blank.</p></li>
+<li><p><strong>start_date</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – Unix timestamp in miliseconds. Uses
+current time if blank.</p></li>
+<li><p><strong>end_date</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – Unix timestamp in miliseconds. Uses current
+time if blank.</p></li>
 <li><p><strong>stats</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – List of stats classes to retrieve.</p></li>
 </ul>
 </dd>
@@ -1029,7 +786,7 @@ included. (default: <code class="docutils literal notranslate"><span class="pre"
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_scenarios">
-<code class="descname">get_scenarios</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_scenarios" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_scenarios</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_scenarios" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of scenarios.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1060,7 +817,7 @@ included. (default: <code class="docutils literal notranslate"><span class="pre"
 <div class="admonition-notes admonition">
 <p class="admonition-title">Notes</p>
 <p>Use of UUIDs is strongly encouraged to avoid collisions.
-Only one parameter is required. If both are supplied, uuid overrides.
+Only one parameter is required. If both are supplied, <strong>uuid</strong> overrides.
 If a name lookup returns multiple entities, only the first is returned.</p>
 </div>
 </dd></dl>
@@ -1154,9 +911,9 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 <code class="descname">request</code><span class="sig-paren">(</span><em>path</em>, <em>method='GET'</em>, <em>query=''</em>, <em>dto=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructs and sends an appropriate HTTP request.</p>
 <p>Most responses will be returned as a list of one or more objects, as
-parsed from the JSON response. As of v3.2.0 paged results will return
-a <a class="reference internal" href="#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> instance. The <cite>pager</cite> and <cite>fetch_all</cite> parameters
-may be used to alter the response behaviour.</p>
+parsed from the JSON response. As of v3.2.0 you may request a <a class="reference internal" href="#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a>
+instance instead. The <strong>pager</strong> and <strong>fetch_all</strong> parameters may be used to
+alter the response behaviour.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1179,10 +936,29 @@ the current result set is returned. This option overrides the
 </dl>
 <div class="admonition-notes admonition">
 <p class="admonition-title">Notes</p>
-<p>The <cite>fetch_all</cite> parameter default was changed in v3.2 from <code class="docutils literal notranslate"><span class="pre">True</span></code>
+<p>The <strong>fetch_all</strong> parameter default was changed in v3.2 from <code class="docutils literal notranslate"><span class="pre">True</span></code>
 to <code class="docutils literal notranslate"><span class="pre">False</span></code> with the addition of the <a class="reference internal" href="#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> response
 class.</p>
 </div>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.Connection.request_check_error">
+<code class="descname">request_check_error</code><span class="sig-paren">(</span><em>response</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.request_check_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks a request response for common errors and raises their corresponding exception.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#vmtconnect.HTTPError" title="vmtconnect.HTTPError"><strong>HTTPError</strong></a> – All unhandled non 200 level HTTP codes.</p></li>
+<li><p><a class="reference internal" href="#vmtconnect.HTTP400Error" title="vmtconnect.HTTP400Error"><strong>HTTP400Error</strong></a> – All unhandled 400 level client errors.</p></li>
+<li><p><a class="reference internal" href="#vmtconnect.HTTP401Error" title="vmtconnect.HTTP401Error"><strong>HTTP401Error</strong></a> – When access to the resource is not authorized.</p></li>
+<li><p><a class="reference internal" href="#vmtconnect.HTTP404Error" title="vmtconnect.HTTP404Error"><strong>HTTP404Error</strong></a> – When requested resource is not found.</p></li>
+<li><p><a class="reference internal" href="#vmtconnect.HTTP500Error" title="vmtconnect.HTTP500Error"><strong>HTTP500Error</strong></a> – All unhandled 500 level server errors.</p></li>
+<li><p><a class="reference internal" href="#vmtconnect.HTTP502Error" title="vmtconnect.HTTP502Error"><strong>HTTP502Error</strong></a> – When a gateway times out.</p></li>
+<li><p><a class="reference internal" href="#vmtconnect.HTTP503Error" title="vmtconnect.HTTP503Error"><strong>HTTP503Error</strong></a> – When a service is unavailable.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1195,6 +971,7 @@ not be mixed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>Set</strong> – </p></li>
 <li><p><strong>q</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Query string.</p></li>
 <li><p><strong>types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – Types of entities to return. Must include either
 <cite>types</cite> or <cite>group_type</cite>.</p></li>
@@ -1207,9 +984,9 @@ not be mixed.</p>
 <li><p><strong>entity_types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – Member entity types filter.</p></li>
 <li><p><strong>probe_types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – Target probe type filter.</p></li>
 <li><p><strong>regex</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag for regex query string searching.</p></li>
-<li><p><strong>-</strong> – </p></li>
+<li><p><strong>Set</strong> – </p></li>
 <li><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – UUID of an object to lookup.</p></li>
-<li><p><strong>-</strong> – </p></li>
+<li><p><strong>Set</strong> – </p></li>
 <li><p><strong>dto</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – JSON representation of the StatScopesApiInputDTO.</p></li>
 </ul>
 </dd>
@@ -1416,7 +1193,8 @@ and the <a class="reference external" href="http://rsnyc.sdf.org/vmt/">Unofficia
 <p>The get_actions method returns a list of actions from a given market,
 or can be used to lookup a specific action by its uuid. The options are
 mutually exclusive, and a uuid will override a market lookup. If neither
-parameter is provided, all actions from the real-time market will be listed.</p>
+parameter is provided, all actions from the real-time market will be
+listed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1499,9 +1277,9 @@ cache if necessary.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Entity type to filter on.</p></li>
 <li><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</p></li>
-<li><p><strong>detail</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Include entity aspect details. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)
-This parameter works only when specifying an entity UUID.</p></li>
-<li><p><strong>market</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Market to query. (default: <cite>Market</cite>)</p></li>
+<li><p><strong>detail</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Include entity aspect details. This
+parameter works only when specifying an entity UUID. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+<li><p><strong>market</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Market to query. (default: <code class="docutils literal notranslate"><span class="pre">Market</span></code>)</p></li>
 <li><p><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If true, will retrieve entities from the
 market cache. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
 </ul>
@@ -1520,8 +1298,10 @@ market cache. (default: <code class="docutils literal notranslate"><span class="
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>remote_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Remote id to lookup.</p></li>
-<li><p><strong>target_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Name of Turbonomic target known to host the entity.</p></li>
-<li><p><strong>target_uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – UUID of Turbonomic target known to host the entity.</p></li>
+<li><p><strong>target_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Name of Turbonomic target known to host
+the entity.</p></li>
+<li><p><strong>target_uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – UUID of Turbonomic target known to host
+the entity.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1553,10 +1333,10 @@ market cache. (default: <code class="docutils literal notranslate"><span class="
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>scope</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – List of entities to scope to.</p></li>
-<li><p><strong>start_date</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – Unix timestamp in miliseconds. Uses current time
-if blank.</p></li>
-<li><p><strong>end_date</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – Unix timestamp in miliseconds. Uses current time if
-blank.</p></li>
+<li><p><strong>start_date</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – Unix timestamp in miliseconds. Uses
+current time if blank.</p></li>
+<li><p><strong>end_date</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – Unix timestamp in miliseconds. Uses current
+time if blank.</p></li>
 <li><p><strong>stats</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – List of stats classes to retrieve.</p></li>
 </ul>
 </dd>
@@ -1772,7 +1552,7 @@ included. (default: <code class="docutils literal notranslate"><span class="pre"
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_scenarios">
-<code class="descname">get_scenarios</code><span class="sig-paren">(</span><em>uuid=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_scenarios" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_scenarios</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_scenarios" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of scenarios.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1803,7 +1583,7 @@ included. (default: <code class="docutils literal notranslate"><span class="pre"
 <div class="admonition-notes admonition">
 <p class="admonition-title">Notes</p>
 <p>Use of UUIDs is strongly encouraged to avoid collisions.
-Only one parameter is required. If both are supplied, uuid overrides.
+Only one parameter is required. If both are supplied, <strong>uuid</strong> overrides.
 If a name lookup returns multiple entities, only the first is returned.</p>
 </div>
 </dd></dl>
@@ -1897,9 +1677,9 @@ If a name lookup returns multiple entities, only the first is returned.</p>
 <code class="descname">request</code><span class="sig-paren">(</span><em>path</em>, <em>method='GET'</em>, <em>query=''</em>, <em>dto=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructs and sends an appropriate HTTP request.</p>
 <p>Most responses will be returned as a list of one or more objects, as
-parsed from the JSON response. As of v3.2.0 paged results will return
-a <a class="reference internal" href="#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> instance. The <cite>pager</cite> and <cite>fetch_all</cite> parameters
-may be used to alter the response behaviour.</p>
+parsed from the JSON response. As of v3.2.0 you may request a <a class="reference internal" href="#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a>
+instance instead. The <strong>pager</strong> and <strong>fetch_all</strong> parameters may be used to
+alter the response behaviour.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1922,10 +1702,29 @@ the current result set is returned. This option overrides the
 </dl>
 <div class="admonition-notes admonition">
 <p class="admonition-title">Notes</p>
-<p>The <cite>fetch_all</cite> parameter default was changed in v3.2 from <code class="docutils literal notranslate"><span class="pre">True</span></code>
+<p>The <strong>fetch_all</strong> parameter default was changed in v3.2 from <code class="docutils literal notranslate"><span class="pre">True</span></code>
 to <code class="docutils literal notranslate"><span class="pre">False</span></code> with the addition of the <a class="reference internal" href="#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> response
 class.</p>
 </div>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.Session.request_check_error">
+<code class="descname">request_check_error</code><span class="sig-paren">(</span><em>response</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.request_check_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks a request response for common errors and raises their corresponding exception.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#vmtconnect.HTTPError" title="vmtconnect.HTTPError"><strong>HTTPError</strong></a> – All unhandled non 200 level HTTP codes.</p></li>
+<li><p><a class="reference internal" href="#vmtconnect.HTTP400Error" title="vmtconnect.HTTP400Error"><strong>HTTP400Error</strong></a> – All unhandled 400 level client errors.</p></li>
+<li><p><a class="reference internal" href="#vmtconnect.HTTP401Error" title="vmtconnect.HTTP401Error"><strong>HTTP401Error</strong></a> – When access to the resource is not authorized.</p></li>
+<li><p><a class="reference internal" href="#vmtconnect.HTTP404Error" title="vmtconnect.HTTP404Error"><strong>HTTP404Error</strong></a> – When requested resource is not found.</p></li>
+<li><p><a class="reference internal" href="#vmtconnect.HTTP500Error" title="vmtconnect.HTTP500Error"><strong>HTTP500Error</strong></a> – All unhandled 500 level server errors.</p></li>
+<li><p><a class="reference internal" href="#vmtconnect.HTTP502Error" title="vmtconnect.HTTP502Error"><strong>HTTP502Error</strong></a> – When a gateway times out.</p></li>
+<li><p><a class="reference internal" href="#vmtconnect.HTTP503Error" title="vmtconnect.HTTP503Error"><strong>HTTP503Error</strong></a> – When a service is unavailable.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -1938,6 +1737,7 @@ not be mixed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>Set</strong> – </p></li>
 <li><p><strong>q</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Query string.</p></li>
 <li><p><strong>types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – Types of entities to return. Must include either
 <cite>types</cite> or <cite>group_type</cite>.</p></li>
@@ -1950,9 +1750,9 @@ not be mixed.</p>
 <li><p><strong>entity_types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – Member entity types filter.</p></li>
 <li><p><strong>probe_types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – Target probe type filter.</p></li>
 <li><p><strong>regex</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Flag for regex query string searching.</p></li>
-<li><p><strong>-</strong> – </p></li>
+<li><p><strong>Set</strong> – </p></li>
 <li><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – UUID of an object to lookup.</p></li>
-<li><p><strong>-</strong> – </p></li>
+<li><p><strong>Set</strong> – </p></li>
 <li><p><strong>dto</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – JSON representation of the StatScopesApiInputDTO.</p></li>
 </ul>
 </dd>
@@ -2022,6 +1822,311 @@ requests.</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>The updated group definition.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="response-handlers">
+<h2>Response Handlers<a class="headerlink" href="#response-handlers" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="vmtconnect.Pager">
+<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">Pager</code><span class="sig-paren">(</span><em>conn</em>, <em>response</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Pager" title="Permalink to this definition">¶</a></dt>
+<dd><p>API request pager class</p>
+<p>A <a class="reference internal" href="#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> is a special request handler which permits the processing
+of paged <a class="reference internal" href="#vmtconnect.Connection.request" title="vmtconnect.Connection.request"><code class="xref py py-meth docutils literal notranslate"><span class="pre">request()</span></code></a> results, keeping state between each
+successive call. Although you can instantiate a <a class="reference internal" href="#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> directly,
+it is strongly recommended to request one by adding <code class="docutils literal notranslate"><span class="pre">pager=True</span></code> to your
+existing <a class="reference internal" href="#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a> method call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conn</strong> (<a class="reference internal" href="#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a>) – Connection object to associate the pager
+to.</p></li>
+<li><p><strong>response</strong> (<a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Response" title="(in Requests v2.23.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code></a>) – Requests <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Response" title="(in Requests v2.23.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code></a>
+object to build the pager from. This must be the object, and not the
+JSON parsed output.</p></li>
+<li><p><strong>**kwargs</strong> – Additional <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.23.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a> keyword arguments.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="vmtconnect.Pager.all">
+<code class="descname">all</code><a class="headerlink" href="#vmtconnect.Pager.all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect and list of all responses combined.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Pager.complete">
+<code class="descname">complete</code><a class="headerlink" href="#vmtconnect.Pager.complete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag indicating the cursor has been exhausted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Pager.next">
+<code class="descname">next</code><a class="headerlink" href="#vmtconnect.Pager.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Next response object. Calling this
+updates the <a class="reference internal" href="#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> internal state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Pager.page">
+<code class="descname">page</code><a class="headerlink" href="#vmtconnect.Pager.page" title="Permalink to this definition">¶</a></dt>
+<dd><p>Current page index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Pager.pages_fetched">
+<code class="descname">pages_fetched</code><a class="headerlink" href="#vmtconnect.Pager.pages_fetched" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cumulative count of pages received.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Pager.pages_total">
+<code class="descname">pages_total</code><a class="headerlink" href="#vmtconnect.Pager.pages_total" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculated count of pages based on page size and
+total record count.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Pager.records">
+<code class="descname">records</code><a class="headerlink" href="#vmtconnect.Pager.records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Count of records in the current page.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Pager.records_fetched">
+<code class="descname">records_fetched</code><a class="headerlink" href="#vmtconnect.Pager.records_fetched" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cumulative count of records received.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Pager.records_total">
+<code class="descname">records_total</code><a class="headerlink" href="#vmtconnect.Pager.records_total" title="Permalink to this definition">¶</a></dt>
+<dd><p>Count of records reported by the API.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Pager.response">
+<code class="descname">response</code><a class="headerlink" href="#vmtconnect.Pager.response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Most recent response object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.23.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#vmtconnect.VMTNextCursorMissingError" title="vmtconnect.VMTNextCursorMissingError"><strong>VMTNextCursorMissingError</strong></a> – When cursor headers are broken or missing.</p>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>The use of the <a class="reference internal" href="#vmtconnect.Pager.all" title="vmtconnect.Pager.all"><code class="xref py py-attr docutils literal notranslate"><span class="pre">all</span></code></a> property negates all memory savings by
+caching all responses before returning any results. This should be used
+sparringly to prevent unnecessary and excessive memory usage for extremely
+large datasets.</p>
+<p>Some versions of Turbonomic have endpoints that return malformed, or
+non-working pagination headers. These are chiefly XL versions prior to
+7.21.2.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="versioning">
+<h2>Versioning<a class="headerlink" href="#versioning" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="vmtconnect.Version">
+<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">Version</code><span class="sig-paren">(</span><em>version</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turbonomic instance version object</p>
+<p>The <a class="reference internal" href="#vmtconnect.Version" title="vmtconnect.Version"><code class="xref py py-class docutils literal notranslate"><span class="pre">Version</span></code></a> object contains instance version information, and
+equivalent Turbonomic version information in the case of a white label
+product.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>version</strong> (<em>obj</em>) – Version object returned by Turbonomic instance.</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="vmtconnect.Version.version">
+<code class="descname">version</code><a class="headerlink" href="#vmtconnect.Version.version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reported Instance version</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Version.product">
+<code class="descname">product</code><a class="headerlink" href="#vmtconnect.Version.product" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reported Product name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Version.snapshot">
+<code class="descname">snapshot</code><a class="headerlink" href="#vmtconnect.Version.snapshot" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the build is a snapshot / dev build, <code class="docutils literal notranslate"><span class="pre">False</span></code>
+otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Version.base_version">
+<code class="descname">base_version</code><a class="headerlink" href="#vmtconnect.Version.base_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent Turbonomic version</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Version.base_build">
+<code class="descname">base_build</code><a class="headerlink" href="#vmtconnect.Version.base_build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent Turbonomic build</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Version.base_branch">
+<code class="descname">base_branch</code><a class="headerlink" href="#vmtconnect.Version.base_branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent Turbonomic branch</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#vmtconnect.VMTUnknownVersion" title="vmtconnect.VMTUnknownVersion"><strong>VMTUnknownVersion</strong></a> – a</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="vmtconnect.VersionSpec">
+<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">VersionSpec</code><span class="sig-paren">(</span><em>versions=None</em>, <em>exclude=None</em>, <em>required=True</em>, <em>snapshot=False</em>, <em>cmp_base=True</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VersionSpec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turbonomic version specification object</p>
+<p>The <a class="reference internal" href="#vmtconnect.VersionSpec" title="vmtconnect.VersionSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionSpec</span></code></a> object contains version compatibility and
+requirements information. Versions must be in dotted format, and may
+optionally have a ‘+’ postfix to indicate versions greater than or equal
+to are acceptable. If using ‘+’, you only need to specify the minimum
+version required, as all later versions will be accepted independent of
+minor release branch. E.g. 6.0+ includes 6.1, 6.2, and all later branches.</p>
+<p class="rubric">Examples</p>
+<p>VersionSpec([‘6.0+’], exclude=[‘6.0.1’, ‘6.1.2’, ‘6.2.5’, ‘6.3.0’])</p>
+<p>VersionSpec([‘7.21+’], snapshot=True)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>versions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – A list of acceptable versions.</p></li>
+<li><p><strong>exclude</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – A list of versions to explicitly exclude.</p></li>
+<li><p><strong>required</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If set to True, an error is thrown if no
+matching version is found when <code class="xref py py-meth docutils literal notranslate"><span class="pre">check()</span></code> is run.
+(Default: <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p></li>
+<li><p><strong>snapshot</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If set to True, will permit connection to
+snapshot builds tagged with ‘-SNAPSHOT’. (Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+<li><p><strong>cmp_base</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, white label versions will be
+translated to their corresponding base Turbonomic version prior to
+comparison. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, only the explicit product version will be
+compared. (Default: <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="#vmtconnect.VMTFormatError" title="vmtconnect.VMTFormatError"><strong>VMTFormatError</strong></a> – If the version format cannot be parsed.</p></li>
+<li><p><a class="reference internal" href="#vmtconnect.VMTVersionError" title="vmtconnect.VMTVersionError"><strong>VMTVersionError</strong></a> – If version requirement is not met.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>The Turbonomic API is not a well versioned REST API, and each release is
+treated as if it were a separate API, while retaining the name of
+“API 2.0” to distinguish it from the “API 1.0” implementation available
+prior to the Turbonomic HTML UI released with v6.0 of the core product.</p>
+<p>As of v3.2.0 <cite>required</cite> now defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</div>
+<dl class="method">
+<dt id="vmtconnect.VersionSpec.check">
+<code class="descname">check</code><span class="sig-paren">(</span><em>version</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VersionSpec.check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks a <a class="reference internal" href="#vmtconnect.Version" title="vmtconnect.Version"><code class="xref py py-class docutils literal notranslate"><span class="pre">Version</span></code></a> for validity against the <a class="reference internal" href="#vmtconnect.VersionSpec" title="vmtconnect.VersionSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionSpec</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>version</strong> (<em>obj</em>) – The <a class="reference internal" href="#vmtconnect.Version" title="vmtconnect.Version"><code class="xref py py-class docutils literal notranslate"><span class="pre">Version</span></code></a> to check.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if valid, False if the version is excluded or not found.</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#vmtconnect.VMTVersionError" title="vmtconnect.VMTVersionError"><strong>VMTVersionError</strong></a> – If version requirement is not met.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2137,7 +2242,7 @@ the session.</p>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="userguide.html" class="btn btn-neutral float-left" title="User Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="advancedguide.html" class="btn btn-neutral float-left" title="Advanced User Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

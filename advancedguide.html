@@ -1,0 +1,292 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Advanced Usage &mdash; vmt-connect 3.2.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Developer Interfaces" href="vmtconnect.html" />
+    <link rel="prev" title="Basic User Guide" href="userguide.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> vmt-connect
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="userguide.html">Basic User Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#paged-results">Paged Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-control">Version Control</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="vmtconnect.html">Developer Interfaces</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">vmt-connect</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Advanced Usage</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/advancedguide.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="advanced-usage">
+<h1>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="paged-results">
+<h2>Paged Results<a class="headerlink" href="#paged-results" title="Permalink to this headline">¶</a></h2>
+<p>For versions of Turbonomic that support paged responses, <em>vmt-connect</em> provides
+and optional <a class="reference internal" href="vmtconnect.html#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> class for working with the paginated
+results. By default, <em>vmt-connect</em> will return the first page of results only
+unless the <strong>pager</strong> flag is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p>For example, when querying all entities in a given market, you will receive the
+first set of entries (300-500 depending on version) in the usual list of dictionaries
+format:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">conn</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;pass&#39;</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_entities</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Although <em>vmt-connect</em> detects the response is paged, in order to keep backwards
+compatibility with previous code it returns the expected response that previous
+versions would, which in this case is the first page of the result set. You
+can validate by checking the headers returned:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">conn</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;pass&#39;</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_entities</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="s1">&#39;x-next-cursor&#39;</span> <span class="ow">in</span> <span class="n">conn</span><span class="o">.</span><span class="n">last_response</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Paged response&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>One option is to let the pager fetch all the results in the cursor and combine
+them into a single monolithic response using the <strong>fetch_all</strong> parameter:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_entities</span><span class="p">(</span><span class="n">fetch_all</span><span class="o">=</span><span class="s1">&#39;True&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This works if the response is small. Larger responses will use excessive amounts
+of memory caching the results, and we will generally see better performance by
+looping over the pages. We do this by using the <a class="reference internal" href="vmtconnect.html#vmtconnect.Pager.next" title="vmtconnect.Pager.next"><code class="xref py py-attr docutils literal notranslate"><span class="pre">next</span></code></a>
+property of the <a class="reference internal" href="vmtconnect.html#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a>, and checking if it is <a class="reference internal" href="vmtconnect.html#vmtconnect.Pager.complete" title="vmtconnect.Pager.complete"><code class="xref py py-attr docutils literal notranslate"><span class="pre">complete</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_entities</span><span class="p">(</span><span class="n">pager</span><span class="o">=</span><span class="s1">&#39;True&#39;</span><span class="p">)</span>
+
+<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+    <span class="c1"># filter out just the entities we need - VMs with the word &#39;blue&#39; in</span>
+    <span class="c1"># the name</span>
+    <span class="n">entitycache</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">next</span> <span class="k">if</span> <span class="s1">&#39;blue&#39;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;displayName&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+
+    <span class="c1"># do something with our data</span>
+    <span class="n">interesting_things</span><span class="p">(</span><span class="n">entitycache</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">complete</span><span class="p">:</span>
+        <span class="c1"># optionally try to free some memory as we go - this requires ensuring</span>
+        <span class="c1"># we deep copy the list if we&#39;re referencing data in it, or python</span>
+        <span class="c1"># will continue to keep the memory reference alive</span>
+        <span class="k">del</span> <span class="n">entitycache</span>
+        <span class="k">break</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="version-control">
+<h2>Version Control<a class="headerlink" href="#version-control" title="Permalink to this headline">¶</a></h2>
+<p>When specific implementations, integrations, or scripts require specific versions
+of Turbonomic, need to override one of the minimum versions, or need to exclude
+incompatible versions, you will need to pass in a custom <a class="reference internal" href="vmtconnect.html#vmtconnect.VersionSpec" title="vmtconnect.VersionSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionSpec</span></code></a>
+to your connection. The version specification object permits fine grained control
+of which versions you wish to restrict execution to, and supports both white lists
+and black lists.</p>
+<p>To lock a script to a specific version you would use a spec as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spec</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">VersionSpec</span><span class="p">([</span><span class="s1">&#39;6.4.10&#39;</span><span class="p">])</span>
+<span class="n">conn</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;pass&#39;</span><span class="p">,</span> <span class="n">req_versions</span><span class="o">=</span><span class="n">spec</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If, on the other hand, you only need to exclude specific problematic dot releases
+from a branch, you would be better served with the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spec</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">VersionSpec</span><span class="p">([</span><span class="s1">&#39;6.4+&#39;</span><span class="p">],</span> <span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;6.4.1&#39;</span><span class="p">,</span> <span class="s1">&#39;6.4.2&#39;</span><span class="p">,</span> <span class="s1">&#39;6.4.5&#39;</span><span class="p">,</span> <span class="s1">&#39;6.4.12&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>In some cases you may be working on a development build, which Turbonomic terms
+a snapshot. These builds have a string flag ‘SNAPSHOT’ appended to the version
+which is generally not parsable by the version logic, and will produce an error.
+To explicitly allow a dev build, or work around an erroneously flagged version,
+set the <strong>snapshot</strong> parameter to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spec</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">VersionSpec</span><span class="p">([</span><span class="s1">&#39;7.21+&#39;</span><span class="p">],</span> <span class="n">snapshot</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="vmtconnect.html" class="btn btn-neutral float-right" title="Developer Interfaces" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="userguide.html" class="btn btn-neutral float-left" title="Basic User Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017-2020
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

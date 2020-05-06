@@ -2,27 +2,22 @@
 .. _API: https://greencircle.vmturbo.com/community/products/pages/documentation
 .. _Turbonomic: http://www.turbonomic.com
 
-==========
-User Guide
-==========
-
-*vmt-connect* provides base communication operations with the `Turbonomic`_ `API`_.
-
-Talking to Turbo
+================
+Basic User Guide
 ================
 
-vmt-connect provides two interfaces for connecting to the Turbonomic API_. The
-first is a standard REST based :class:`~vmtconnect.Connection`, while the second
-is a session based connection class, :class:`~vmtconnect.Session`. There is also
-a legacy class :class:`~vmtconnect.VMTConnection` that serves as an alias to
-:class:`~vmtconnect.Session` for backwards compatibility. This will be removed
-in v4.0, and code should be updated to the proper connection class.
+*vmt-connect* provides base communication operations with the `Turbonomic`_ `API`_
+through two primary connection interfaces. The first is a standard REST based
+:py:class:`~vmtconnect.Connection`, while the second is a session based connection
+class, :py:class:`~vmtconnect.Session`. There is also a legacy class :py:class:`~vmtconnect.VMTConnection`
+that serves as an alias to :py:class:`~vmtconnect.Session` for backwards compatibility.
+This will be removed in v4.0, and code should be updated to the proper connection class.
 
 
 Getting Connected
 -----------------
 
-Using the :class:`~vmtconnect.Connection` class to connect to Turbonomic is very simple.
+Using the :py:class:`~vmtconnect.Connection` class to connect to Turbonomic is very simple.
 
 .. code:: python
 
@@ -52,9 +47,10 @@ vCenter instance.
 Legacy Connections
 ------------------
 
-Any existing code using the :class:`~vmtconnect.VMTConnection` class should continue
-to operate as before. The underlying communication will be handled by the :class:`~vmtconnect.Session`
+Any existing code using the :py:class:`~vmtconnect.VMTConnection` class should continue
+to operate as before. The underlying communication will be handled by the :py:class:`~vmtconnect.Session`
 class, and code should be updated to the new class names as soon as possible.
+The legacy interface is scheduled to be removed in v4.0.
 
 .. code:: python
 
