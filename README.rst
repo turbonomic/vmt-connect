@@ -1,20 +1,20 @@
-.. _installation: https://rastern.github.io/vmt-connect/start.html#installation
+.. _installation: https://turbonomic.github.io/vmt-connect/start.html#installation
 
 ==============================================
 vmt-connect: Turbonomic API Connection Wrapper
 ==============================================
 
-vmt-connect is a single file Python module that provides a more user-friendly wrapper around the second generation Turbonomic API. The wrapper provides useful helper functions for handling general tasks within the API, such as searching, filtering, and error checking. This module is not intended to be a full API client implementation.
+*vmt-connect* is a more user-friendly wrapper around the second generation Turbonomic
+API. The wrapper provides useful helper functions for handling general tasks within
+the API, such as searching, filtering, and error checking. This module is not
+intended to be a full API client implementation.
 
 
 Installation
 ============
 
-To install vmt-connect, copy the *vmtconnect.py* file to your project folder, or
-alternatively, manually install it in your python modules path. For detailed
-instructions please see the `installation`_ section of the documentation.
-
-vmt-connect does not support PyPi installation via pip or setuputils.
+The latest wheel file can be installed via pip using the install command. For
+detailed instructions please see the `installation`_ section of the documentation.
 
 
 Usage
@@ -31,14 +31,11 @@ Basic Connection
    vms = conn.get_virtualmachines()
    print(vms)
 
+The `user guide <https://turbonomic.github.io/vmt-connect/userguide.html`_ is a
+good place to start.
+
 
 Documentation
 =============
 
-Detailed documentation is available `here <https://rastern.github.io/vmt-connect>`_.
-
-
-How to Contribute
-=================
-
-vmt-connect is provided as a read-only repository, and is not accepting pull requests.
+Detailed documentation is available `here <https://turbonomic.github.io/vmt-connect>`_.
