@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Advanced User Guide" href="advancedguide.html" /> 
+    <link rel="prev" title="Advanced Usage" href="advancedguide.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -86,7 +86,7 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="userguide.html">Basic User Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="advancedguide.html">Advanced User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advancedguide.html">Advanced Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Developer Interfaces</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#connections">Connections</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#response-handlers">Response Handlers</a></li>
@@ -734,26 +734,6 @@ time string.</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt id="vmtconnect.Connection.get_market_supplychains">
-<code class="descname">get_market_supplychains</code><span class="sig-paren">(</span><em>market='Market'</em>, <em>types=None</em>, <em>states=None</em>, <em>detail=None</em>, <em>environment=None</em>, <em>aspects=None</em>, <em>health=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_market_supplychains" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a set of supplychains for the given market.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>market</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Market UUID. (default: <cite>Market</cite>)</p></li>
-<li><p><strong>types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – List of entity types.</p></li>
-<li><p><strong>states</strong> – (list, optional): List of entity states to filter by.</p></li>
-<li><p><strong>detail</strong> – (str, optional): Entity detail level.</p></li>
-<li><p><strong>environment</strong> – (str, optional): Environment to filter by.</p></li>
-<li><p><strong>aspects</strong> – (list, optional): List of entity aspects to filter by.</p></li>
-<li><p><strong>health</strong> – (bool, optional): If <code class="docutils literal notranslate"><span class="pre">True</span></code> entity health information will
-included. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
 <dt id="vmtconnect.Connection.get_markets">
 <code class="descname">get_markets</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_markets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of markets.</p>
@@ -794,6 +774,27 @@ included. (default: <code class="docutils literal notranslate"><span class="pre"
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A list of scenarios in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></a> form.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.Connection.get_supplychains">
+<code class="descname">get_supplychains</code><span class="sig-paren">(</span><em>uuids</em>, <em>types=None</em>, <em>states=None</em>, <em>detail=None</em>, <em>environment=None</em>, <em>aspects=None</em>, <em>health=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_supplychains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a set of supplychains for the given uuid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uuids</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – Single UUID to query.</p></li>
+<li><p><strong>uuids</strong> – List of UUIDs to query.</p></li>
+<li><p><strong>types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – List of entity types.</p></li>
+<li><p><strong>states</strong> – (list, optional): List of entity states to filter by.</p></li>
+<li><p><strong>detail</strong> – (str, optional): Entity detail level.</p></li>
+<li><p><strong>environment</strong> – (str, optional): Environment to filter by.</p></li>
+<li><p><strong>aspects</strong> – (list, optional): List of entity aspects to filter by.</p></li>
+<li><p><strong>health</strong> – (bool, optional): If <code class="docutils literal notranslate"><span class="pre">True</span></code> entity health information will
+included. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -1500,26 +1501,6 @@ time string.</p></li>
 </dd></dl>
 
 <dl class="method">
-<dt id="vmtconnect.Session.get_market_supplychains">
-<code class="descname">get_market_supplychains</code><span class="sig-paren">(</span><em>market='Market'</em>, <em>types=None</em>, <em>states=None</em>, <em>detail=None</em>, <em>environment=None</em>, <em>aspects=None</em>, <em>health=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_market_supplychains" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a set of supplychains for the given market.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>market</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Market UUID. (default: <cite>Market</cite>)</p></li>
-<li><p><strong>types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – List of entity types.</p></li>
-<li><p><strong>states</strong> – (list, optional): List of entity states to filter by.</p></li>
-<li><p><strong>detail</strong> – (str, optional): Entity detail level.</p></li>
-<li><p><strong>environment</strong> – (str, optional): Environment to filter by.</p></li>
-<li><p><strong>aspects</strong> – (list, optional): List of entity aspects to filter by.</p></li>
-<li><p><strong>health</strong> – (bool, optional): If <code class="docutils literal notranslate"><span class="pre">True</span></code> entity health information will
-included. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
 <dt id="vmtconnect.Session.get_markets">
 <code class="descname">get_markets</code><span class="sig-paren">(</span><em>uuid=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_markets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of markets.</p>
@@ -1560,6 +1541,27 @@ included. (default: <code class="docutils literal notranslate"><span class="pre"
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A list of scenarios in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></a> form.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="vmtconnect.Session.get_supplychains">
+<code class="descname">get_supplychains</code><span class="sig-paren">(</span><em>uuids</em>, <em>types=None</em>, <em>states=None</em>, <em>detail=None</em>, <em>environment=None</em>, <em>aspects=None</em>, <em>health=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_supplychains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a set of supplychains for the given uuid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uuids</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – Single UUID to query.</p></li>
+<li><p><strong>uuids</strong> – List of UUIDs to query.</p></li>
+<li><p><strong>types</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – List of entity types.</p></li>
+<li><p><strong>states</strong> – (list, optional): List of entity states to filter by.</p></li>
+<li><p><strong>detail</strong> – (str, optional): Entity detail level.</p></li>
+<li><p><strong>environment</strong> – (str, optional): Environment to filter by.</p></li>
+<li><p><strong>aspects</strong> – (list, optional): List of entity aspects to filter by.</p></li>
+<li><p><strong>health</strong> – (bool, optional): If <code class="docutils literal notranslate"><span class="pre">True</span></code> entity health information will
+included. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -2242,7 +2244,7 @@ the session.</p>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="advancedguide.html" class="btn btn-neutral float-left" title="Advanced User Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="advancedguide.html" class="btn btn-neutral float-left" title="Advanced Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
