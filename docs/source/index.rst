@@ -2,14 +2,19 @@
    sphinx-quickstart on Tue Jul 18 10:49:54 2017.
 
 .. # Links
-.. _API: https://greencircle.vmturbo.com/community/products/pages/documentation
+.. _APIs: https://greencircle.vmturbo.com/community/products/pages/documentation
+.. _Turbonomic: https://www.turbonomic.com
 
 ==================================
 vmt-connect Documentation Contents
 ==================================
 
-*vmt-connect* provides a set of wrapper classes and utility methods used to handle
-connecting to the Turbonomic `API`_.
+*vmt-connect* is an API interface library for the `Turbonomic`_ Classic and XL `APIs`_.
+The library provides a connection wrapper, as well as other classes and utility
+methods to assist developers with writing Python programs that talk to Turbonomic.
+
+Turbonomic Classic versions 5.9 and higher, and XL versions 7.21 and higher are
+supported.
 
 
 .. toctree::
@@ -17,4 +22,5 @@ connecting to the Turbonomic `API`_.
 
    start
    userguide
+   advancedguide
    vmtconnect
