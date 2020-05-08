@@ -29,7 +29,7 @@ installed via pip. The package is not available on `PyPi`_ at this time.
 
 .. code:: bash
 
-   pip3 install vmtconnect-3.2.0-py3-none-any.whl
+   pip3 install vmtconnect-3.2.1-py3-none-any.whl
 
 Requirements
 ============
