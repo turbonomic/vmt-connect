@@ -55,20 +55,13 @@ property of the :py:class:`~vmtconnect.Pager`, and checking if it is :py:attr:`~
 
     response = conn.get_entities(pager='True')
 
-    while True:
+    while not response.complete:
         # filter out just the entities we need - VMs with the word 'blue' in
         # the name
         entitycache = [x for x in response.next if 'blue' in x['displayName'].lower()]
 
         # do something with our data
         interesting_things(entitycache)
-
-        if response.complete:
-            # optionally try to free some memory as we go - this requires ensuring
-            # we deep copy the list if we're referencing data in it, or python
-            # will continue to keep the memory reference alive
-            del entitycache
-            break
 
 
 Version Control

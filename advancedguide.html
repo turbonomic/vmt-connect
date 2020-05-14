@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Advanced Usage &mdash; vmt-connect 3.2.1 documentation</title>
+  <title>Advanced Usage &mdash; vmt-connect 3.2.2 documentation</title>
   
 
   
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                3.2.1
+                3.2.2
               </div>
             
           
@@ -194,20 +194,13 @@ looping over the pages. We do this by using the <a class="reference internal" hr
 property of the <a class="reference internal" href="vmtconnect.html#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a>, and checking if it is <a class="reference internal" href="vmtconnect.html#vmtconnect.Pager.complete" title="vmtconnect.Pager.complete"><code class="xref py py-attr docutils literal notranslate"><span class="pre">complete</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_entities</span><span class="p">(</span><span class="n">pager</span><span class="o">=</span><span class="s1">&#39;True&#39;</span><span class="p">)</span>
 
-<span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+<span class="k">while</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">complete</span><span class="p">:</span>
     <span class="c1"># filter out just the entities we need - VMs with the word &#39;blue&#39; in</span>
     <span class="c1"># the name</span>
     <span class="n">entitycache</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">next</span> <span class="k">if</span> <span class="s1">&#39;blue&#39;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;displayName&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
 
     <span class="c1"># do something with our data</span>
     <span class="n">interesting_things</span><span class="p">(</span><span class="n">entitycache</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">complete</span><span class="p">:</span>
-        <span class="c1"># optionally try to free some memory as we go - this requires ensuring</span>
-        <span class="c1"># we deep copy the list if we&#39;re referencing data in it, or python</span>
-        <span class="c1"># will continue to keep the memory reference alive</span>
-        <span class="k">del</span> <span class="n">entitycache</span>
-        <span class="k">break</span>
 </pre></div>
 </div>
 </div>
