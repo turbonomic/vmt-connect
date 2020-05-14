@@ -479,10 +479,7 @@ class Pager:
         complete (bool): Flag indicating the cursor has been exhausted.
         next (list): Next response object. Calling this
             updates the :py:class:`~Pager` internal state.
-        page (int): Current page index.
-        pages_fetched (int): Cumulative count of pages received.
-        pages_total (int): Calculated count of pages based on page size and
-            total record count.
+        page (int): Current page index, as counted by number of responses.
         records (int): Count of records in the current page.
         records_fetched (int): Cumulative count of records received.
         records_total (int): Count of records reported by the API.
@@ -509,7 +506,6 @@ class Pager:
         self.__next = 0
 
         self.page = 0
-        self.pages_total = 0
         self.records = 0
         self.records_fetched = 0
         self.records_total = 0
@@ -557,7 +553,7 @@ class Pager:
         self.__conn.request_check_error(self.__response)
 
         try:
-            self.__next = int(self.__response.headers['x-next-cursor'])
+            self.__next = self.__response.headers['x-next-cursor']
         except (ValueError, KeyError):
             self._complete()
 
@@ -570,8 +566,6 @@ class Pager:
         if self.page == 1:
             self.__method = self.__response.request.method
             self.records_total = int(self.__response.headers.get('x-total-record-count', -1))
-            pagesize = self.__conn.results_limit if self.__conn.results_limit > 0 else self.__next
-            self.pages_total = math.ceil(self.records_total / pagesize) if pagesize > 0 else -1
 
         if self.__next > 0:
             self.prepare_next()
