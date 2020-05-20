@@ -25,9 +25,9 @@ Basic Connection
 
 .. code-block:: python
 
-   import vmtconnect as vcon
+   import vmtconnect as vc
 
-   conn = vcon.VMTConnection('localhost', 'administrator', '<password>')
+   conn = vc.Session('localhost', 'administrator', '<password>')
    vms = conn.get_virtualmachines()
    print(vms)
 

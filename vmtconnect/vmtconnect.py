@@ -503,7 +503,7 @@ class Pager:
         self.__response = response
         self.__complete = False
         self.__kwargs = kwargs
-        self.__next = 0
+        self.__next = "0"
 
         self.page = 0
         self.records = 0
@@ -511,7 +511,7 @@ class Pager:
         self.records_total = 0
 
     def _complete(self):
-        self.__next = -1
+        self.__next = "-1"
         self.__complete = True
 
     def prepare_next(self):
@@ -546,7 +546,7 @@ class Pager:
         # to get the next result
         if self.complete:
             return None
-        elif self.__next > 0:
+        elif self.__next != "0":
             # get next
             self.__response = self.__conn._request(self.__method, self.__url, **self.__kwargs)
 
@@ -567,7 +567,7 @@ class Pager:
             self.__method = self.__response.request.method
             self.records_total = int(self.__response.headers.get('x-total-record-count', -1))
 
-        if self.__next > 0:
+        if self.__next:
             self.prepare_next()
         elif self.records_total > 0 and self.records_fetched < self.records_total:
             raise VMTNextCursorMissingError(f'Expected a follow-up cursor, none provided. Received {self.records_fetched} of {self.records_total} expected values.')
