@@ -29,7 +29,7 @@ installed via pip. The package is not available on `PyPi`_ at this time.
 
 .. code:: bash
 
-   pip3 install vmtconnect-3.2.1-py3-none-any.whl
+   pip3 install vmtconnect-3.2.3-py3-none-any.whl
 
 Requirements
 ============
@@ -41,7 +41,7 @@ Python, and install the Requests_ module.
 
   - CPython_ >= 3.5
 
-* Requests_ >= 2.10.0
+* Requests_ >= 2.21.0
 
 * Turbonomic_
 
