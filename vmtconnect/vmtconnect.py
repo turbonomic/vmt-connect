@@ -113,7 +113,8 @@ _version_mappings = {
         '2.3.10': '6.4.14',
         '2.3.11': '6.4.15',
         '2.3.12': '6.4.16',
-        '2.3.13': '6.4.17'
+        '2.3.13': '6.4.17',
+        '2.3.14': '6.4.18'
     }
 }
 
@@ -621,8 +622,11 @@ class Connection:
         disable_hateoas (bool): HATEOAS links state.
         fetch_all (bool): Fetch all cursor results state.
         headers (dict): Dictionary of custom headers for all calls.
+        #last_request ()
         last_response (:py:class:`requests.Response`): The last response object
             received.
+        proxies (dict): Dictionary of proxies to use. You can also configure
+            proxies using the `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
         results_limit (int): Results set limiting & curor stepping value.
         update_headers (dict): Dictionary of custom headers for put and post calls.
         version (:py:class:`Version`): Turbonomic instance version object.
@@ -660,7 +664,8 @@ class Connection:
 
     def __init__(self, host=None, username=None, password=None, auth=None,
                  base_url=None, req_versions=None, disable_hateoas=True,
-                 ssl=True, verify=False, cert=None, headers=None, use_session=True):
+                 ssl=True, verify=False, cert=None, headers=None,
+                 use_session=True, proxies=None):
 
         # temporary for initial discovery connections
         self.__use_session(False)
@@ -678,6 +683,7 @@ class Connection:
         self.content_type = 'application/json'
         self.headers = headers or {}
         self.cookies = None
+        self.proxies = proxies
         self.update_headers = {}
         self.last_response = None
 
@@ -752,6 +758,9 @@ class Connection:
         if method in ('POST', 'PUT'):
             kwargs['headers'] = {**kwargs['headers'], **self.update_headers}
             kwargs['data'] = data
+
+        if self.proxies and 'proxies' not in kwargs:
+            kwargs['proxies'] = self.proxies
 
         try:
             return self.__conn(method, url, **kwargs)
