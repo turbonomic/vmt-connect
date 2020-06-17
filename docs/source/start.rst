@@ -16,20 +16,20 @@ About
 =====
 
 *vmt-connect* is a connection wrapper for working with the `Turbonomic`_ API. It
-provides interfaces for connecting to and interacting with Turbonomic.
+provides not only connection handling, but also many convenience methods for
+handling common tasks within Turbonomic.
 
 
 Installation
 ============
 
-Prior version of *vmt-connect* were distributed as a stand-alone single file
-Python module, which could be placed in the same folder as the calling script.
-As of v2.2.3, *vmt-connect* is now distributed as a Python wheel package to be
-installed via pip. The package is not available on `PyPi`_ at this time.
-
 .. code:: bash
 
+<<<<<<< HEAD
    pip3 install vmtconnect-3.2.3-py3-none-any.whl
+=======
+   pip install vmtconnect
+>>>>>>> release-v3.2.4
 
 Requirements
 ============
@@ -80,10 +80,8 @@ Contributors
 Author:
   * R.A. Stern
 
-Bug Fixes:
+Bug fixes and QA:
   * Austin Portal
-
-Additional QA:
   * Chris Sawtelle
   * Ray Mileo
   * Ryan Geyer
