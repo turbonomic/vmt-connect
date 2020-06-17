@@ -165,7 +165,7 @@
 <h2>Connections<a class="headerlink" href="#connections" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="vmtconnect.Connection">
-<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">Connection</code><span class="sig-paren">(</span><em>host=None</em>, <em>username=None</em>, <em>password=None</em>, <em>auth=None</em>, <em>base_url=None</em>, <em>req_versions=None</em>, <em>disable_hateoas=True</em>, <em>ssl=True</em>, <em>verify=False</em>, <em>cert=None</em>, <em>headers=None</em>, <em>use_session=True</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">vmtconnect.</code><code class="descname">Connection</code><span class="sig-paren">(</span><em>host=None</em>, <em>username=None</em>, <em>password=None</em>, <em>auth=None</em>, <em>base_url=None</em>, <em>req_versions=None</em>, <em>disable_hateoas=True</em>, <em>ssl=True</em>, <em>verify=False</em>, <em>cert=None</em>, <em>headers=None</em>, <em>use_session=True</em>, <em>proxies=None</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Turbonomic instance connection class</p>
 <p>The primary API interface. In addition to the noted method parameters, each
 method also supports a per call <strong>fetch_all</strong> flag, as well as a <strong>pager</strong> flag.
@@ -240,6 +240,18 @@ received.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Response" title="(in Requests v2.23.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="vmtconnect.Connection.proxies">
+<code class="descname">proxies</code><a class="headerlink" href="#vmtconnect.Connection.proxies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dictionary of proxies to use. You can also configure
+proxies using the <cite>HTTP_PROXY</cite> and <cite>HTTPS_PROXY</cite> environment variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -2044,7 +2056,7 @@ otherwise.</p>
 
 <dl class="field-list simple">
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#vmtconnect.VMTUnknownVersion" title="vmtconnect.VMTUnknownVersion"><strong>VMTUnknownVersion</strong></a> – a</p>
+<dd class="field-odd"><p><a class="reference internal" href="#vmtconnect.VMTUnknownVersion" title="vmtconnect.VMTUnknownVersion"><strong>VMTUnknownVersion</strong></a> – When version data cannot be parsed.</p>
 </dd>
 </dl>
 </dd></dl>
