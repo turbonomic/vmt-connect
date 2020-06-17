@@ -227,7 +227,7 @@ class Version:
         base_branch (str): Equivalent Turbonomic branch
 
     Raises:
-        VMTUnknownVersion: a
+        VMTUnknownVersion: When version data cannot be parsed.
     """
 
     def __init__(self, version):
@@ -622,7 +622,6 @@ class Connection:
         disable_hateoas (bool): HATEOAS links state.
         fetch_all (bool): Fetch all cursor results state.
         headers (dict): Dictionary of custom headers for all calls.
-        #last_request ()
         last_response (:py:class:`requests.Response`): The last response object
             received.
         proxies (dict): Dictionary of proxies to use. You can also configure
@@ -853,6 +852,8 @@ class Connection:
                 query['disable_hateoas'] = 'true'
 
             query = '&'.join([f'{k}={v}' for k,v in query.items()])
+        elif not query and self.disable_hateoas:
+            query = 'disable_hateoas=true'
 
         # assign and then remove non-requests kwargs
         fetch_all = kwargs.get('fetch_all', self.fetch_all)
@@ -1753,7 +1754,7 @@ class VMTConnection(Session):
 
     Notes:
         The value for :class:`~Connection.session` will default to ``True`` when using :class:`~VMTConnection`
-        To be removed in a future branch.
+        To be removed in 4.0.
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
