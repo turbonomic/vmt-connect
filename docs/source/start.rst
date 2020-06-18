@@ -25,11 +25,7 @@ Installation
 
 .. code:: bash
 
-<<<<<<< HEAD
-   pip3 install vmtconnect-3.2.3-py3-none-any.whl
-=======
    pip install vmtconnect
->>>>>>> release-v3.2.4
 
 Requirements
 ============
