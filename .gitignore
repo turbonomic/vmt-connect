@@ -8,3 +8,5 @@ scratch
 tests
 *.pyc
 vmtconnect.egg-info
+archive
+resources
