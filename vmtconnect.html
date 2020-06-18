@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Developer Interfaces &mdash; vmt-connect 3.2.3 documentation</title>
+  <title>Developer Interfaces &mdash; vmt-connect 3.2.5 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                3.2.3
+                3.2.5
               </div>
             
           
@@ -572,9 +572,10 @@ the entity.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Connection.get_entity_stats">
-<code class="descname">get_entity_stats</code><span class="sig-paren">(</span><em>scope</em>, <em>start_date=None</em>, <em>end_date=None</em>, <em>stats=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_entity_stats" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_entity_stats</code><span class="sig-paren">(</span><em>scope</em>, <em>start_date=None</em>, <em>end_date=None</em>, <em>stats=None</em>, <em>dto=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_entity_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns stats for the specific scope of entities.</p>
-<p>Provides entity level stats with filtering.</p>
+<p>Provides entity level stats with filtering. If using the DTO keyword,
+all other parameters save kwargs will be ignored.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -584,6 +585,7 @@ current time if blank.</p></li>
 <li><p><strong>end_date</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – Unix timestamp in miliseconds. Uses current
 time if blank.</p></li>
 <li><p><strong>stats</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – List of stats classes to retrieve.</p></li>
+<li><p><strong>dto</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a><em>, </em><em>optional</em>) – Complete JSON DTO of the stats required.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -1339,9 +1341,10 @@ the entity.</p></li>
 
 <dl class="method">
 <dt id="vmtconnect.Session.get_entity_stats">
-<code class="descname">get_entity_stats</code><span class="sig-paren">(</span><em>scope</em>, <em>start_date=None</em>, <em>end_date=None</em>, <em>stats=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_entity_stats" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_entity_stats</code><span class="sig-paren">(</span><em>scope</em>, <em>start_date=None</em>, <em>end_date=None</em>, <em>stats=None</em>, <em>dto=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session.get_entity_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns stats for the specific scope of entities.</p>
-<p>Provides entity level stats with filtering.</p>
+<p>Provides entity level stats with filtering. If using the DTO keyword,
+all other parameters save kwargs will be ignored.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1351,6 +1354,7 @@ current time if blank.</p></li>
 <li><p><strong>end_date</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – Unix timestamp in miliseconds. Uses current
 time if blank.</p></li>
 <li><p><strong>stats</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>, </em><em>optional</em>) – List of stats classes to retrieve.</p></li>
+<li><p><strong>dto</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a><em>, </em><em>optional</em>) – Complete JSON DTO of the stats required.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

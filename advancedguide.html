@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Advanced Usage &mdash; vmt-connect 3.2.3 documentation</title>
+  <title>Advanced Usage &mdash; vmt-connect 3.2.5 documentation</title>
   
 
   
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                3.2.3
+                3.2.5
               </div>
             
           
@@ -180,7 +180,7 @@ can validate by checking the headers returned:</p>
 <span class="n">response</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_entities</span><span class="p">()</span>
 
 <span class="k">if</span> <span class="s1">&#39;x-next-cursor&#39;</span> <span class="ow">in</span> <span class="n">conn</span><span class="o">.</span><span class="n">last_response</span><span class="o">.</span><span class="n">headers</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Paged response&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Paged response&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>One option is to let the pager fetch all the results in the cursor and combine
@@ -227,7 +227,7 @@ a snapshot. These builds have a string flag ‘SNAPSHOT’ appended to the versi
 which is generally not parsable by the version logic, and will produce an error.
 To explicitly allow a dev build, or work around an erroneously flagged version,
 set the <strong>snapshot</strong> parameter to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spec</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">VersionSpec</span><span class="p">([</span><span class="s1">&#39;7.21+&#39;</span><span class="p">],</span> <span class="n">snapshot</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spec</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">VersionSpec</span><span class="p">([</span><span class="s1">&#39;7.21+&#39;</span><span class="p">],</span> <span class="n">snapshot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
