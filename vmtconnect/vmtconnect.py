@@ -903,7 +903,7 @@ class Connection:
         statistics = []
 
         for stat in stats:
-            statistics += [{'name': stat}]
+            statistics.append({'name': stat})
 
         return statistics
 
@@ -1222,10 +1222,11 @@ class Connection:
         return self.request(f'entities/{uuid}/groups', **kwargs)
 
     def get_entity_stats(self, scope, start_date=None, end_date=None,
-                         stats=None, **kwargs):
+                         stats=None, dto=None, **kwargs):
         """Returns stats for the specific scope of entities.
 
-        Provides entity level stats with filtering.
+        Provides entity level stats with filtering. If using the DTO keyword,
+        all other parameters save kwargs will be ignored.
 
         Args:
             scope (list): List of entities to scope to.
@@ -1234,24 +1235,26 @@ class Connection:
             end_date (int, optional): Unix timestamp in miliseconds. Uses current
                 time if blank.
             stats (list, optional): List of stats classes to retrieve.
+            dto (dict, optional): Complete JSON DTO of the stats required.
 
         Returns:
             A list of stats for all periods between start and end dates.
         """
-        dto = {'scopes': scope}
-        period = {}
+        if dto is None:
+            dto = {'scopes': scope}
+            period = {}
 
-        if start_date:
-            period['startDate'] = start_date
+            if start_date:
+                period['startDate'] = start_date
 
-        if end_date:
-            period['endDate'] = end_date
+            if end_date:
+                period['endDate'] = end_date
 
-        if stats:
-            period['statistics'] = self._stats_filter(stats)
+            if stats:
+                period['statistics'] = self._stats_filter(stats)
 
-        if period:
-            dto['period'] = period
+            if period:
+                dto['period'] = period
 
         dto = json.dumps(dto)
 
