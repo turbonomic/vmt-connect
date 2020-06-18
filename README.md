@@ -25,4 +25,4 @@ print([x['displayName'] for x in vms])
 ## Documentation
 
 The [user guide](https://turbonomic.github.io/vmt-connect/userguide.html) is a
-good place to start. Detailed documentation is also available [here](https://turbonomic.github.io/vmt-connect>).
+good place to start. Detailed documentation is also available [here](https://turbonomic.github.io/vmt-connect).
