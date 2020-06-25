@@ -1,7 +1,3 @@
-.. toctree::
-   :maxdepth: -1
-
-
 ====================
 Developer Interfaces
 ====================
