@@ -586,6 +586,7 @@ class Pager:
         res = self.__response.json()
         return [res] if isinstance(res, dict) else res
 
+
 class Connection:
     """Turbonomic instance connection class
 
@@ -1222,7 +1223,7 @@ class Connection:
         return self.request(f'entities/{uuid}/groups', **kwargs)
 
     def get_entity_stats(self, scope, start_date=None, end_date=None,
-                         stats=None, dto=None, **kwargs):
+                         stats=None, related_type=None, dto=None, **kwargs):
         """Returns stats for the specific scope of entities.
 
         Provides entity level stats with filtering. If using the DTO keyword,
@@ -1235,6 +1236,7 @@ class Connection:
             end_date (int, optional): Unix timestamp in miliseconds. Uses current
                 time if blank.
             stats (list, optional): List of stats classes to retrieve.
+            related_type (str, optional): Related entity type to pull stats for.
             dto (dict, optional): Complete JSON DTO of the stats required.
 
         Returns:
@@ -1255,6 +1257,9 @@ class Connection:
 
             if period:
                 dto['period'] = period
+
+            if related_type:
+                dto['relatedType'] = related_type
 
         dto = json.dumps(dto)
 
@@ -1395,7 +1400,6 @@ class Connection:
         """Returns a set of supplychains for the given uuid.
 
         Args:
-            uuids (str): Single UUID to query.
             uuids (list): List of UUIDs to query.
             types (list, optional): List of entity types.
             states: (list, optional): List of entity states to filter by.
@@ -1761,3 +1765,47 @@ class VMTConnection(Session):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+
+
+# ----------------------------------------------------
+#  Utility functions
+# ----------------------------------------------------
+def enumerate_stats(data, entity=None, period=None, stat=None):
+    """Enumerates stats endpoint results
+
+    Provides an iterator for more intuitive and cleaner parsing of nested
+    statistics results. Each iteration returns a tuple containing the statistics
+    period `date` timestamp, as well as the next individual statistic entry as
+    a dictionary.
+
+    Args:
+        data (list): Stats endpoint data results to parse.
+        entity (function, optional): Optional entity level filter function.
+        period (function, optional): Optional period level filter function.
+        stat (function, optional): Optional statistic level filter function.
+
+    Notes:
+        Filter functions must return ``True``, to continue processing, or ``False``
+        to skip processing the current level element.
+
+    Examples:
+        desired_id = '284552108476721'
+        enumerate_stats(data, entity=lambda x: x['uuid'] == desired_uuid)
+
+        blacklist = ['Ballooning']
+        enumerate_stats(data, stat=lambda x: x['name'] not in blacklist)
+    """
+    for k1, v1 in enumerate(data):
+        if entity is not None and not entity(v1) \
+        or 'stats' not in v1:
+            continue
+
+        for k2, v2 in enumerate(v1['stats']):
+            if period is not None and not period(v2):
+                continue
+
+            for k3, v3 in enumerate(v2['statistics']):
+                if stat is not None and not stat(v3):
+                    continue
+                yield v2['date'], v3

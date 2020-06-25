@@ -43,4 +43,5 @@ __all__ = [
     'VMTVersion',
     'VMTVersionError',
     'VMTVersionWarning',
+    'enumerate_stats'
 ]
