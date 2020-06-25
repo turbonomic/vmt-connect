@@ -15,7 +15,7 @@ with open(os.path.join(here, 'README.md'), 'r') as fp:
     readme = fp.read()
 
 requires = [
-    'requests>=2.21.0'
+    'requests>=2.21.0,<3'
 ]
 
 setup(
