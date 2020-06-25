@@ -1,3 +1,7 @@
+.. toctree::
+   :maxdepth: -1
+
+
 ====================
 Developer Interfaces
 ====================
@@ -9,31 +13,52 @@ This part of the documentation covers all the interfaces of vmt-connect.
 Connections
 ===========
 
+Connection
+^^^^^^^^^^
 .. autoclass:: Connection
    :members:
 
+Session
+^^^^^^^
 .. autoclass:: Session
    :show-inheritance:
-   :inherited-members:
    :members:
 
+|
 
 Response Handlers
 =================
 
+Pager
+^^^^^
 .. autoclass:: Pager
    :members:
 
+|
 
 Versioning
 ==========
 
+Version
+^^^^^^^
 .. autoclass:: Version
    :members:
 
+VersionSpec
+^^^^^^^^^^^
 .. autoclass:: VersionSpec
    :members:
 
+|
+
+Utilities
+=========
+
+enumerate_stats()
+^^^^^^^^^^^^^^^^^
+.. autofunction:: enumerate_stats
+
+|
 
 Exceptions
 ==========
@@ -53,3 +78,11 @@ Exceptions
 .. autoexception:: vmtconnect.HTTP502Error
 .. autoexception:: vmtconnect.HTTP503Error
 .. autoexception:: vmtconnect.HTTPWarn
+
+|
+
+Deprecated Interfaces
+=====================
+
+.. autoclass:: VMTConnection
+.. autoclass:: VMTVersion

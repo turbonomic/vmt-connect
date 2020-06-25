@@ -210,7 +210,7 @@ class HTTPWarn(Exception):
 class Version:
     """Turbonomic instance version object
 
-    The :class:`~Version` object contains instance version information, and
+    The :py:class:`~Version` object contains instance version information, and
     equivalent Turbonomic version information in the case of a white label
     product.
 
@@ -303,7 +303,7 @@ class VersionSpec:
     #TODO Additionally, you may use python version prefixes: >=, >, <, <=, ==
     """Turbonomic version specification object
 
-    The :class:`~VersionSpec` object contains version compatibility and
+    The :py:class:`~VersionSpec` object contains version compatibility and
     requirements information. Versions must be in dotted format, and may
     optionally have a '+' postfix to indicate versions greater than or equal
     to are acceptable. If using '+', you only need to specify the minimum
@@ -402,10 +402,10 @@ class VersionSpec:
         return False
 
     def check(self, version):
-        """Checks a :class:`~Version` for validity against the :class:`~VersionSpec`.
+        """Checks a :py:class:`~Version` for validity against the :py:class:`~VersionSpec`.
 
         Args:
-            version (obj): The :class:`~Version` to check.
+            version (obj): The :py:class:`~Version` to check.
 
         Returns:
             True if valid, False if the version is excluded or not found.
@@ -451,8 +451,8 @@ class VersionSpec:
 class VMTVersion(VersionSpec):
     """Alias for :py:class:`~VersionSpec` to provide backwards compatibility.
 
-    Notes:
-        To be removed in a future branch.
+    Warning:
+        Deprecated. Use :py:class:`~VersionSpec` instead.
     """
     def __init__(self, versions=None, exclude=None, require=False):
         super().__init__(versions=versions, exclude=exclude, required=require)
@@ -463,7 +463,7 @@ class Pager:
 
     A :py:class:`~Pager` is a special request handler which permits the processing
     of paged :py:meth:`~Connection.request` results, keeping state between each
-    successive call. Although you can instantiate a :class:`~Pager` directly,
+    successive call. Although you can instantiate a :py:class:`~Pager` directly,
     it is strongly recommended to request one by adding ``pager=True`` to your
     existing :py:class:`Connection` method call.
 
@@ -639,23 +639,28 @@ class Connection:
     Notes:
         The default minimum version for classic builds is 6.1.x, and for XL it
         is 7.21.x Using a previous version will trigger a version warning. To
-        avoid this warning, you will need to explicitly pass in a :class:`~VMTVersionSpec`
+        avoid this warning, you will need to explicitly pass in a :py:class:`~VersionSpec`
         object for the version desired.
 
         Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS
         connection. Because of this, vmt-connect defaults to using SSL. Versions
         prior to 6.0 using HTTP will need to manually set ssl to ``False``. If
-        verify is given a path to a directory, the directory must have been
+        **verify** is given a path to a directory, the directory must have been
         processed using the c_rehash utility supplied with OpenSSL. For client
         side certificates using **cert**: the private key to your local certificate
-        must be unencrypted. Currently, Requests does not support using encrypted
-        keys. Requests uses certificates from the package certifi.
+        must be unencrypted. Currently, Requests, which vmt-connect relies on,
+        does not support using encrypted keys. Requests uses certificates from
+        the package certifi.
 
         The /api/v2 path was added in 6.4, and the /api/v3 path was added in XL
         branch 7.21. The XL API is not intended to be an extension of the Classic
         API, though there is extensive parity. *vmt-connect* will attempt to
         detect which API you are connecting to and adjust accordingly where
         possible.
+
+        XL uses OID identifiers internally instead of UUID identifiers. The
+        change generally does not affect the API, the UUID label is still used,
+        although the structure of the IDs is different.
     """
     # system level markets to block certain actions
     # this is done by name, and subject to breaking if names are abused
@@ -1134,6 +1139,12 @@ class Connection:
         Returns:
             A list of entities in :obj:`dict` form.
 
+
+        Notes:
+            **type** filtering is performed locally and is not compatible with
+            responses that return a :py:class:`~Pager` object. Therefore, if you
+            attempt to request a :py:class:`~Pager` response, **type** will be
+            ignored.
         """
         query = {}
 
@@ -1158,7 +1169,7 @@ class Connection:
             else:
                 entities = self.request(path, method='GET', query=query, **kwargs)
 
-        if type:
+        if type and isinstance(entities, Pager):
             return [x for x in entities if x['className'] == type]
 
         return entities
@@ -1741,12 +1752,12 @@ class Connection:
 
 
 class Session(Connection):
-    """Alias for :class:`~Connection` to provide convenience.
+    """Alias for :py:class:`~Connection` to provide convenience.
 
-    See :class:`~Connection` for parameter details.
+    See :py:class:`~Connection` for parameter details.
 
     Notes:
-        The value for the :class:`~Connection.session` property will always be set to ``True`` when using :class:`~Session`
+        The value for the :py:class:`~Connection.session` property will always be set to ``True`` when using :py:class:`~Session`
 
     """
     def __init__(self, *args, **kwargs):
@@ -1755,13 +1766,17 @@ class Session(Connection):
 
 
 class VMTConnection(Session):
-    """Alias for :class:`~Connection` to provide backwards compatibility.
+    """Alias for :py:class:`~Connection` to provide backwards compatibility.
 
-    See :class:`~Connection` for parameter details.
+    See :py:class:`~Connection` for parameter details.
 
     Notes:
-        The value for :class:`~Connection.session` will default to ``True`` when using :class:`~VMTConnection`
-        To be removed in 4.0.
+        The value for :py:class:`~Connection.session` will default to ``True``
+        when using :py:class:`~VMTConnection`
+
+    Warning:
+        Deprecated. Use :py:class:`~Connection` or :py:class:`~Session`
+        instead.
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1790,11 +1805,15 @@ def enumerate_stats(data, entity=None, period=None, stat=None):
         to skip processing the current level element.
 
     Examples:
-        desired_id = '284552108476721'
-        enumerate_stats(data, entity=lambda x: x['uuid'] == desired_uuid)
+        .. code-block:: python
+        
+            # filter stats for a specific ID
+            desired_id = '284552108476721'
+            enumerate_stats(data, entity=lambda x: x['uuid'] == desired_uuid)
 
-        blacklist = ['Ballooning']
-        enumerate_stats(data, stat=lambda x: x['name'] not in blacklist)
+            # filter specific stats for all IDs
+            blacklist = ['Ballooning']
+            enumerate_stats(data, stat=lambda x: x['name'] not in blacklist)
     """
     for k1, v1 in enumerate(data):
         if entity is not None and not entity(v1) \
