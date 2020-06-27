@@ -65,7 +65,7 @@ Working with Results
 Regardless of the connection class used, all JSON results are automatically
 deserialized into Python objects and can be accessed directly. Because Turbonomic
 may return a single item or a list of items on most endpoints, the connection
-classes will serialize the result into a list regardless of the count so that
+classes will translate the result into a list regardless of the count so that
 all return types are as uniform as possible.
 
 Using the deserialized objects, we can easily displaying which host a VM lives
