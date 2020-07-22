@@ -517,7 +517,7 @@ class Pager:
 
     def prepare_next(self):
         if 'cursor' in self.__response.url:
-            self.__url = re.sub(r'(?<=\?|&)cursor=([\d]+)', f'cursor={self.__next}', self.__response.url)
+            self.__url = re.sub(r'(?<=\?|&)cursor=([\d]+)', f"cursor={self.__next}", self.__response.url)
         else:
             self.__url = self.__response.url + ('&' if '?' in self.__response.url else '?') + f'cursor={self.__next}'
 
@@ -618,6 +618,7 @@ class Connection:
         use_session (bool, optional): If set to ``True``, a :py:class:`requests.Session`
             will be created, otherwise individual :py:class:`requests.Request`
             calls will be made. (default: ``True``)
+        proxies (dict, optional): Dictionary of proxy definitions.
 
     Attributes:
         disable_hateoas (bool): HATEOAS links state.
@@ -706,7 +707,7 @@ class Connection:
             except AttributeError:
                 self.__basic_auth = auth
         elif (username and password):
-            self.__basic_auth = base64.b64encode(f'{username}:{password}'.encode())
+            self.__basic_auth = base64.b64encode(f"{username}:{password}".encode())
         else:
             raise VMTConnectionError('Missing credentials')
 
@@ -1806,7 +1807,7 @@ def enumerate_stats(data, entity=None, period=None, stat=None):
 
     Examples:
         .. code-block:: python
-        
+
             # filter stats for a specific ID
             desired_id = '284552108476721'
             enumerate_stats(data, entity=lambda x: x['uuid'] == desired_uuid)
