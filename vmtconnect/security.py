@@ -24,8 +24,8 @@ class Credential:
         cred (str, optional): Path to the credential token.
     """
     default_home = os.path.join(os.path.expanduser('~'), '.turbo_services_api_creds')
-    default_key_file = os.path.join(self.default_home, '.key')
-    default_msg_file =  os.path.join(self.default_home, '.cred')
+    default_key_file = os.path.join(default_home, '.key')
+    default_msg_file =  os.path.join(default_home, '.cred')
 
     def __init__(self, key=None, cred=None):
         self.__key_file = key if key else self.default_key_file
