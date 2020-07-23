@@ -41,6 +41,16 @@ def mem_cast(value, unit=None, src=None):
                      )
 
 def to_defaultdict(factory, data):
+    """
+    Convert a list or dictionary to a defaultdict object
+
+    Args:
+        factory (obj): Used as the default value.
+        data (obj): List or dict to convert.
+
+    See Also:
+        https://docs.python.org/3.8/library/collections.html#defaultdict-objects
+    """
     if isinstance(data, dict):
         return defaultdict(factory, {k: to_defaultdict(factory, v) for k, v in data.items()})
 

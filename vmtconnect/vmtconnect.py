@@ -532,26 +532,16 @@ class Pager:
         self.__complete = True
 
     def prepare_next(self):
-        print(self.__response.url)
         base = urlunparse((self.__conn.protocol,
                            self.__conn.host,
                            self.__conn.base_path,
                            '','',''))
-        print(base)
-
         partial = self.__response.url.replace(base, '')
-        print(partial)
 
         if 'cursor' in partial:
-            print('cursor')
             self.__resource, self.__query = partial.split('?', 1)
-            print(self.__resource)
-            print(self.__query)
             self.__query = re.sub(r'(?<=\?|&)cursor=([\d]+)', f"cursor={self.__next}", self.__query)
-            print(self.__query)
-            #self.__url = re.sub(r'(?<=\?|&)cursor=([\d]+)', f"cursor={self.__next}", self.__response.url)
         else:
-            print('else')
             try:
                 self.__resource, self.__query = partial.split('?', 1)
                 self.__query += '&'
@@ -560,11 +550,6 @@ class Pager:
                 self.__query = '?'
 
             self.__query += f"cursor={self.__next}"
-
-            print(self.__resource)
-            print(self.__query)
-            #self.__url = self.__response.url + ('&' if '?' in self.__response.url else '?') + f'cursor={self.__next}'
-
 
     @property
     def all(self):
@@ -594,9 +579,10 @@ class Pager:
             return None
         elif self.__next != "0":
             # get next
-            self.__response = self.__conn._request(self.__method,
+            self.__response = self.__conn._request(self.__response.request.method,
                                                    self.__resource,
                                                    self.__query,
+                                                   self.__response.request.body,
                                                    **self.__kwargs)
 
         self.__conn.request_check_error(self.__response)
@@ -613,7 +599,6 @@ class Pager:
         self.records_fetched += self.records
 
         if self.page == 1:
-            self.__method = self.__response.request.method
             self.records_total = int(self.__response.headers.get('x-total-record-count', -1))
 
         if self.__next:
