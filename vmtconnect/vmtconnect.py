@@ -114,7 +114,10 @@ _version_mappings = {
         '2.3.11': '6.4.15',
         '2.3.12': '6.4.16',
         '2.3.13': '6.4.17',
-        '2.3.14': '6.4.18'
+        '2.3.14': '6.4.18',
+        '2.3.15': '6.4.19',
+        '2.3.16': '6.4.20',
+        '2.3.17': '6.4.21'
     }
 }
 
@@ -249,6 +252,7 @@ class Version:
 
     @staticmethod
     def parse(obj):
+        snapshot = '-SNAPSHOT'
         re_product = r'^([\S]+)\s'
         re_version = r'^.* Manager ([\d.]+)([-\w]+)? \(Build (\")?\d+(\")?\)'
         fields = ('version', 'branch', 'build', 'marketVersion')
@@ -256,8 +260,8 @@ class Version:
         ver = defaultdict(lambda: None)
         ver['product'] = re.search(re_product, obj['versionInfo']).group(1)
         ver['version'] = re.search(re_version, obj['versionInfo']).group(1)
-        snapshot = re.search(re_version, obj['versionInfo']).group(2) or None
-        ver['snapshot'] = bool(snapshot)
+        extra = re.search(re_version, obj['versionInfo']).group(2) or None
+        ver['snapshot'] = bool(extra)
 
         for x in fields:
             if x in ('version', 'build', 'branch'):
@@ -265,11 +269,19 @@ class Version:
             else:
                 label = x
 
-            # trim snapshot builds
+            ver[label] = obj.get(x)
             try:
-                ver[label] = obj.get(x).rstrip(snapshot)
+                ver[label] = ver[label].rstrip(snapshot)
+
+                if snapshot in obj.get(x):
+                    # late detection for build errors where the snapshot tag is
+                    # getting added or simply not removed in some places
+                    # observed in CWOM and Turbo builds.
+                    ver['snapshot'] = True
+
+                ver[label] = ver[label].rstrip(extra)
             except Exception:
-                ver[label] = obj.get(x)
+                pass
 
         # backwards compatibility pre 6.1 white label version mapping
         # forward versions of classic store this directly (usually)
@@ -359,7 +371,9 @@ class VersionSpec:
 
         if not re.search(r'[\d.]+\d+', string) or \
            not string.replace('.', '').isdigit():
-            raise VMTFormatError(f'Unrecognized version format. This may be due to a broken snapshot build: {string}')
+            msg = 'Unrecognized version format. ' \
+                  f"This may be due to a broken snapshot build: {string}"
+            raise VMTFormatError()
 
         return string.split('.')
 
@@ -394,10 +408,11 @@ class VersionSpec:
             raise VMTVersionError('Required version not met')
 
         if warn:
-            warnings.warn('Your version of Turbonomic does not meet the ' \
-                          'minimum recommended version. You may experience ' \
-                          'unexpected errors, and are strongly encouraged to ' \
-                          'upgrade.', VMTMinimumVersionWarning)
+            msg = 'Your version of Turbonomic does not meet the ' \
+                  'minimum recommended version. You may experience ' \
+                  'unexpected errors, and are strongly encouraged to ' \
+                  'upgrade.'
+            warnings.warn(msg, VMTMinimumVersionWarning)
 
         return False
 
@@ -417,9 +432,9 @@ class VersionSpec:
         if self.cmp_base:
             try:
                 if version.base_version is None:
-                    warnings.warn('Version does not contain a base version, ' \
-                                  'using primary version as base.',
-                                  VMTVersionWarning)
+                    msg = 'Version does not contain a base version, ' \
+                          'using primary version as base.'
+                    warnings.warn(msg, VMTVersionWarning)
                     ver = version.version
                 else:
                     ver = version.base_version
@@ -432,8 +447,9 @@ class VersionSpec:
         # kick out or warn on snapshot builds
         if version.snapshot:
             if self.allow_snapshot:
-                warnings.warn('You are connecting to a snapshot / development' \
-                ' build. API functionality may have changed, or be broken.', VMTVersionWarning)
+                msg = 'You are connecting to a snapshot / development' \
+                      ' build. API functionality may have changed, or be broken.'
+                warnings.warn(msg, VMTVersionWarning)
             else:
                 raise VMTVersionError(f'Snapshot build detected.')
 
@@ -516,10 +532,39 @@ class Pager:
         self.__complete = True
 
     def prepare_next(self):
-        if 'cursor' in self.__response.url:
-            self.__url = re.sub(r'(?<=\?|&)cursor=([\d]+)', f"cursor={self.__next}", self.__response.url)
+        print(self.__response.url)
+        base = urlunparse((self.__conn.protocol,
+                           self.__conn.host,
+                           self.__conn.base_path,
+                           '','',''))
+        print(base)
+
+        partial = self.__response.url.replace(base, '')
+        print(partial)
+
+        if 'cursor' in partial:
+            print('cursor')
+            self.__resource, self.__query = partial.split('?', 1)
+            print(self.__resource)
+            print(self.__query)
+            self.__query = re.sub(r'(?<=\?|&)cursor=([\d]+)', f"cursor={self.__next}", self.__query)
+            print(self.__query)
+            #self.__url = re.sub(r'(?<=\?|&)cursor=([\d]+)', f"cursor={self.__next}", self.__response.url)
         else:
-            self.__url = self.__response.url + ('&' if '?' in self.__response.url else '?') + f'cursor={self.__next}'
+            print('else')
+            try:
+                self.__resource, self.__query = partial.split('?', 1)
+                self.__query += '&'
+            except ValueError:
+                self.__resource = partial
+                self.__query = '?'
+
+            self.__query += f"cursor={self.__next}"
+
+            print(self.__resource)
+            print(self.__query)
+            #self.__url = self.__response.url + ('&' if '?' in self.__response.url else '?') + f'cursor={self.__next}'
+
 
     @property
     def all(self):
@@ -549,7 +594,10 @@ class Pager:
             return None
         elif self.__next != "0":
             # get next
-            self.__response = self.__conn._request(self.__method, self.__url, **self.__kwargs)
+            self.__response = self.__conn._request(self.__method,
+                                                   self.__resource,
+                                                   self.__query,
+                                                   **self.__kwargs)
 
         self.__conn.request_check_error(self.__response)
 
