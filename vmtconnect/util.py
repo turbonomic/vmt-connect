@@ -1,3 +1,4 @@
+from collections import defaultdict
 from decimal import Decimal
 import re
 
@@ -38,3 +39,10 @@ def mem_cast(value, unit=None, src=None):
                      1024,
                      ['B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y']
                      )
+
+def to_defaultdict(factory, data):
+    if isinstance(data, dict):
+        return defaultdict(factory, {k: to_defaultdict(factory, v) for k, v in data.items()})
+
+    if isinstance(data, list):
+        return [to_defaultdict(factory, v) for v in data]
