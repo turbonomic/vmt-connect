@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Developer Interfaces &mdash; vmt-connect 3.2.6 documentation</title>
+  <title>Developer Interfaces &mdash; vmt-connect 3.3.0 documentation</title>
   
 
   
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                3.2.6
+                3.3.0
               </div>
             
           
@@ -90,26 +90,34 @@
 <li class="toctree-l1"><a class="reference internal" href="userguide.html">Basic User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advancedguide.html">Advanced Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Developer Interfaces</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#connections">Connections</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#connection">Connection</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#session">Session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#main-module">Main Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#connections">Connections</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#connection">Connection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#session">Session</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#response-handlers">Response Handlers</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#pager">Pager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#response-handlers">Response Handlers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pager">Pager</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#versioning">Versioning</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#version">Version</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#versionspec">VersionSpec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#versioning">Versioning</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#version">Version</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#versionspec">VersionSpec</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#utilities">Utilities</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#enumerate-stats">enumerate_stats()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utilities">Utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#exceptions">Exceptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deprecated-interfaces">Deprecated Interfaces</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#exceptions">Exceptions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#deprecated-interfaces">Deprecated Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#security-module">Security Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#classes">Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#credential">Credential</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#utility-module">Utility Module</a></li>
 </ul>
 </li>
 </ul>
@@ -164,7 +172,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="_sources/vmtconnect.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/reference.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -177,13 +185,54 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-vmtconnect">
-<span id="developer-interfaces"></span><h1>Developer Interfaces<a class="headerlink" href="#module-vmtconnect" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="developer-interfaces">
+<h1>Developer Interfaces<a class="headerlink" href="#developer-interfaces" title="Permalink to this headline">¶</a></h1>
 <p>This part of the documentation covers all the interfaces of vmt-connect.</p>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#main-module" id="id6">Main Module</a></p>
+<ul>
+<li><p><a class="reference internal" href="#connections" id="id7">Connections</a></p>
+<ul>
+<li><p><a class="reference internal" href="#connection" id="id8">Connection</a></p></li>
+<li><p><a class="reference internal" href="#session" id="id9">Session</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#response-handlers" id="id10">Response Handlers</a></p>
+<ul>
+<li><p><a class="reference internal" href="#pager" id="id11">Pager</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#versioning" id="id12">Versioning</a></p>
+<ul>
+<li><p><a class="reference internal" href="#version" id="id13">Version</a></p></li>
+<li><p><a class="reference internal" href="#versionspec" id="id14">VersionSpec</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#utilities" id="id15">Utilities</a></p></li>
+<li><p><a class="reference internal" href="#exceptions" id="id16">Exceptions</a></p></li>
+<li><p><a class="reference internal" href="#deprecated-interfaces" id="id17">Deprecated Interfaces</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#security-module" id="id18">Security Module</a></p>
+<ul>
+<li><p><a class="reference internal" href="#classes" id="id19">Classes</a></p>
+<ul>
+<li><p><a class="reference internal" href="#credential" id="id20">Credential</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#utility-module" id="id21">Utility Module</a></p></li>
+</ul>
+</div>
+<div class="section" id="main-module">
+<h2><a class="toc-backref" href="#id6">Main Module</a><a class="headerlink" href="#main-module" title="Permalink to this headline">¶</a></h2>
+<p><code class="xref py py-attr docutils literal notranslate"><span class="pre">Import:</span></code> <strong>vmtconnect</strong></p>
 <div class="section" id="connections">
-<h2>Connections<a class="headerlink" href="#connections" title="Permalink to this headline">¶</a></h2>
+<h3><a class="toc-backref" href="#id7">Connections</a><a class="headerlink" href="#connections" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="connection">
-<h3>Connection<a class="headerlink" href="#connection" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id8">Connection</a><a class="headerlink" href="#connection" title="Permalink to this headline">¶</a></h4>
 <dl class="py class">
 <dt id="vmtconnect.Connection">
 <em class="property">class </em><code class="sig-prename descclassname">vmtconnect.</code><code class="sig-name descname">Connection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">host</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">username</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">password</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">auth</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">base_url</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">req_versions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">disable_hateoas</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">ssl</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">verify</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">cert</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">headers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">use_session</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">proxies</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection" title="Permalink to this definition">¶</a></dt>
@@ -1112,11 +1161,11 @@ requests.</p></li>
 
 </div>
 <div class="section" id="session">
-<h3>Session<a class="headerlink" href="#session" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id9">Session</a><a class="headerlink" href="#session" title="Permalink to this headline">¶</a></h4>
 <dl class="py class">
 <dt id="vmtconnect.Session">
 <em class="property">class </em><code class="sig-prename descclassname">vmtconnect.</code><code class="sig-name descname">Session</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Session" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">vmtconnect.Connection</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">vmtconnect.vmtconnect.Connection</span></code></p>
 <p>Alias for <a class="reference internal" href="#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a> to provide convenience.</p>
 <p>See <a class="reference internal" href="#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a> for parameter details.</p>
 <div class="admonition-notes admonition">
@@ -1131,9 +1180,9 @@ requests.</p></li>
 </div>
 </div>
 <div class="section" id="response-handlers">
-<h2>Response Handlers<a class="headerlink" href="#response-handlers" title="Permalink to this headline">¶</a></h2>
+<h3><a class="toc-backref" href="#id10">Response Handlers</a><a class="headerlink" href="#response-handlers" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="pager">
-<h3>Pager<a class="headerlink" href="#pager" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id11">Pager</a><a class="headerlink" href="#pager" title="Permalink to this headline">¶</a></h4>
 <dl class="py class">
 <dt id="vmtconnect.Pager">
 <em class="property">class </em><code class="sig-prename descclassname">vmtconnect.</code><code class="sig-name descname">Pager</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conn</span></em>, <em class="sig-param"><span class="n">response</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Pager" title="Permalink to this definition">¶</a></dt>
@@ -1267,9 +1316,9 @@ non-working pagination headers. These are chiefly XL versions prior to
 </div>
 </div>
 <div class="section" id="versioning">
-<h2>Versioning<a class="headerlink" href="#versioning" title="Permalink to this headline">¶</a></h2>
+<h3><a class="toc-backref" href="#id12">Versioning</a><a class="headerlink" href="#versioning" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="version">
-<h3>Version<a class="headerlink" href="#version" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id13">Version</a><a class="headerlink" href="#version" title="Permalink to this headline">¶</a></h4>
 <dl class="py class">
 <dt id="vmtconnect.Version">
 <em class="property">class </em><code class="sig-prename descclassname">vmtconnect.</code><code class="sig-name descname">Version</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">version</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Version" title="Permalink to this definition">¶</a></dt>
@@ -1358,7 +1407,7 @@ otherwise.</p>
 
 </div>
 <div class="section" id="versionspec">
-<h3>VersionSpec<a class="headerlink" href="#versionspec" title="Permalink to this headline">¶</a></h3>
+<h4><a class="toc-backref" href="#id14">VersionSpec</a><a class="headerlink" href="#versionspec" title="Permalink to this headline">¶</a></h4>
 <dl class="py class">
 <dt id="vmtconnect.VersionSpec">
 <em class="property">class </em><code class="sig-prename descclassname">vmtconnect.</code><code class="sig-name descname">VersionSpec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">versions</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">exclude</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">required</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">snapshot</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">cmp_base</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VersionSpec" title="Permalink to this definition">¶</a></dt>
@@ -1428,51 +1477,19 @@ prior to the Turbonomic HTML UI released with v6.0 of the core product.</p>
 </div>
 </div>
 <div class="section" id="utilities">
-<h2>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="enumerate-stats">
-<h3>enumerate_stats()<a class="headerlink" href="#enumerate-stats" title="Permalink to this headline">¶</a></h3>
+<h3><a class="toc-backref" href="#id15">Utilities</a><a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h3>
 <dl class="py function">
 <dt id="vmtconnect.enumerate_stats">
 <code class="sig-prename descclassname">vmtconnect.</code><code class="sig-name descname">enumerate_stats</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">entity</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">period</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stat</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.enumerate_stats" title="Permalink to this definition">¶</a></dt>
-<dd><p>Enumerates stats endpoint results</p>
-<p>Provides an iterator for more intuitive and cleaner parsing of nested
-statistics results. Each iteration returns a tuple containing the statistics
-period <cite>date</cite> timestamp, as well as the next individual statistic entry as
-a dictionary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – Stats endpoint data results to parse.</p></li>
-<li><p><strong>entity</strong> (<em>function</em><em>, </em><em>optional</em>) – Optional entity level filter function.</p></li>
-<li><p><strong>period</strong> (<em>function</em><em>, </em><em>optional</em>) – Optional period level filter function.</p></li>
-<li><p><strong>stat</strong> (<em>function</em><em>, </em><em>optional</em>) – Optional statistic level filter function.</p></li>
-</ul>
-</dd>
-</dl>
-<div class="admonition-notes admonition">
-<p class="admonition-title">Notes</p>
-<p>Filter functions must return <code class="docutils literal notranslate"><span class="pre">True</span></code>, to continue processing, or <code class="docutils literal notranslate"><span class="pre">False</span></code>
-to skip processing the current level element.</p>
-</div>
-<p class="rubric">Examples</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># filter stats for a specific ID</span>
-<span class="n">desired_id</span> <span class="o">=</span> <span class="s1">&#39;284552108476721&#39;</span>
-<span class="n">enumerate_stats</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;uuid&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">desired_uuid</span><span class="p">)</span>
-
-<span class="c1"># filter specific stats for all IDs</span>
-<span class="n">blacklist</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Ballooning&#39;</span><span class="p">]</span>
-<span class="n">enumerate_stats</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">blacklist</span><span class="p">)</span>
-</pre></div>
-</div>
+<dd><p>Provided as an alias for backwards compatibility only.</p>
 </dd></dl>
 
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
 </div>
-</div>
 <div class="section" id="exceptions">
-<h2>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h2>
+<h3><a class="toc-backref" href="#id16">Exceptions</a><a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h3>
 <dl class="py exception">
 <dt id="vmtconnect.VMTConnectionError">
 <em class="property">exception </em><code class="sig-prename descclassname">vmtconnect.</code><code class="sig-name descname">VMTConnectionError</code><a class="headerlink" href="#vmtconnect.VMTConnectionError" title="Permalink to this definition">¶</a></dt>
@@ -1572,7 +1589,7 @@ the session.</p>
 </div>
 </div>
 <div class="section" id="deprecated-interfaces">
-<h2>Deprecated Interfaces<a class="headerlink" href="#deprecated-interfaces" title="Permalink to this headline">¶</a></h2>
+<h3><a class="toc-backref" href="#id17">Deprecated Interfaces</a><a class="headerlink" href="#deprecated-interfaces" title="Permalink to this headline">¶</a></h3>
 <dl class="py class">
 <dt id="vmtconnect.VMTConnection">
 <em class="property">class </em><code class="sig-prename descclassname">vmtconnect.</code><code class="sig-name descname">VMTConnection</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.VMTConnection" title="Permalink to this definition">¶</a></dt>
@@ -1600,6 +1617,250 @@ instead.</p>
 </div>
 </dd></dl>
 
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+<div class="section" id="security-module">
+<h2><a class="toc-backref" href="#id18">Security Module</a><a class="headerlink" href="#security-module" title="Permalink to this headline">¶</a></h2>
+<p><code class="xref py py-attr docutils literal notranslate"><span class="pre">Import:</span></code> <strong>vmtconnect.security</strong></p>
+<div class="section" id="classes">
+<h3><a class="toc-backref" href="#id19">Classes</a><a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="credential">
+<h4><a class="toc-backref" href="#id20">Credential</a><a class="headerlink" href="#credential" title="Permalink to this headline">¶</a></h4>
+<dl class="py class">
+<dt id="vmtconnect.security.Credential">
+<em class="property">class </em><code class="sig-prename descclassname">vmtconnect.security.</code><code class="sig-name descname">Credential</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cred</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.security.Credential" title="Permalink to this definition">¶</a></dt>
+<dd><p>Credentials for authenticating to the Turbonomic API.</p>
+<p>Upon initialization <code class="xref py py-class docutils literal notranslate"><span class="pre">Credential</span></code> will check the key
+filepath, and if present the key will be read into memory; otherwise a new
+key will be randomly generated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Path to the key file.</p></li>
+<li><p><strong>cred</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Path to the credential token.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="vmtconnect.security.Credential.uid">
+<code class="sig-name descname">uid</code><a class="headerlink" href="#vmtconnect.security.Credential.uid" title="Permalink to this definition">¶</a></dt>
+<dd><p>User id to set new files to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="vmtconnect.security.Credential.gid">
+<code class="sig-name descname">gid</code><a class="headerlink" href="#vmtconnect.security.Credential.gid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Group id to set new files to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="vmtconnect.security.Credential.mode">
+<code class="sig-name descname">mode</code><a class="headerlink" href="#vmtconnect.security.Credential.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>File mode (octal format 0oNNN is ok), to apply to new files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="vmtconnect.security.Credential.create">
+<code class="sig-name descname">create</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.security.Credential.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create and save to file a new cipher key and encrypted message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Cipher key to use for encryption. If null, a new key will
+be generated. (default: <code class="docutils literal notranslate"><span class="pre">None</span></code>)</p></li>
+<li><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Message to be encrypted. If null, you will be prompted
+for a username and password pair interactively.</p></li>
+<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> existing key or message data will be
+overwritten. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="vmtconnect.security.Credential.decrypt">
+<code class="sig-name descname">decrypt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">token</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.security.Credential.decrypt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decrypt the token using the given key, and return the message. If the
+token file was provided at init, it will be used here, otherwise a valid
+token must be supplied.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>token</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.8)"><em>bytes</em></a><em>, </em><em>optional</em>) – Encrypted token to decrypt.</p></li>
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Cipher key to use for decryption.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The decrypted message.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="vmtconnect.security.Credential.encrypt">
+<code class="sig-name descname">encrypt</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.security.Credential.encrypt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encrypt the given message with the given key and return the token.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Message or data to be encrypted.</p></li>
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Cipher key to use for encryption.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The encrypted token.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="vmtconnect.security.Credential.get">
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.security.Credential.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve and decrypt credentials</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Credentials in the form of a Base64 auth string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="vmtconnect.security.Credential.get_cipher">
+<code class="sig-name descname">get_cipher</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.security.Credential.get_cipher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a Fernet cipher for the given key</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="vmtconnect.security.Credential.new_key">
+<code class="sig-name descname">new_key</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.security.Credential.new_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a new key.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="vmtconnect.security.Credential.prompt_credentials">
+<code class="sig-name descname">prompt_credentials</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.security.Credential.prompt_credentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves a new set of credentials from the user, returning a Base64
+auth string response.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="vmtconnect.security.Credential.set">
+<code class="sig-name descname">set</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">message</span></em>, <em class="sig-param"><span class="n">key</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">overwrite</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.security.Credential.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encrypt the given message with the specified key, and save each to
+their respective files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Data to be encrypted.</p></li>
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Cipher key to encrypt the message with.</p></li>
+<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> existing key or message data will be
+overwritten. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="utility-module">
+<h2><a class="toc-backref" href="#id21">Utility Module</a><a class="headerlink" href="#utility-module" title="Permalink to this headline">¶</a></h2>
+<p><code class="xref py py-attr docutils literal notranslate"><span class="pre">Import:</span></code> <strong>vmtconnect.util</strong></p>
+<dl class="py function">
+<dt id="vmtconnect.util.enumerate_stats">
+<code class="sig-prename descclassname">vmtconnect.util.</code><code class="sig-name descname">enumerate_stats</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">entity</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">period</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">stat</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.util.enumerate_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enumerates stats endpoint results</p>
+<p>Provides an iterator for more intuitive and cleaner parsing of nested
+statistics results. Each iteration returns a tuple containing the statistics
+period <cite>date</cite> timestamp, as well as the next individual statistic entry as
+a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a>) – Stats endpoint data results to parse.</p></li>
+<li><p><strong>entity</strong> (<em>function</em><em>, </em><em>optional</em>) – Optional entity level filter function.</p></li>
+<li><p><strong>period</strong> (<em>function</em><em>, </em><em>optional</em>) – Optional period level filter function.</p></li>
+<li><p><strong>stat</strong> (<em>function</em><em>, </em><em>optional</em>) – Optional statistic level filter function.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Filter functions must return <code class="docutils literal notranslate"><span class="pre">True</span></code>, to continue processing, or <code class="docutils literal notranslate"><span class="pre">False</span></code>
+to skip processing the current level element.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># filter stats for a specific ID</span>
+<span class="n">desired_id</span> <span class="o">=</span> <span class="s1">&#39;284552108476721&#39;</span>
+<span class="n">enumerate_stats</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;uuid&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">desired_uuid</span><span class="p">)</span>
+
+<span class="c1"># filter specific stats for all IDs</span>
+<span class="n">blacklist</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Ballooning&#39;</span><span class="p">]</span>
+<span class="n">enumerate_stats</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">blacklist</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="vmtconnect.util.mem_cast">
+<code class="sig-prename descclassname">vmtconnect.util.</code><code class="sig-name descname">mem_cast</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">unit</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">src</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.util.mem_cast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts memory from one unit of measure to another. Values are interpreted
+as base 2 values (JEDEC memory standard), not SI values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<em>string</em>) – Base value, represented as a string.</p></li>
+<li><p><strong>unit</strong> (<em>string</em>) – Destination value to convert to. (default: <code class="docutils literal notranslate"><span class="pre">G</span></code>)</p></li>
+<li><p><strong>src</strong> (<em>string</em>) – Source value unit of measure to convert from. (default: <code class="docutils literal notranslate"><span class="pre">b</span></code>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="vmtconnect.util.to_defaultdict">
+<code class="sig-prename descclassname">vmtconnect.util.</code><code class="sig-name descname">to_defaultdict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">factory</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.util.to_defaultdict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a list or dictionary to a defaultdict object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>factory</strong> (<em>obj</em>) – Used as the default value.</p></li>
+<li><p><strong>data</strong> (<em>obj</em>) – List or dict to convert.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://docs.python.org/3.8/library/collections.html#defaultdict-objects">https://docs.python.org/3.8/library/collections.html#defaultdict-objects</a></p>
+</div>
+</dd></dl>
+
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 </div>
 </div>
 

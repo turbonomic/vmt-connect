@@ -2,10 +2,15 @@
 Developer Interfaces
 ====================
 
-vmtconnect
-==========
-
 This part of the documentation covers all the interfaces of vmt-connect.
+
+.. contents::
+   :local:
+
+Main Module
+===========
+
+:py:attr:`Import:` **vmtconnect**
 
 Connections
 -----------
@@ -51,8 +56,6 @@ VersionSpec
 Utilities
 ---------
 
-enumerate_stats()
-^^^^^^^^^^^^^^^^^
 .. autofunction:: vmtconnect.enumerate_stats
 
 |
@@ -86,24 +89,30 @@ Deprecated Interfaces
 
 |
 
-security
-========
+Security Module
+===============
 
-.. automodule:: security
-   :show-inheritance:
-   :no-undoc-members:
-   :no-private-members:
-   :no-special-members:
+:py:attr:`Import:` **vmtconnect.security**
+
+Classes
+-------
+
+Credential
+^^^^^^^^^^
+.. autoclass:: vmtconnect.security.Credential
+   :members:
 
 |
 
-util
-====
+Utility Module
+==============
 
-.. automodule:: vmtconnect.util
-   :show-inheritance:
-   :no-undoc-members:
-   :no-private-members:
-   :no-special-members:
+:py:attr:`Import:` **vmtconnect.util**
+
+.. autofunction:: vmtconnect.util.enumerate_stats
+
+.. autofunction:: vmtconnect.util.mem_cast
+
+.. autofunction:: vmtconnect.util.to_defaultdict
 
 |

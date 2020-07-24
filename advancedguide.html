@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Advanced Usage &mdash; vmt-connect 3.2.6 documentation</title>
+  <title>Advanced Usage &mdash; vmt-connect 3.3.0 documentation</title>
   
 
   
@@ -36,7 +36,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Developer Interfaces" href="vmtconnect.html" />
+    <link rel="next" title="Developer Interfaces" href="reference.html" />
     <link rel="prev" title="Basic User Guide" href="userguide.html" /> 
 </head>
 
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                3.2.6
+                3.3.0
               </div>
             
           
@@ -93,9 +93,14 @@
 <li class="toctree-l2"><a class="reference internal" href="#connections">Connections</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#paged-results">Paged Results</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#version-control">Version Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#credentials">Credentials</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-interface">Module Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#command-line-interface">Command-line Interface</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="vmtconnect.html">Developer Interfaces</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Developer Interfaces</a></li>
 </ul>
 
             
@@ -165,7 +170,7 @@
 <h1>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="connections">
 <h2>Connections<a class="headerlink" href="#connections" title="Permalink to this headline">¶</a></h2>
-<p>All parameters to the <a class="reference internal" href="vmtconnect.html#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a> and <a class="reference internal" href="vmtconnect.html#vmtconnect.Session" title="vmtconnect.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a>
+<p>All parameters to the <a class="reference internal" href="reference.html#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a> and <a class="reference internal" href="reference.html#vmtconnect.Session" title="vmtconnect.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a>
 classes are technically optional, however Turbonomic does require authentication.
 Thus while <code class="docutils literal notranslate"><span class="pre">vmtconnect.Connection()</span></code> and <code class="docutils literal notranslate"><span class="pre">vmtconnect.Session()</span></code> are valid
 calls, they will fail authentication checks regardless. All connections must
@@ -214,7 +219,7 @@ are passed to the <cite>proxies</cite> parameter.</p>
 <div class="section" id="paged-results">
 <h2>Paged Results<a class="headerlink" href="#paged-results" title="Permalink to this headline">¶</a></h2>
 <p>For versions of Turbonomic that support paged responses, <em>vmt-connect</em> provides
-an optional <a class="reference internal" href="vmtconnect.html#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> class for working with the paginated
+an optional <a class="reference internal" href="reference.html#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> class for working with the paginated
 results. By default, <em>vmt-connect</em> will return the first page of results only
 unless the <strong>pager</strong> flag is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 <p>For example, when querying all entities in a given market, you will receive the
@@ -242,8 +247,8 @@ them into a single monolithic response using the <strong>fetch_all</strong> para
 </div>
 <p>This works if the response is small. Larger responses will use excessive amounts
 of memory caching the results, and we will generally see better performance by
-looping over the pages. We do this by using the <a class="reference internal" href="vmtconnect.html#vmtconnect.Pager.next" title="vmtconnect.Pager.next"><code class="xref py py-attr docutils literal notranslate"><span class="pre">next</span></code></a>
-property of the <a class="reference internal" href="vmtconnect.html#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a>, and checking if it is <a class="reference internal" href="vmtconnect.html#vmtconnect.Pager.complete" title="vmtconnect.Pager.complete"><code class="xref py py-attr docutils literal notranslate"><span class="pre">complete</span></code></a>:</p>
+looping over the pages. We do this by using the <a class="reference internal" href="reference.html#vmtconnect.Pager.next" title="vmtconnect.Pager.next"><code class="xref py py-attr docutils literal notranslate"><span class="pre">next</span></code></a>
+property of the <a class="reference internal" href="reference.html#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a>, and checking if it is <a class="reference internal" href="reference.html#vmtconnect.Pager.complete" title="vmtconnect.Pager.complete"><code class="xref py py-attr docutils literal notranslate"><span class="pre">complete</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_entities</span><span class="p">(</span><span class="n">pager</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="k">while</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">complete</span><span class="p">:</span>
@@ -260,7 +265,7 @@ property of the <a class="reference internal" href="vmtconnect.html#vmtconnect.P
 <h2>Version Control<a class="headerlink" href="#version-control" title="Permalink to this headline">¶</a></h2>
 <p>When specific implementations, integrations, or scripts require specific versions
 of Turbonomic, need to override one of the minimum versions, or need to exclude
-incompatible versions, you will need to pass in a custom <a class="reference internal" href="vmtconnect.html#vmtconnect.VersionSpec" title="vmtconnect.VersionSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionSpec</span></code></a>
+incompatible versions, you will need to pass in a custom <a class="reference internal" href="reference.html#vmtconnect.VersionSpec" title="vmtconnect.VersionSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionSpec</span></code></a>
 to your connection. The version specification object permits fine grained control
 of which versions you wish to restrict execution to, and supports both white lists
 and black lists.</p>
@@ -283,6 +288,64 @@ set the <strong>snapshot</strong> parameter to <code class="docutils literal not
 </pre></div>
 </div>
 </div>
+<div class="section" id="credentials">
+<h2>Credentials<a class="headerlink" href="#credentials" title="Permalink to this headline">¶</a></h2>
+<p>Prior to v3.3.0, <em>vmt-connect</em> provided no native mechanism for securing credentials.
+To fill the gap Turbonomic provided a package called “TurboAPICredStore”, which
+provided for the creation and management of encrypted API credentials. That library
+has now been integrated directly into <em>vmt-connect</em> as the security module.
+Credentials are managed using the <a class="reference internal" href="reference.html#vmtconnect.security.Credential" title="vmtconnect.security.Credential"><code class="xref py py-class docutils literal notranslate"><span class="pre">Credential</span></code></a>
+class, and a command-line utility is provided for creating credentials in a similar
+manner to what TurboAPICredStore had provided.</p>
+<p><em>vmt-connect</em> utilizes the <a class="reference external" href="https://pypi.org/project/cryptography/">cryptography</a> package for symmetric encryption using
+the <a class="reference external" href="https://github.com/fernet/spec/blob/master/Spec.md">Fernet</a> specification. This means in addition to the encrypted message,
+called a token, there is a unique encryption key, the secret, which must be secured
+separately. <em>vmt-connect</em> necessarily leaves the security of the secret key up
+to the user, and appropriate measures must be taken to ensure access to the secret
+is available only to intended parties.</p>
+<div class="section" id="module-interface">
+<h3>Module Interface<a class="headerlink" href="#module-interface" title="Permalink to this headline">¶</a></h3>
+<p>Encrypted credentials can be created, and retrieved using the security module’s
+<a class="reference internal" href="reference.html#vmtconnect.security.Credential" title="vmtconnect.security.Credential"><code class="xref py py-class docutils literal notranslate"><span class="pre">Credential</span></code></a> class. Creating new credentials can
+be done with the interactive using the <a class="reference internal" href="reference.html#vmtconnect.security.Credential.create" title="vmtconnect.security.Credential.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>
+method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cred</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">security</span><span class="o">.</span><span class="n">Credential</span><span class="p">()</span>
+<span class="n">cred</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If no parameters are supplied, the user will be prompted for a username and password,
+which will be encrypted with a new unique key. Because this method has interactive
+inputs, in general it is advisable to create new credentials using the command-line
+interface, detailed further down; or by providing a context appropriate wrapper
+for the <a class="reference internal" href="reference.html#vmtconnect.security.Credential.set" title="vmtconnect.security.Credential.set"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set()</span></code></a> method.</p>
+<p>Working with existing credentials is fairly simple. Upon initialization you may
+specify either or both the key file and credential file to the constructor.
+Credentials can then be decrypted directly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cred</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">security</span><span class="o">.</span><span class="n">Credential</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s1">&#39;/keystore/.turbokey&#39;</span><span class="p">,</span> <span class="n">cred</span><span class="o">=</span><span class="s1">&#39;user.cred&#39;</span><span class="p">)</span>
+<span class="n">auth</span> <span class="o">=</span> <span class="n">cred</span><span class="o">.</span><span class="n">decrypt</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="command-line-interface">
+<h3>Command-line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h3>
+<p>The command-line interface utility, turboauth, is intended for creating encrypted
+credentials for the Turbonomic API in anticipation for automated integrations.
+The command can be used to create new, or replace existing credential and key
+files.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># create new set in the current folder</span>
+<span class="c1"># if the key file already exists, it will be re-used for encryption instead</span>
+<span class="c1"># of being overwritten</span>
+turboauth -k .key -c user.cred
+
+<span class="c1"># to overwrite files, you must use the -f or --force flag</span>
+turboauth -k .key -c user.cred -f
+
+<span class="c1"># to change the basepath of the files, use the -b or --basepath option</span>
+turboauth -b .secret -k .key -c user.cred
+</pre></div>
+</div>
+</div>
+</div>
 </div>
 
 
@@ -293,7 +356,7 @@ set the <strong>snapshot</strong> parameter to <code class="docutils literal not
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="vmtconnect.html" class="btn btn-neutral float-right" title="Developer Interfaces" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="reference.html" class="btn btn-neutral float-right" title="Developer Interfaces" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="userguide.html" class="btn btn-neutral float-left" title="Basic User Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
