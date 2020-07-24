@@ -23,4 +23,4 @@ supported.
    start
    userguide
    advancedguide
-   vmtconnect
+   reference
