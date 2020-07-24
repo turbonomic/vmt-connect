@@ -113,7 +113,11 @@ _version_mappings = {
         '2.3.10': '6.4.14',
         '2.3.11': '6.4.15',
         '2.3.12': '6.4.16',
-        '2.3.13': '6.4.17'
+        '2.3.13': '6.4.17',
+        '2.3.14': '6.4.18',
+        '2.3.15': '6.4.19',
+        '2.3.16': '6.4.20',
+        '2.3.17': '6.4.21'
     }
 }
 
@@ -209,7 +213,7 @@ class HTTPWarn(Exception):
 class Version:
     """Turbonomic instance version object
 
-    The :class:`~Version` object contains instance version information, and
+    The :py:class:`~Version` object contains instance version information, and
     equivalent Turbonomic version information in the case of a white label
     product.
 
@@ -226,7 +230,7 @@ class Version:
         base_branch (str): Equivalent Turbonomic branch
 
     Raises:
-        VMTUnknownVersion: a
+        VMTUnknownVersion: When version data cannot be parsed.
     """
 
     def __init__(self, version):
@@ -248,6 +252,7 @@ class Version:
 
     @staticmethod
     def parse(obj):
+        snapshot = '-SNAPSHOT'
         re_product = r'^([\S]+)\s'
         re_version = r'^.* Manager ([\d.]+)([-\w]+)? \(Build (\")?\d+(\")?\)'
         fields = ('version', 'branch', 'build', 'marketVersion')
@@ -255,8 +260,8 @@ class Version:
         ver = defaultdict(lambda: None)
         ver['product'] = re.search(re_product, obj['versionInfo']).group(1)
         ver['version'] = re.search(re_version, obj['versionInfo']).group(1)
-        snapshot = re.search(re_version, obj['versionInfo']).group(2) or None
-        ver['snapshot'] = bool(snapshot)
+        extra = re.search(re_version, obj['versionInfo']).group(2) or None
+        ver['snapshot'] = bool(extra)
 
         for x in fields:
             if x in ('version', 'build', 'branch'):
@@ -264,11 +269,19 @@ class Version:
             else:
                 label = x
 
-            # trim snapshot builds
+            ver[label] = obj.get(x)
             try:
-                ver[label] = obj.get(x).rstrip(snapshot)
+                ver[label] = ver[label].rstrip(snapshot)
+
+                if snapshot in obj.get(x):
+                    # late detection for build errors where the snapshot tag is
+                    # getting added or simply not removed in some places
+                    # observed in CWOM and Turbo builds.
+                    ver['snapshot'] = True
+
+                ver[label] = ver[label].rstrip(extra)
             except Exception:
-                ver[label] = obj.get(x)
+                pass
 
         # backwards compatibility pre 6.1 white label version mapping
         # forward versions of classic store this directly (usually)
@@ -302,7 +315,7 @@ class VersionSpec:
     #TODO Additionally, you may use python version prefixes: >=, >, <, <=, ==
     """Turbonomic version specification object
 
-    The :class:`~VersionSpec` object contains version compatibility and
+    The :py:class:`~VersionSpec` object contains version compatibility and
     requirements information. Versions must be in dotted format, and may
     optionally have a '+' postfix to indicate versions greater than or equal
     to are acceptable. If using '+', you only need to specify the minimum
@@ -358,7 +371,9 @@ class VersionSpec:
 
         if not re.search(r'[\d.]+\d+', string) or \
            not string.replace('.', '').isdigit():
-            raise VMTFormatError(f'Unrecognized version format. This may be due to a broken snapshot build: {string}')
+            msg = 'Unrecognized version format. ' \
+                  f"This may be due to a broken snapshot build: {string}"
+            raise VMTFormatError()
 
         return string.split('.')
 
@@ -393,18 +408,19 @@ class VersionSpec:
             raise VMTVersionError('Required version not met')
 
         if warn:
-            warnings.warn('Your version of Turbonomic does not meet the ' \
-                          'minimum recommended version. You may experience ' \
-                          'unexpected errors, and are strongly encouraged to ' \
-                          'upgrade.', VMTMinimumVersionWarning)
+            msg = 'Your version of Turbonomic does not meet the ' \
+                  'minimum recommended version. You may experience ' \
+                  'unexpected errors, and are strongly encouraged to ' \
+                  'upgrade.'
+            warnings.warn(msg, VMTMinimumVersionWarning)
 
         return False
 
     def check(self, version):
-        """Checks a :class:`~Version` for validity against the :class:`~VersionSpec`.
+        """Checks a :py:class:`~Version` for validity against the :py:class:`~VersionSpec`.
 
         Args:
-            version (obj): The :class:`~Version` to check.
+            version (obj): The :py:class:`~Version` to check.
 
         Returns:
             True if valid, False if the version is excluded or not found.
@@ -416,9 +432,9 @@ class VersionSpec:
         if self.cmp_base:
             try:
                 if version.base_version is None:
-                    warnings.warn('Version does not contain a base version, ' \
-                                  'using primary version as base.',
-                                  VMTVersionWarning)
+                    msg = 'Version does not contain a base version, ' \
+                          'using primary version as base.'
+                    warnings.warn(msg, VMTVersionWarning)
                     ver = version.version
                 else:
                     ver = version.base_version
@@ -431,8 +447,9 @@ class VersionSpec:
         # kick out or warn on snapshot builds
         if version.snapshot:
             if self.allow_snapshot:
-                warnings.warn('You are connecting to a snapshot / development' \
-                ' build. API functionality may have changed, or be broken.', VMTVersionWarning)
+                msg = 'You are connecting to a snapshot / development' \
+                      ' build. API functionality may have changed, or be broken.'
+                warnings.warn(msg, VMTVersionWarning)
             else:
                 raise VMTVersionError(f'Snapshot build detected.')
 
@@ -450,8 +467,8 @@ class VersionSpec:
 class VMTVersion(VersionSpec):
     """Alias for :py:class:`~VersionSpec` to provide backwards compatibility.
 
-    Notes:
-        To be removed in a future branch.
+    Warning:
+        Deprecated. Use :py:class:`~VersionSpec` instead.
     """
     def __init__(self, versions=None, exclude=None, require=False):
         super().__init__(versions=versions, exclude=exclude, required=require)
@@ -462,7 +479,7 @@ class Pager:
 
     A :py:class:`~Pager` is a special request handler which permits the processing
     of paged :py:meth:`~Connection.request` results, keeping state between each
-    successive call. Although you can instantiate a :class:`~Pager` directly,
+    successive call. Although you can instantiate a :py:class:`~Pager` directly,
     it is strongly recommended to request one by adding ``pager=True`` to your
     existing :py:class:`Connection` method call.
 
@@ -479,10 +496,7 @@ class Pager:
         complete (bool): Flag indicating the cursor has been exhausted.
         next (list): Next response object. Calling this
             updates the :py:class:`~Pager` internal state.
-        page (int): Current page index.
-        pages_fetched (int): Cumulative count of pages received.
-        pages_total (int): Calculated count of pages based on page size and
-            total record count.
+        page (int): Current page index, as counted by number of responses.
         records (int): Count of records in the current page.
         records_fetched (int): Cumulative count of records received.
         records_total (int): Count of records reported by the API.
@@ -506,23 +520,36 @@ class Pager:
         self.__response = response
         self.__complete = False
         self.__kwargs = kwargs
-        self.__next = 0
+        self.__next = "0"
 
         self.page = 0
-        self.pages_total = 0
         self.records = 0
         self.records_fetched = 0
         self.records_total = 0
 
     def _complete(self):
-        self.__next = -1
+        self.__next = "-1"
         self.__complete = True
 
     def prepare_next(self):
-        if 'cursor' in self.__response.url:
-            self.__url = re.sub(r'(?<=\?|&)cursor=([\d]+)', f'cursor={self.__next}', self.__response.url)
+        base = urlunparse((self.__conn.protocol,
+                           self.__conn.host,
+                           self.__conn.base_path,
+                           '','',''))
+        partial = self.__response.url.replace(base, '')
+
+        if 'cursor' in partial:
+            self.__resource, self.__query = partial.split('?', 1)
+            self.__query = re.sub(r'(?<=\?|&)cursor=([\d]+)', f"cursor={self.__next}", self.__query)
         else:
-            self.__url = self.__response.url + ('&' if '?' in self.__response.url else '?') + f'cursor={self.__next}'
+            try:
+                self.__resource, self.__query = partial.split('?', 1)
+                self.__query += '&'
+            except ValueError:
+                self.__resource = partial
+                self.__query = '?'
+
+            self.__query += f"cursor={self.__next}"
 
     @property
     def all(self):
@@ -550,14 +577,18 @@ class Pager:
         # to get the next result
         if self.complete:
             return None
-        elif self.__next > 0:
+        elif self.__next != "0":
             # get next
-            self.__response = self.__conn._request(self.__method, self.__url, **self.__kwargs)
+            self.__response = self.__conn._request(self.__response.request.method,
+                                                   self.__resource,
+                                                   self.__query,
+                                                   self.__response.request.body,
+                                                   **self.__kwargs)
 
         self.__conn.request_check_error(self.__response)
 
         try:
-            self.__next = int(self.__response.headers['x-next-cursor'])
+            self.__next = self.__response.headers['x-next-cursor']
         except (ValueError, KeyError):
             self._complete()
 
@@ -568,12 +599,9 @@ class Pager:
         self.records_fetched += self.records
 
         if self.page == 1:
-            self.__method = self.__response.request.method
             self.records_total = int(self.__response.headers.get('x-total-record-count', -1))
-            pagesize = self.__conn.results_limit if self.__conn.results_limit > 0 else self.__next
-            self.pages_total = math.ceil(self.records_total / pagesize) if pagesize > 0 else -1
 
-        if self.__next > 0:
+        if self.__next:
             self.prepare_next()
         elif self.records_total > 0 and self.records_fetched < self.records_total:
             raise VMTNextCursorMissingError(f'Expected a follow-up cursor, none provided. Received {self.records_fetched} of {self.records_total} expected values.')
@@ -590,6 +618,7 @@ class Pager:
     def response(self):
         res = self.__response.json()
         return [res] if isinstance(res, dict) else res
+
 
 class Connection:
     """Turbonomic instance connection class
@@ -622,6 +651,7 @@ class Connection:
         use_session (bool, optional): If set to ``True``, a :py:class:`requests.Session`
             will be created, otherwise individual :py:class:`requests.Request`
             calls will be made. (default: ``True``)
+        proxies (dict, optional): Dictionary of proxy definitions.
 
     Attributes:
         disable_hateoas (bool): HATEOAS links state.
@@ -629,6 +659,8 @@ class Connection:
         headers (dict): Dictionary of custom headers for all calls.
         last_response (:py:class:`requests.Response`): The last response object
             received.
+        proxies (dict): Dictionary of proxies to use. You can also configure
+            proxies using the `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
         results_limit (int): Results set limiting & curor stepping value.
         update_headers (dict): Dictionary of custom headers for put and post calls.
         version (:py:class:`Version`): Turbonomic instance version object.
@@ -641,23 +673,28 @@ class Connection:
     Notes:
         The default minimum version for classic builds is 6.1.x, and for XL it
         is 7.21.x Using a previous version will trigger a version warning. To
-        avoid this warning, you will need to explicitly pass in a :class:`~VMTVersionSpec`
+        avoid this warning, you will need to explicitly pass in a :py:class:`~VersionSpec`
         object for the version desired.
 
         Beginning with v6.0 of Turbonomic, HTTP redirects to a self-signed HTTPS
         connection. Because of this, vmt-connect defaults to using SSL. Versions
         prior to 6.0 using HTTP will need to manually set ssl to ``False``. If
-        verify is given a path to a directory, the directory must have been
+        **verify** is given a path to a directory, the directory must have been
         processed using the c_rehash utility supplied with OpenSSL. For client
         side certificates using **cert**: the private key to your local certificate
-        must be unencrypted. Currently, Requests does not support using encrypted
-        keys. Requests uses certificates from the package certifi.
+        must be unencrypted. Currently, Requests, which vmt-connect relies on,
+        does not support using encrypted keys. Requests uses certificates from
+        the package certifi.
 
         The /api/v2 path was added in 6.4, and the /api/v3 path was added in XL
         branch 7.21. The XL API is not intended to be an extension of the Classic
         API, though there is extensive parity. *vmt-connect* will attempt to
         detect which API you are connecting to and adjust accordingly where
         possible.
+
+        XL uses OID identifiers internally instead of UUID identifiers. The
+        change generally does not affect the API, the UUID label is still used,
+        although the structure of the IDs is different.
     """
     # system level markets to block certain actions
     # this is done by name, and subject to breaking if names are abused
@@ -666,7 +703,8 @@ class Connection:
 
     def __init__(self, host=None, username=None, password=None, auth=None,
                  base_url=None, req_versions=None, disable_hateoas=True,
-                 ssl=True, verify=False, cert=None, headers=None, use_session=True):
+                 ssl=True, verify=False, cert=None, headers=None,
+                 use_session=True, proxies=None):
 
         # temporary for initial discovery connections
         self.__use_session(False)
@@ -684,6 +722,7 @@ class Connection:
         self.content_type = 'application/json'
         self.headers = headers or {}
         self.cookies = None
+        self.proxies = proxies
         self.update_headers = {}
         self.last_response = None
 
@@ -701,7 +740,7 @@ class Connection:
             except AttributeError:
                 self.__basic_auth = auth
         elif (username and password):
-            self.__basic_auth = base64.b64encode(f'{username}:{password}'.encode())
+            self.__basic_auth = base64.b64encode(f"{username}:{password}".encode())
         else:
             raise VMTConnectionError('Missing credentials')
 
@@ -758,6 +797,9 @@ class Connection:
         if method in ('POST', 'PUT'):
             kwargs['headers'] = {**kwargs['headers'], **self.update_headers}
             kwargs['data'] = data
+
+        if self.proxies and 'proxies' not in kwargs:
+            kwargs['proxies'] = self.proxies
 
         try:
             return self.__conn(method, url, **kwargs)
@@ -850,6 +892,8 @@ class Connection:
                 query['disable_hateoas'] = 'true'
 
             query = '&'.join([f'{k}={v}' for k,v in query.items()])
+        elif not query and self.disable_hateoas:
+            query = 'disable_hateoas=true'
 
         # assign and then remove non-requests kwargs
         fetch_all = kwargs.get('fetch_all', self.fetch_all)
@@ -899,7 +943,7 @@ class Connection:
         statistics = []
 
         for stat in stats:
-            statistics += [{'name': stat}]
+            statistics.append({'name': stat})
 
         return statistics
 
@@ -1129,6 +1173,12 @@ class Connection:
         Returns:
             A list of entities in :obj:`dict` form.
 
+
+        Notes:
+            **type** filtering is performed locally and is not compatible with
+            responses that return a :py:class:`~Pager` object. Therefore, if you
+            attempt to request a :py:class:`~Pager` response, **type** will be
+            ignored.
         """
         query = {}
 
@@ -1153,7 +1203,7 @@ class Connection:
             else:
                 entities = self.request(path, method='GET', query=query, **kwargs)
 
-        if type:
+        if type and isinstance(entities, Pager):
             return [x for x in entities if x['className'] == type]
 
         return entities
@@ -1218,10 +1268,11 @@ class Connection:
         return self.request(f'entities/{uuid}/groups', **kwargs)
 
     def get_entity_stats(self, scope, start_date=None, end_date=None,
-                         stats=None, **kwargs):
+                         stats=None, related_type=None, dto=None, **kwargs):
         """Returns stats for the specific scope of entities.
 
-        Provides entity level stats with filtering.
+        Provides entity level stats with filtering. If using the DTO keyword,
+        all other parameters save kwargs will be ignored.
 
         Args:
             scope (list): List of entities to scope to.
@@ -1230,24 +1281,30 @@ class Connection:
             end_date (int, optional): Unix timestamp in miliseconds. Uses current
                 time if blank.
             stats (list, optional): List of stats classes to retrieve.
+            related_type (str, optional): Related entity type to pull stats for.
+            dto (dict, optional): Complete JSON DTO of the stats required.
 
         Returns:
             A list of stats for all periods between start and end dates.
         """
-        dto = {'scopes': scope}
-        period = {}
+        if dto is None:
+            dto = {'scopes': scope}
+            period = {}
 
-        if start_date:
-            period['startDate'] = start_date
+            if start_date:
+                period['startDate'] = start_date
 
-        if end_date:
-            period['endDate'] = end_date
+            if end_date:
+                period['endDate'] = end_date
 
-        if stats:
-            period['statistics'] = self._stats_filter(stats)
+            if stats:
+                period['statistics'] = self._stats_filter(stats)
 
-        if period:
-            dto['period'] = period
+            if period:
+                dto['period'] = period
+
+            if related_type:
+                dto['relatedType'] = related_type
 
         dto = json.dumps(dto)
 
@@ -1388,7 +1445,6 @@ class Connection:
         """Returns a set of supplychains for the given uuid.
 
         Args:
-            uuids (str): Single UUID to query.
             uuids (list): List of UUIDs to query.
             types (list, optional): List of entity types.
             states: (list, optional): List of entity states to filter by.
@@ -1730,12 +1786,12 @@ class Connection:
 
 
 class Session(Connection):
-    """Alias for :class:`~Connection` to provide convenience.
+    """Alias for :py:class:`~Connection` to provide convenience.
 
-    See :class:`~Connection` for parameter details.
+    See :py:class:`~Connection` for parameter details.
 
     Notes:
-        The value for the :class:`~Connection.session` property will always be set to ``True`` when using :class:`~Session`
+        The value for the :py:class:`~Connection.session` property will always be set to ``True`` when using :py:class:`~Session`
 
     """
     def __init__(self, *args, **kwargs):
@@ -1744,13 +1800,65 @@ class Session(Connection):
 
 
 class VMTConnection(Session):
-    """Alias for :class:`~Connection` to provide backwards compatibility.
+    """Alias for :py:class:`~Connection` to provide backwards compatibility.
 
-    See :class:`~Connection` for parameter details.
+    See :py:class:`~Connection` for parameter details.
 
     Notes:
-        The value for :class:`~Connection.session` will default to ``True`` when using :class:`~VMTConnection`
-        To be removed in a future branch.
+        The value for :py:class:`~Connection.session` will default to ``True``
+        when using :py:class:`~VMTConnection`
+
+    Warning:
+        Deprecated. Use :py:class:`~Connection` or :py:class:`~Session`
+        instead.
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+
+
+# ----------------------------------------------------
+#  Utility functions
+# ----------------------------------------------------
+def enumerate_stats(data, entity=None, period=None, stat=None):
+    """Enumerates stats endpoint results
+
+    Provides an iterator for more intuitive and cleaner parsing of nested
+    statistics results. Each iteration returns a tuple containing the statistics
+    period `date` timestamp, as well as the next individual statistic entry as
+    a dictionary.
+
+    Args:
+        data (list): Stats endpoint data results to parse.
+        entity (function, optional): Optional entity level filter function.
+        period (function, optional): Optional period level filter function.
+        stat (function, optional): Optional statistic level filter function.
+
+    Notes:
+        Filter functions must return ``True``, to continue processing, or ``False``
+        to skip processing the current level element.
+
+    Examples:
+        .. code-block:: python
+
+            # filter stats for a specific ID
+            desired_id = '284552108476721'
+            enumerate_stats(data, entity=lambda x: x['uuid'] == desired_uuid)
+
+            # filter specific stats for all IDs
+            blacklist = ['Ballooning']
+            enumerate_stats(data, stat=lambda x: x['name'] not in blacklist)
+    """
+    for k1, v1 in enumerate(data):
+        if entity is not None and not entity(v1) \
+        or 'stats' not in v1:
+            continue
+
+        for k2, v2 in enumerate(v1['stats']):
+            if period is not None and not period(v2):
+                continue
+
+            for k3, v3 in enumerate(v2['statistics']):
+                if stat is not None and not stat(v3):
+                    continue
+                yield v2['date'], v3
