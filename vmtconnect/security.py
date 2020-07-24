@@ -37,7 +37,7 @@ class Credential:
     Attributes:
         uid (int): User id to set new files to.
         gid (int): Group id to set new files to.
-        mode (oct): File mode to apply to new files.
+        mode (int): File mode (octal format 0oNNN is ok), to apply to new files.
     """
     default_home = Path('~/.turbo_services_api_creds').expanduser()
     default_key_file = Path(default_home, '.key')
