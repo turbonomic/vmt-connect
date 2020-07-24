@@ -22,6 +22,7 @@ import datetime
 
 from collections import defaultdict
 from urllib.parse import urlunparse, urlencode
+import vmtconnect.util
 
 
 
@@ -1821,44 +1822,5 @@ class VMTConnection(Session):
 #  Utility functions
 # ----------------------------------------------------
 def enumerate_stats(data, entity=None, period=None, stat=None):
-    """Enumerates stats endpoint results
-
-    Provides an iterator for more intuitive and cleaner parsing of nested
-    statistics results. Each iteration returns a tuple containing the statistics
-    period `date` timestamp, as well as the next individual statistic entry as
-    a dictionary.
-
-    Args:
-        data (list): Stats endpoint data results to parse.
-        entity (function, optional): Optional entity level filter function.
-        period (function, optional): Optional period level filter function.
-        stat (function, optional): Optional statistic level filter function.
-
-    Notes:
-        Filter functions must return ``True``, to continue processing, or ``False``
-        to skip processing the current level element.
-
-    Examples:
-        .. code-block:: python
-
-            # filter stats for a specific ID
-            desired_id = '284552108476721'
-            enumerate_stats(data, entity=lambda x: x['uuid'] == desired_uuid)
-
-            # filter specific stats for all IDs
-            blacklist = ['Ballooning']
-            enumerate_stats(data, stat=lambda x: x['name'] not in blacklist)
-    """
-    for k1, v1 in enumerate(data):
-        if entity is not None and not entity(v1) \
-        or 'stats' not in v1:
-            continue
-
-        for k2, v2 in enumerate(v1['stats']):
-            if period is not None and not period(v2):
-                continue
-
-            for k3, v3 in enumerate(v2['statistics']):
-                if stat is not None and not stat(v3):
-                    continue
-                yield v2['date'], v3
+    """Provided as an alias for backwards compatibility only."""
+    return vmtconnect.util.enumerate_stats(data, entity, period, stat)

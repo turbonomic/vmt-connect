@@ -18,7 +18,8 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../vmtconnect'))
+sys.path.insert(0, os.path.abspath('../..'))
+
 
 
 # -- General configuration ------------------------------------------------
@@ -194,20 +195,6 @@ man_pages = [
     (master_doc, 'vmt-connect', u'vmt-connect Documentation',
      [author], 1)
 ]
-
-
-# -- Options for Texinfo output -------------------------------------------
-
-# Grouping the document tree into Texinfo files. List of tuples
-# (source start file, target name, title, author,
-#  dir menu entry, description, category)
-texinfo_documents = [
-    (master_doc, 'vmt-connect', u'vmt-connect Documentation',
-     author, 'vmt-connect', 'One line description of project.',
-     'Miscellaneous'),
-]
-
-
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
