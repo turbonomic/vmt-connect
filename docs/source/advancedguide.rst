@@ -1,16 +1,79 @@
 .. # Links
 .. _API: https://greencircle.vmturbo.com/community/products/pages/documentation
+.. _cryptography: https://pypi.org/project/cryptography/
+.. _Fernet: https://github.com/fernet/spec/blob/master/Spec.md
 .. _Turbonomic: http://www.turbonomic.com
+.. _Requests: https://requests.readthedocs.io/
+.. _proxies: https://requests.readthedocs.io/en/master/user/advanced/#proxies
+.. _RFC 2732: https://tools.ietf.org/html/rfc2732
 
 ==============
 Advanced Usage
 ==============
 
+Connections
+-----------
+
+All parameters to the :py:class:`~vmtconnect.Connection` and :py:class:`~vmtconnect.Session`
+classes are technically optional, however Turbonomic does require authentication.
+Thus while ``vmtconnect.Connection()`` and ``vmtconnect.Session()`` are valid
+calls, they will fail authentication checks regardless. All connections must
+provide either a `username` and `password`, or an `auth` string. The `auth` string
+is simply a base64 encoded 'Basic Authentication' format string containing the
+username and password joined by a colon (:).
+
+.. code:: bash
+
+    # generating a base64 auth string hash in Linux
+    echo -n "bob:insecure123" | base64
+
+
+The `host` parameter defaults to the string literal ``localhost`` for convenience
+when working with code that will live on the Turbonomic control instance itself.
+If using an IPv6 address, you will need to provide the requisite square brackets
+surrounding the address as defined in `RFC 2732`_.
+
+.. code:: python
+
+    # all of these are equivalent
+    auth = '...'
+    vmt = vmtconnect.Connection(auth=auth)                # 'localhost'
+    vmt = vmtconnect.Connection('127.0.0.1', auth=auth)   # IPv4
+    vmt = vmtconnect.Connection(host='[::1]', auth=auth)  # IPv6
+
+Additional HTTP headers may be provided using the `headers` parameters. Headers
+must be supplied in a format compatible with `Requests`_. Any headers supplied
+in this manner will be attached to all requests sent. If you require specific
+headers for a specific call, you may attach headers to the  individual query
+directly.
+
+.. code:: python
+
+    customheaders = {
+      'Pragma': 'no-cache',
+      'X-Forwarded-For', '129.78.138.66'
+    }
+
+    vmt = vmtconnect.Connection(auth='...', headers=customheaders)
+
+Like headers, Requests `proxies`_ are also supported in the proper format, and
+are passed to the `proxies` parameter.
+
+.. code:: python
+
+    proxies = {
+      'http': 'http://10.10.1.10:3128',
+      'https': 'http://10.10.1.10:1080',
+    }
+
+    vmt = vmtconnect.Connection(auth='...', proxies=proxies)
+
+
 Paged Results
 -------------
 
 For versions of Turbonomic that support paged responses, *vmt-connect* provides
-and optional :py:class:`~vmtconnect.Pager` class for working with the paginated
+an optional :py:class:`~vmtconnect.Pager` class for working with the paginated
 results. By default, *vmt-connect* will return the first page of results only
 unless the **pager** flag is set to ``True``.
 
@@ -43,7 +106,7 @@ them into a single monolithic response using the **fetch_all** parameter:
 
 .. code:: python
 
-    response = conn.get_entities(fetch_all='True')
+    response = conn.get_entities(fetch_all=True)
 
 
 This works if the response is small. Larger responses will use excessive amounts
@@ -53,7 +116,7 @@ property of the :py:class:`~vmtconnect.Pager`, and checking if it is :py:attr:`~
 
 .. code:: python
 
-    response = conn.get_entities(pager='True')
+    response = conn.get_entities(pager=True)
 
     while not response.complete:
         # filter out just the entities we need - VMs with the word 'blue' in
@@ -100,3 +163,73 @@ set the **snapshot** parameter to ``True``.
 .. code:: python
 
     spec = vmtconnect.VersionSpec(['7.21+'], snapshot=True)
+
+
+Credentials
+-----------
+
+Prior to v3.3.0, *vmt-connect* provided no native mechanism for securing credentials.
+To fill the gap Turbonomic provided a package called "TurboAPICredStore", which
+provided for the creation and management of encrypted API credentials. That library
+has now been integrated directly into *vmt-connect* as the security module.
+Credentials are managed using the :py:class:`~vmtconnect.security.Credential`
+class, and a command-line utility is provided for creating credentials in a similar
+manner to what TurboAPICredStore had provided.
+
+*vmt-connect* utilizes the `cryptography`_ package for symmetric encryption using
+the `Fernet`_ specification. This means in addition to the encrypted message,
+called a token, there is a unique encryption key, the secret, which must be secured
+separately. *vmt-connect* necessarily leaves the security of the secret key up
+to the user, and appropriate measures must be taken to ensure access to the secret
+is available only to intended parties.
+
+Module Interface
+^^^^^^^^^^^^^^^^
+
+Encrypted credentials can be created, and retrieved using the security module's
+:py:class:`~vmtconnect.security.Credential` class. Creating new credentials can
+be done with the interactive using the :py:meth:`~vmtconnect.security.Credential.create`
+method:
+
+.. code-block:: python
+
+    cred = vmtconnect.security.Credential()
+    cred.create()
+
+If no parameters are supplied, the user will be prompted for a username and password,
+which will be encrypted with a new unique key. Because this method has interactive
+inputs, in general it is advisable to create new credentials using the command-line
+interface, detailed further down; or by providing a context appropriate wrapper
+for the :py:meth:`~vmtconnect.security.Credential.set` method.
+
+Working with existing credentials is fairly simple. Upon initialization you may
+specify either or both the key file and credential file to the constructor.
+Credentials can then be decrypted directly:
+
+.. code-block:: python
+
+    cred = vmtconnect.security.Credential(key='/keystore/.turbokey', cred='user.cred')
+    auth = cred.decrypt()
+
+
+Command-line Interface
+^^^^^^^^^^^^^^^^^^^^^^
+
+The command-line interface utility, turboauth, is intended for creating encrypted
+credentials for the Turbonomic API in anticipation for automated integrations.
+The command can be used to create new, or replace existing credential and key
+files.
+
+.. code-block:: bash
+
+    # create new set in the current folder
+    # if the key file already exists, it will be re-used for encryption instead
+    # of being overwritten
+    turboauth -k .key -c user.cred
+
+    # to overwrite files, you must use the -f or --force flag
+    turboauth -k .key -c user.cred -f
+
+    # to change the basepath of the files, use the -b or --basepath option
+    turboauth -b .secret -k .key -c user.cred
+    

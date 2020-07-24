@@ -13,7 +13,9 @@
 # limitations under the License.
 # libraries
 
-from .vmtconnect import *
+from vmtconnect.vmtconnect import *
+import vmtconnect.security
+import vmtconnect.util
 from .__about__ import (__author__, __copyright__, __description__,
                         __license__, __title__, __version__)
 

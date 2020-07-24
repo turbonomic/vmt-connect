@@ -2,62 +2,66 @@
 Developer Interfaces
 ====================
 
-.. module:: vmtconnect
-
 This part of the documentation covers all the interfaces of vmt-connect.
 
-Connections
+.. contents::
+   :local:
+
+Main Module
 ===========
+
+:py:attr:`Import:` **vmtconnect**
+
+Connections
+-----------
 
 Connection
 ^^^^^^^^^^
-.. autoclass:: Connection
+.. autoclass:: vmtconnect.Connection
    :members:
 
 Session
 ^^^^^^^
-.. autoclass:: Session
+.. autoclass:: vmtconnect.Session
    :show-inheritance:
    :members:
 
 |
 
 Response Handlers
-=================
+-----------------
 
 Pager
 ^^^^^
-.. autoclass:: Pager
+.. autoclass:: vmtconnect.Pager
    :members:
 
 |
 
 Versioning
-==========
+----------
 
 Version
 ^^^^^^^
-.. autoclass:: Version
+.. autoclass:: vmtconnect.Version
    :members:
 
 VersionSpec
 ^^^^^^^^^^^
-.. autoclass:: VersionSpec
+.. autoclass:: vmtconnect.VersionSpec
    :members:
 
 |
 
 Utilities
-=========
+---------
 
-enumerate_stats()
-^^^^^^^^^^^^^^^^^
-.. autofunction:: enumerate_stats
+.. autofunction:: vmtconnect.enumerate_stats
 
 |
 
 Exceptions
-==========
+----------
 
 .. autoexception:: vmtconnect.VMTConnectionError
 .. autoexception:: vmtconnect.VMTVersionError
@@ -65,7 +69,7 @@ Exceptions
 .. autoexception:: vmtconnect.VMTVersionWarning
 .. autoexception:: vmtconnect.VMTMinimumVersionWarning
 .. autoexception:: vmtconnect.VMTFormatError
-.. autoexception:: VMTNextCursorMissingError
+.. autoexception:: vmtconnect.VMTNextCursorMissingError
 .. autoexception:: vmtconnect.HTTPError
 .. autoexception:: vmtconnect.HTTP400Error
 .. autoexception:: vmtconnect.HTTP401Error
@@ -78,7 +82,37 @@ Exceptions
 |
 
 Deprecated Interfaces
-=====================
+---------------------
 
-.. autoclass:: VMTConnection
-.. autoclass:: VMTVersion
+.. autoclass:: vmtconnect.VMTConnection
+.. autoclass:: vmtconnect.VMTVersion
+
+|
+
+Security Module
+===============
+
+:py:attr:`Import:` **vmtconnect.security**
+
+Classes
+-------
+
+Credential
+^^^^^^^^^^
+.. autoclass:: vmtconnect.security.Credential
+   :members:
+
+|
+
+Utility Module
+==============
+
+:py:attr:`Import:` **vmtconnect.util**
+
+.. autofunction:: vmtconnect.util.enumerate_stats
+
+.. autofunction:: vmtconnect.util.mem_cast
+
+.. autofunction:: vmtconnect.util.to_defaultdict
+
+|

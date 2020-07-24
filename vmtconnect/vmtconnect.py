@@ -22,6 +22,7 @@ import datetime
 
 from collections import defaultdict
 from urllib.parse import urlunparse, urlencode
+import vmtconnect.util
 
 
 
@@ -114,7 +115,10 @@ _version_mappings = {
         '2.3.11': '6.4.15',
         '2.3.12': '6.4.16',
         '2.3.13': '6.4.17',
-        '2.3.14': '6.4.18'
+        '2.3.14': '6.4.18',
+        '2.3.15': '6.4.19',
+        '2.3.16': '6.4.20',
+        '2.3.17': '6.4.21'
     }
 }
 
@@ -249,6 +253,7 @@ class Version:
 
     @staticmethod
     def parse(obj):
+        snapshot = '-SNAPSHOT'
         re_product = r'^([\S]+)\s'
         re_version = r'^.* Manager ([\d.]+)([-\w]+)? \(Build (\")?\d+(\")?\)'
         fields = ('version', 'branch', 'build', 'marketVersion')
@@ -256,8 +261,8 @@ class Version:
         ver = defaultdict(lambda: None)
         ver['product'] = re.search(re_product, obj['versionInfo']).group(1)
         ver['version'] = re.search(re_version, obj['versionInfo']).group(1)
-        snapshot = re.search(re_version, obj['versionInfo']).group(2) or None
-        ver['snapshot'] = bool(snapshot)
+        extra = re.search(re_version, obj['versionInfo']).group(2) or None
+        ver['snapshot'] = bool(extra)
 
         for x in fields:
             if x in ('version', 'build', 'branch'):
@@ -265,11 +270,19 @@ class Version:
             else:
                 label = x
 
-            # trim snapshot builds
+            ver[label] = obj.get(x)
             try:
-                ver[label] = obj.get(x).rstrip(snapshot)
+                ver[label] = ver[label].rstrip(snapshot)
+
+                if snapshot in obj.get(x):
+                    # late detection for build errors where the snapshot tag is
+                    # getting added or simply not removed in some places
+                    # observed in CWOM and Turbo builds.
+                    ver['snapshot'] = True
+
+                ver[label] = ver[label].rstrip(extra)
             except Exception:
-                ver[label] = obj.get(x)
+                pass
 
         # backwards compatibility pre 6.1 white label version mapping
         # forward versions of classic store this directly (usually)
@@ -359,7 +372,9 @@ class VersionSpec:
 
         if not re.search(r'[\d.]+\d+', string) or \
            not string.replace('.', '').isdigit():
-            raise VMTFormatError(f'Unrecognized version format. This may be due to a broken snapshot build: {string}')
+            msg = 'Unrecognized version format. ' \
+                  f"This may be due to a broken snapshot build: {string}"
+            raise VMTFormatError()
 
         return string.split('.')
 
@@ -394,10 +409,11 @@ class VersionSpec:
             raise VMTVersionError('Required version not met')
 
         if warn:
-            warnings.warn('Your version of Turbonomic does not meet the ' \
-                          'minimum recommended version. You may experience ' \
-                          'unexpected errors, and are strongly encouraged to ' \
-                          'upgrade.', VMTMinimumVersionWarning)
+            msg = 'Your version of Turbonomic does not meet the ' \
+                  'minimum recommended version. You may experience ' \
+                  'unexpected errors, and are strongly encouraged to ' \
+                  'upgrade.'
+            warnings.warn(msg, VMTMinimumVersionWarning)
 
         return False
 
@@ -417,9 +433,9 @@ class VersionSpec:
         if self.cmp_base:
             try:
                 if version.base_version is None:
-                    warnings.warn('Version does not contain a base version, ' \
-                                  'using primary version as base.',
-                                  VMTVersionWarning)
+                    msg = 'Version does not contain a base version, ' \
+                          'using primary version as base.'
+                    warnings.warn(msg, VMTVersionWarning)
                     ver = version.version
                 else:
                     ver = version.base_version
@@ -432,8 +448,9 @@ class VersionSpec:
         # kick out or warn on snapshot builds
         if version.snapshot:
             if self.allow_snapshot:
-                warnings.warn('You are connecting to a snapshot / development' \
-                ' build. API functionality may have changed, or be broken.', VMTVersionWarning)
+                msg = 'You are connecting to a snapshot / development' \
+                      ' build. API functionality may have changed, or be broken.'
+                warnings.warn(msg, VMTVersionWarning)
             else:
                 raise VMTVersionError(f'Snapshot build detected.')
 
@@ -516,10 +533,24 @@ class Pager:
         self.__complete = True
 
     def prepare_next(self):
-        if 'cursor' in self.__response.url:
-            self.__url = re.sub(r'(?<=\?|&)cursor=([\d]+)', f'cursor={self.__next}', self.__response.url)
+        base = urlunparse((self.__conn.protocol,
+                           self.__conn.host,
+                           self.__conn.base_path,
+                           '','',''))
+        partial = self.__response.url.replace(base, '')
+
+        if 'cursor' in partial:
+            self.__resource, self.__query = partial.split('?', 1)
+            self.__query = re.sub(r'(?<=\?|&)cursor=([\d]+)', f"cursor={self.__next}", self.__query)
         else:
-            self.__url = self.__response.url + ('&' if '?' in self.__response.url else '?') + f'cursor={self.__next}'
+            try:
+                self.__resource, self.__query = partial.split('?', 1)
+                self.__query += '&'
+            except ValueError:
+                self.__resource = partial
+                self.__query = '?'
+
+            self.__query += f"cursor={self.__next}"
 
     @property
     def all(self):
@@ -549,7 +580,11 @@ class Pager:
             return None
         elif self.__next != "0":
             # get next
-            self.__response = self.__conn._request(self.__method, self.__url, **self.__kwargs)
+            self.__response = self.__conn._request(self.__response.request.method,
+                                                   self.__resource,
+                                                   self.__query,
+                                                   self.__response.request.body,
+                                                   **self.__kwargs)
 
         self.__conn.request_check_error(self.__response)
 
@@ -565,7 +600,6 @@ class Pager:
         self.records_fetched += self.records
 
         if self.page == 1:
-            self.__method = self.__response.request.method
             self.records_total = int(self.__response.headers.get('x-total-record-count', -1))
 
         if self.__next:
@@ -618,6 +652,7 @@ class Connection:
         use_session (bool, optional): If set to ``True``, a :py:class:`requests.Session`
             will be created, otherwise individual :py:class:`requests.Request`
             calls will be made. (default: ``True``)
+        proxies (dict, optional): Dictionary of proxy definitions.
 
     Attributes:
         disable_hateoas (bool): HATEOAS links state.
@@ -706,7 +741,7 @@ class Connection:
             except AttributeError:
                 self.__basic_auth = auth
         elif (username and password):
-            self.__basic_auth = base64.b64encode(f'{username}:{password}'.encode())
+            self.__basic_auth = base64.b64encode(f"{username}:{password}".encode())
         else:
             raise VMTConnectionError('Missing credentials')
 
@@ -1787,44 +1822,5 @@ class VMTConnection(Session):
 #  Utility functions
 # ----------------------------------------------------
 def enumerate_stats(data, entity=None, period=None, stat=None):
-    """Enumerates stats endpoint results
-
-    Provides an iterator for more intuitive and cleaner parsing of nested
-    statistics results. Each iteration returns a tuple containing the statistics
-    period `date` timestamp, as well as the next individual statistic entry as
-    a dictionary.
-
-    Args:
-        data (list): Stats endpoint data results to parse.
-        entity (function, optional): Optional entity level filter function.
-        period (function, optional): Optional period level filter function.
-        stat (function, optional): Optional statistic level filter function.
-
-    Notes:
-        Filter functions must return ``True``, to continue processing, or ``False``
-        to skip processing the current level element.
-
-    Examples:
-        .. code-block:: python
-        
-            # filter stats for a specific ID
-            desired_id = '284552108476721'
-            enumerate_stats(data, entity=lambda x: x['uuid'] == desired_uuid)
-
-            # filter specific stats for all IDs
-            blacklist = ['Ballooning']
-            enumerate_stats(data, stat=lambda x: x['name'] not in blacklist)
-    """
-    for k1, v1 in enumerate(data):
-        if entity is not None and not entity(v1) \
-        or 'stats' not in v1:
-            continue
-
-        for k2, v2 in enumerate(v1['stats']):
-            if period is not None and not period(v2):
-                continue
-
-            for k3, v3 in enumerate(v2['statistics']):
-                if stat is not None and not stat(v3):
-                    continue
-                yield v2['date'], v3
+    """Provided as an alias for backwards compatibility only."""
+    return vmtconnect.util.enumerate_stats(data, entity, period, stat)

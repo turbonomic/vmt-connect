@@ -40,5 +40,7 @@ setup(
     python_requires=">=3.6",
     install_requires=requires,
     license=about['__license__'],
-    zip_safe=False,
+    entry_points={
+        'console_scripts': ['turboauth=vmtconnect.command_line:cmd']
+    }
 )
