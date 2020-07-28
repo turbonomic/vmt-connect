@@ -35,6 +35,7 @@ _entity_filter_class = {
     'diskarray': 'DiskArray',
     'cluster': 'Cluster',
     'group': 'Group',
+    'namespace': 'Namespace',               # 7.22
     'physicalmachine': 'PhysicalMachine',
     'pm': 'PhysicalMachine',                # for convenience
     'storage': 'Storage',
@@ -55,6 +56,7 @@ _class_filter_prefix = {
     'DiskArray': 'diskarray',
     'Cluster': 'clusters',
     'Group': 'groups',
+    'Namespace': 'namespaces',
     'PhysicalMachine': 'pms',
     'Storage': 'storage',
     'StorageCluster': 'storageClusters',
@@ -603,7 +605,8 @@ class Pager:
                                                    self.__response.request.body,
                                                    **self.__kwargs)
 
-        self.__conn.request_check_error(self.__response)
+            self.__conn.request_check_error(self.__response)
+        # endif
 
         try:
             self.__next = self.__response.headers['x-next-cursor']
@@ -612,13 +615,13 @@ class Pager:
 
         #res = self.__response.json()
         res = self.filtered_response if self.__filter else self.response
-        self.__conn.cookies = self.response.cookies
+        self.__conn.cookies = self.__response.cookies
         self.page += 1
         self.records += len(res)
         self.records_fetched += self.records
 
         if self.page == 1:
-            self.records_total = int(self.response.headers.get('x-total-record-count', -1))
+            self.records_total = int(self.__response.headers.get('x-total-record-count', -1))
 
         if self.__next:
             self.prepare_next()
@@ -799,7 +802,7 @@ class Connection:
                                             }
                                  }
 
-    def _request(self, method, resource, query='', data=None, fetch_all=False, **kwargs):
+    def _request(self, method, resource, query='', data=None, **kwargs):
         method = method.upper()
         url = urlunparse((self.protocol, self.host,
                           self.base_path + resource.lstrip('/'), '', query, ''))
@@ -897,6 +900,7 @@ class Connection:
                 into a single response when a cursor is returned, otherwise only
                 the current result set is returned. This option overrides the
                 `pager` parameter. (default: ``False``)
+            limit (int, optional): Set a response limit for the given request.
             nocache (bool, optional): If set to ``True``, responses will not be
                 cached in the :py:attr:`~Connection.last_response` attribute.
                 (default: ``False``)
@@ -911,23 +915,24 @@ class Connection:
         if dto is not None and method == 'GET':
             method = 'POST'
 
-        if query and isinstance(query, dict):
-            if self.results_limit > 0:
-                query['limit'] = self.results_limit
-            if self.disable_hateoas:
-                query['disable_hateoas'] = 'true'
-
+        if isinstance(query, dict):
             query = '&'.join([f'{k}={v}' for k,v in query.items()])
-        elif not query and self.disable_hateoas:
-            query = 'disable_hateoas=true'
+
+        if self.results_limit > 0:
+            query = '&'.join([query or '', f"limit={self.results_limit}"])
+
+        if self.disable_hateoas:
+            query = '&'.join([query or '', f"disable_hateoas=true"])
 
         # assign and then remove non-requests kwargs
         fetch_all = kwargs.get('fetch_all', self.fetch_all)
+        filter = kwargs.get('filter', None)
+        nocache = kwargs.get('nocache', False)
         pager = kwargs.get('pager', False)
         uuid = kwargs.get('uuid', None)
         path += f'/{uuid}' if uuid is not None else ''
 
-        for x in ['fetch_all', 'pager', 'uuid']:
+        for x in ['fetch_all', 'filter', 'nocache', 'pager', 'uuid']:
             try:
                 del kwargs[x]
             except KeyError:
@@ -937,7 +942,7 @@ class Connection:
         self.request_check_error(self.last_response)
 
         if 'x-next-cursor' in self.last_response.headers or pager:
-            res = Pager(self, self.last_response, **kwargs)
+            res = Pager(self, self.last_response, filter, **kwargs)
 
             if fetch_all:
                 return res.all
@@ -948,9 +953,8 @@ class Connection:
 
         res = self.last_response.json()
 
-        if kwargs.get('nocache', False):
+        if nocache:
             self.last_response = None
-            del kwargs['nocache']
 
         return [res] if isinstance(res, dict) else res
 
