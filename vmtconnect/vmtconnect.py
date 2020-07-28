@@ -948,8 +948,9 @@ class Connection:
 
         res = self.last_response.json()
 
-        if nocache:
+        if kwargs.get('nocache', False):
             self.last_response = None
+            del kwargs['nocache']
 
         return [res] if isinstance(res, dict) else res
 
