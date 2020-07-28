@@ -159,6 +159,11 @@ class VMTFormatError(Exception):
     pass
 
 
+class VMTPagerError(Exception):
+    """Generic pager error"""
+    pass
+
+
 class VMTNextCursorMissingError(VMTConnectionError):
     """Raised if the paging cursor header is not provided when expected"""
     pass
@@ -490,6 +495,7 @@ class Pager:
         response (:py:class:`requests.Response`): Requests :py:class:`requests.Response`
             object to build the pager from. This must be the object, and not the
             JSON parsed output.
+        filter (dict): Filter to apply to results.
         **kwargs: Additional :py:class:`requests.Request` keyword arguments.
 
     Attributes:
@@ -516,9 +522,20 @@ class Pager:
         non-working pagination headers. These are chiefly XL versions prior to
         7.21.2.
     """
-    def __init__(self, conn, response, **kwargs):
+    def __init__(self, conn, response, filter=None, **kwargs):
         self.__conn = conn
         self.__response = response
+
+        if filter is not None:
+            try:
+                self.__filter = filter if isinstance(filter, dict) else json.loads(filter)
+            except (json.decoder.JSONDecodeError, TypeError):
+                raise VMTPagerError('Filter must be a dict or JSON string.')
+            except Exception:
+                raise
+        else:
+            self.__filter = None
+
         self.__complete = False
         self.__kwargs = kwargs
         self.__next = "0"
@@ -593,14 +610,15 @@ class Pager:
         except (ValueError, KeyError):
             self._complete()
 
-        res = self.__response.json()
-        self.__conn.cookies = self.__response.cookies
+        #res = self.__response.json()
+        res = self.filtered_response if self.__filter else self.response
+        self.__conn.cookies = self.response.cookies
         self.page += 1
         self.records += len(res)
         self.records_fetched += self.records
 
         if self.page == 1:
-            self.records_total = int(self.__response.headers.get('x-total-record-count', -1))
+            self.records_total = int(self.response.headers.get('x-total-record-count', -1))
 
         if self.__next:
             self.prepare_next()
@@ -610,6 +628,10 @@ class Pager:
             self._complete()
 
         return [res] if isinstance(res, dict) else res
+
+    @property
+    def filtered_response(self):
+        return vmtconnect.util.filter_copy(self.__response.json(), self.__filter)
 
     @property
     def response_object(self):
@@ -875,6 +897,9 @@ class Connection:
                 into a single response when a cursor is returned, otherwise only
                 the current result set is returned. This option overrides the
                 `pager` parameter. (default: ``False``)
+            nocache (bool, optional): If set to ``True``, responses will not be
+                cached in the :py:attr:`~Connection.last_response` attribute.
+                (default: ``False``)
             **kwargs: Additional :py:class:`requests.Request` keyword arguments.
 
         Notes:
@@ -922,6 +947,10 @@ class Connection:
                 return res.next
 
         res = self.last_response.json()
+
+        if nocache:
+            self.last_response = None
+
         return [res] if isinstance(res, dict) else res
 
     @staticmethod

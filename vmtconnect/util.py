@@ -11,6 +11,7 @@
 # limitations under the License.
 
 from collections import defaultdict
+from copy import deepcopy
 from decimal import Decimal
 import re
 
@@ -95,6 +96,60 @@ def mem_cast(value, unit=None, src=None):
                      1024,
                      ['B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y']
                      )
+
+
+def filter_copy(source, filter, dest=None):
+    if not filter:
+        return deepcopy(source)
+
+    elif ';' in filter and filter[0] != '[' and dest is not None:
+        keys = filter.split(';', maxsplit=1)
+        idx = keys[0]
+        tree = keys[1] if len(keys) > 1 else None
+        
+        try:
+            dest[idx] = filter_copy(source[idx], tree, dest[idx] if idx in dest else None)
+
+            return dest
+        except KeyError:
+            return
+
+    elif isinstance(filter, str):
+        if filter[0] == '[':
+            close = filter.index(']')
+
+            if ':' in filter:
+                idx = slice(*map(lambda x: int(x) if x.isdigit() else None,
+                                 filter[1:close].split(':')
+                                 ))
+            else:
+                idx = int(filter[1:close])
+
+            tree = filter[close+2:] if len(filter) > close else None
+
+            return filter_copy(source[idx], tree)
+        elif isinstance(source, list):
+            _src = [filter_copy(x, tree) for x in deepcopy(source)]
+        else:
+            try:
+                _src = deepcopy(source[filter])
+            except KeyError:
+                return
+
+        if dest:
+            dest[filter] = _src
+            return dest
+        else:
+            return {filter: _src}
+
+    elif isinstance(filter, list):
+        out = {}
+
+        for i in filter:
+            x = filter_copy(source, i, out)
+            out = x if x else out
+
+        return out
 
 
 def to_defaultdict(factory, data):
