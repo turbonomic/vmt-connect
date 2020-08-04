@@ -35,6 +35,7 @@ _entity_filter_class = {
     'diskarray': 'DiskArray',
     'cluster': 'Cluster',
     'group': 'Group',
+    'namespace': 'Namespace',               # 7.22
     'physicalmachine': 'PhysicalMachine',
     'pm': 'PhysicalMachine',                # for convenience
     'storage': 'Storage',
@@ -55,6 +56,7 @@ _class_filter_prefix = {
     'DiskArray': 'diskarray',
     'Cluster': 'clusters',
     'Group': 'groups',
+    'Namespace': 'namespaces',
     'PhysicalMachine': 'pms',
     'Storage': 'storage',
     'StorageCluster': 'storageClusters',
@@ -156,6 +158,11 @@ class VMTMinimumVersionWarning(VMTVersionWarning):
 
 class VMTFormatError(Exception):
     """Generic format error."""
+    pass
+
+
+class VMTPagerError(Exception):
+    """Generic pager error"""
     pass
 
 
@@ -490,6 +497,7 @@ class Pager:
         response (:py:class:`requests.Response`): Requests :py:class:`requests.Response`
             object to build the pager from. This must be the object, and not the
             JSON parsed output.
+        filter (dict): Filter to apply to results.
         **kwargs: Additional :py:class:`requests.Request` keyword arguments.
 
     Attributes:
@@ -516,12 +524,15 @@ class Pager:
         non-working pagination headers. These are chiefly XL versions prior to
         7.21.2.
     """
-    def __init__(self, conn, response, **kwargs):
+    def __init__(self, conn, response, filter=None, **kwargs):
         self.__conn = conn
         self.__response = response
+        self.__filter = filter
         self.__complete = False
         self.__kwargs = kwargs
         self.__next = "0"
+        self.__method = self.__response.request.method
+        self.__body = self.__response.request.body
 
         self.page = 0
         self.records = 0
@@ -580,23 +591,24 @@ class Pager:
             return None
         elif self.__next != "0":
             # get next
-            self.__response = self.__conn._request(self.__response.request.method,
+            self.__response = self.__conn._request(self.__method,
                                                    self.__resource,
                                                    self.__query,
-                                                   self.__response.request.body,
+                                                   self.__body,
                                                    **self.__kwargs)
 
-        self.__conn.request_check_error(self.__response)
+            self.__conn.request_check_error(self.__response)
+        # endif
 
         try:
             self.__next = self.__response.headers['x-next-cursor']
         except (ValueError, KeyError):
             self._complete()
 
-        res = self.__response.json()
+        res = self.filtered_response if self.__filter else self.__response.json()
         self.__conn.cookies = self.__response.cookies
         self.page += 1
-        self.records += len(res)
+        self.records = len(res)
         self.records_fetched += self.records
 
         if self.page == 1:
@@ -609,7 +621,14 @@ class Pager:
         else:
             self._complete()
 
+        if self.__filter:
+            self.__response = None
+
         return [res] if isinstance(res, dict) else res
+
+    @property
+    def filtered_response(self):
+        return vmtconnect.util.filter_copy(self.__response.content.decode(), self.__filter)
 
     @property
     def response_object(self):
@@ -763,6 +782,7 @@ class Connection:
             self.__req_ver = req_versions or VersionSpec(['7.21+'])
         else:
             self.__req_ver = req_versions or VersionSpec(['6.1+'])
+            self.results_limit = 100
 
         self.__req_ver.check(self.version)
         self.__get_system_markets()
@@ -771,13 +791,121 @@ class Connection:
 
         # for inventory caching - used to prevent thrashing the API with
         # repeated calls for full inventory lookups within some expensive calls
+        # <!> deprecated
         self.__inventory_cache_timeout = 600
         self.__inventory_cache = {'Market': {'data': None,
                                              'expires': datetime.datetime.now()
                                             }
                                  }
 
-    def _request(self, method, resource, query='', data=None, fetch_all=False, **kwargs):
+    @staticmethod
+    def _bool_to_text(value):
+        return 'true' if value else 'false'
+
+    @staticmethod
+    def _search_criteria(op, value, filter_type, case_sensitive=False):
+        criteria = {
+            'expType': _exp_type.get(op, op),
+            'expVal': value,
+            'caseSensitive': case_sensitive,
+            'filterType': filter_type
+        }
+
+        return criteria
+
+    @staticmethod
+    def _stats_filter(stats):
+        statistics = []
+
+        for stat in stats:
+            statistics.append({'name': stat})
+
+        return statistics
+
+    @property
+    def version(self):
+        if self.__version is None:
+            # temporarily disable hateoas, shouldn't matter though
+            hateoas = self.disable_hateoas
+            self.disable_hateoas = False
+
+            try:
+                self.__version = Version(self.request('admin/versions')[0])
+            finally:
+                self.disable_hateoas = hateoas
+
+        return self.__version
+
+    def __use_session(self, value):
+        if value:
+            self.session = True
+            self.__session = requests.Session()
+
+            # possible fix for urllib3 connection timing issue - https://github.com/requests/requests/issues/4664
+            adapter = requests.adapters.HTTPAdapter(max_retries=3)
+            self.__session.mount('http://', adapter)
+            self.__session.mount('https://', adapter)
+
+            self.__conn = self.__session.request
+        else:
+            self.session = False
+            self.__conn = requests.request
+
+    def __resolve_base_path(self, path=None):
+        # /vmturbo/rest is the "unversioned" path (1st gen v2)
+        # /api/v2 is the v2 path intended for classic; some XL instances use it (2nd gen v2)
+        # /api/v3 is the v3 path intended for XL; not all XL instances support it
+        # there's also possibly /t8c/v1 and /api/v4 ... go figure
+        if path is not None:
+            return path
+
+        if path is None:
+            for base in ['/api/v3/', '/api/v2/', '/vmturbo/rest/']:
+                try:
+                    self.base_path = base
+                    v = self.version
+                    return base
+                except HTTP400Error:
+                    self.base_path = None
+                    continue
+                except Exception:
+                    raise
+
+        raise VMTUnknownVersion('Unable to determine base path')
+
+    def __is_cache_valid(self, id):
+        if id in self.__inventory_cache and \
+           datetime.datetime.now() < self.__inventory_cache[id]['expires'] and \
+           self.__inventory_cache[id]['data']:
+            return True
+
+        return False
+
+    def __get_system_markets(self):
+        res = self.get_markets()
+        self.__system_market_ids = [x['uuid'] for x in res if x['displayName'] in self.__system_markets]
+
+    def _clear_response(self, flag):
+        if flag:
+            self.last_response = None
+
+    def _search_cache(self, id, name, type=None, case_sensitive=False):
+        # populates internal cache
+        self.get_cached_inventory(id)
+        results = []
+
+        for e in self.__inventory_cache[id]['data']:
+            if (case_sensitive and e['displayName'] != name) or \
+               (e['displayName'].lower() != name.lower()):
+                continue
+            if type and e['className'] != type:
+                continue
+
+            results += [e]
+
+        return results
+
+    def _request(self, method, resource, query='', data=None, **kwargs):
         method = method.upper()
         url = urlunparse((self.protocol, self.host,
                           self.base_path + resource.lstrip('/'), '', query, ''))
@@ -875,157 +1003,73 @@ class Connection:
                 into a single response when a cursor is returned, otherwise only
                 the current result set is returned. This option overrides the
                 `pager` parameter. (default: ``False``)
+            limit (int, optional): Sets the response limit for a single call.
+                This overrides results_limit, if it is also set.
+            nocache (bool, optional): If set to ``True``, responses will not be
+                cached in the :py:attr:`~Connection.last_response` attribute.
+                (default: ``False``)
             **kwargs: Additional :py:class:`requests.Request` keyword arguments.
 
         Notes:
             The **fetch_all** parameter default was changed in v3.2 from ``True``
             to ``False`` with the addition of the :py:class:`Pager` response
             class.
+            String based **query** parameters are deprecated, use dictionaries.
         """
         # attempt to detect a misdirected POST
         if dto is not None and method == 'GET':
             method = 'POST'
 
-        if query and isinstance(query, dict):
-            if self.results_limit > 0:
-                query['limit'] = self.results_limit
-            if self.disable_hateoas:
-                query['disable_hateoas'] = 'true'
-
-            query = '&'.join([f'{k}={v}' for k,v in query.items()])
-        elif not query and self.disable_hateoas:
-            query = 'disable_hateoas=true'
-
         # assign and then remove non-requests kwargs
         fetch_all = kwargs.get('fetch_all', self.fetch_all)
+        filter = kwargs.get('filter', None)
+        limit = kwargs.get('limit', None)
+        nocache = kwargs.get('nocache', False)
         pager = kwargs.get('pager', False)
         uuid = kwargs.get('uuid', None)
         path += f'/{uuid}' if uuid is not None else ''
 
-        for x in ['fetch_all', 'pager', 'uuid']:
+        for x in ['fetch_all', 'filter', 'limit', 'nocache', 'pager', 'uuid']:
             try:
                 del kwargs[x]
             except KeyError:
                 pass
 
+        if isinstance(query, str):
+            msg = 'Query parameters should be passed in as a dictionary.'
+            warnings.warn(msg, DeprecationWarning)
+
+        if isinstance(query, dict):
+            query = '&'.join([f'{k}={v}' for k,v in query.items()])
+
+        if self.results_limit > 0 or limit:
+            limit = limit if limit else self.results_limit
+            query = '&'.join([query or '', f"limit={limit}"])
+
+        if self.disable_hateoas:
+            query = '&'.join([query or '', f"disable_hateoas=true"])
+
         self.last_response = self._request(method, path, query, dto, **kwargs)
         self.request_check_error(self.last_response)
 
-        if 'x-next-cursor' in self.last_response.headers or pager:
-            res = Pager(self, self.last_response, **kwargs)
+        if pager or 'x-next-cursor' in self.last_response.headers:
+            res = Pager(self, self.last_response, filter, **kwargs)
+            self._clear_response(nocache)
 
             if fetch_all:
                 return res.all
-            elif pager:# or response.headers['x-next-cursor'] is not None:
+            elif pager:
                 return res
             else:
                 return res.next
 
-        res = self.last_response.json()
-        return [res] if isinstance(res, dict) else res
-
-    @staticmethod
-    def _bool_to_text(value):
-        return 'true' if value else 'false'
-
-    @staticmethod
-    def _search_criteria(op, value, filter_type, case_sensitive=False):
-        criteria = {
-            'expType': _exp_type.get(op, op),
-            'expVal': value,
-            'caseSensitive': case_sensitive,
-            'filterType': filter_type
-        }
-
-        return criteria
-
-    @staticmethod
-    def _stats_filter(stats):
-        statistics = []
-
-        for stat in stats:
-            statistics.append({'name': stat})
-
-        return statistics
-
-    @property
-    def version(self):
-        if self.__version is None:
-            # temporarily disable hateoas, shouldn't matter though
-            hateoas = self.disable_hateoas
-            self.disable_hateoas = False
-
-            try:
-                self.__version = Version(self.request('admin/versions')[0])
-            finally:
-                self.disable_hateoas = hateoas
-
-        return self.__version
-
-    def __use_session(self, value):
-        if value:
-            self.session = True
-            self.__session = requests.Session()
-
-            # possible fix for urllib3 connection timing issue - https://github.com/requests/requests/issues/4664
-            adapter = requests.adapters.HTTPAdapter(max_retries=3)
-            self.__session.mount('http://', adapter)
-            self.__session.mount('https://', adapter)
-
-            self.__conn = self.__session.request
+        if filter:
+            res = vmtconnect.util.filter_copy(self.last_response.content.decode(), filter)
         else:
-            self.session = False
-            self.__conn = requests.request
+            res = self.last_response.json()
+        self._clear_response(nocache)
 
-    def __resolve_base_path(self, path=None):
-        # /vmturbo/rest is the "unversioned" path
-        # /api/v2 is the v2 path intended for classic; some XL instances use it
-        # /api/v3 is the v3 path intended for XL; not all XL instances support it
-        # there's also possibly /t8c/v1 and /api/v4 ... go figure
-        if path is not None:
-            return path
-
-        if path is None:
-            for base in ['/api/v3/', '/api/v2/', '/vmturbo/rest/']:
-                try:
-                    self.base_path = base
-                    v = self.version
-                    return base
-                except HTTP400Error:
-                    self.base_path = None
-                    continue
-                except Exception:
-                    raise
-
-        raise VMTUnknownVersion('Unable to determine base path')
-
-    def __is_cache_valid(self, id):
-        if id in self.__inventory_cache and \
-           datetime.datetime.now() < self.__inventory_cache[id]['expires'] and \
-           self.__inventory_cache[id]['data']:
-            return True
-
-        return False
-
-    def __get_system_markets(self):
-        res = self.get_markets()
-        self.__system_market_ids = [x['uuid'] for x in res if x['displayName'] in self.__system_markets]
-
-    def _search_cache(self, id, name, type=None, case_sensitive=False):
-        # populates internal cache
-        self.get_cached_inventory(id)
-        results = []
-
-        for e in self.__inventory_cache[id]['data']:
-            if (case_sensitive and e['displayName'] != name) or \
-               (e['displayName'].lower() != name.lower()):
-                continue
-            if type and e['className'] != type:
-                continue
-
-            results += [e]
-
-        return results
+        return [res] if isinstance(res, dict) else res
 
     def is_xl(self):
         """Checks if the connection is to an XL or Classic type instance.
@@ -1814,6 +1858,8 @@ class VMTConnection(Session):
         instead.
     """
     def __init__(self, *args, **kwargs):
+        msg = 'This interface is deprecated. Use Connection or Session'
+        warnings.warn(msg, DeprecationWarning)
         super().__init__(*args, **kwargs)
 
 

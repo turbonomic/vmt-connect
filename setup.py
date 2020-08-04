@@ -16,8 +16,13 @@ with open(os.path.join(here, 'README.md'), 'r') as fp:
 
 requires = [
     'cryptography>=3,<4',
+    'ijson>=3.1.post0,<4',
     'requests>=2.21.0,<3'
 ]
+
+extra_requires = {
+    'jq': ['jq>=1.0.2,<2']
+}
 
 setup(
     name=about['__title__'],
@@ -40,6 +45,7 @@ setup(
     include_package_data=True,
     python_requires=">=3.6",
     install_requires=requires,
+    extra_require=extra_requires,
     license=about['__license__'],
     entry_points={
         'console_scripts': ['turboauth=vmtconnect.command_line:cmd']
