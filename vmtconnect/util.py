@@ -13,6 +13,7 @@
 from collections import defaultdict
 from copy import deepcopy
 from decimal import Decimal
+from io import StringIO
 import re
 
 
@@ -98,58 +99,115 @@ def mem_cast(value, unit=None, src=None):
                      )
 
 
-def filter_copy(source, filter, dest=None):
-    if not filter:
-        return deepcopy(source)
-
-    elif ';' in filter and filter[0] != '[' and dest is not None:
-        keys = filter.split(';', maxsplit=1)
-        idx = keys[0]
-        tree = keys[1] if len(keys) > 1 else None
-        
+def _filter(src, filter, dest=None):
+    def rdest():
         try:
-            dest[idx] = filter_copy(source[idx], tree, dest[idx] if idx in dest else None)
+            return dest[idx]
+        except (TypeError, KeyError):
+            return None
 
-            return dest
-        except KeyError:
+    def ret(idx, value):
+        if not value:
             return
 
-    elif isinstance(filter, str):
-        if filter[0] == '[':
-            close = filter.index(']')
-
-            if ':' in filter:
-                idx = slice(*map(lambda x: int(x) if x.isdigit() else None,
-                                 filter[1:close].split(':')
-                                 ))
-            else:
-                idx = int(filter[1:close])
-
-            tree = filter[close+2:] if len(filter) > close else None
-
-            return filter_copy(source[idx], tree)
-        elif isinstance(source, list):
-            _src = [filter_copy(x, tree) for x in deepcopy(source)]
-        else:
-            try:
-                _src = deepcopy(source[filter])
-            except KeyError:
-                return
-
         if dest:
-            dest[filter] = _src
+            dest[idx] = deepcopy(value)
             return dest
+
+        return {idx: deepcopy(value)}
+
+    if not filter:
+        return deepcopy(src)
+
+    keys = filter.split('.', 1)
+    idx = keys[0]
+
+    if '[' in idx:
+        sub = idx.split('[')[1].rstrip(']')
+        sub = '0:' if sub in ('', '*') else sub
+        idx = idx.split('[')[0]
+    else:
+        sub = None
+
+    tree = keys[1] if len(keys) > 1 else None
+
+    if ',' in idx:
+        return {i: _filter(src[i], tree, rdest()) for i in idx.split(',')}
+    elif sub and idx in src:
+        if ':' in sub:
+            sub = slice(*map(lambda x: int(x) if x.isdigit() else None,
+                             sub.split(':')
+                             ))
         else:
-            return {filter: _src}
+            sub = slice(int(sub),int(sub)+1)
 
+        return ret(idx, [_filter(x, tree) for x in src[idx][sub]])
+    elif idx in src:
+        return ret(idx, _filter(src[idx], tree, rdest()))
+
+
+def filter_copy(source, filter, size=500):
+    """Permits response nested key filtering.
+
+    Args:
+        source (obj): Raw server response to filter.
+        filter (obj): Whitelist filter(s) to apply to the source data. Must be a
+            :py:class:`list` to use the native DSL, or a string to use a JQ script.
+            This represents data you want to explicitly keep.
+        size (int, optional): Array buffer size. (default: ``500``)
+
+    Notes:
+        The source data must not be pre-processed by a JSON converter.
+
+        The native filtering DSL is simpler than JQ script, and more human readable.
+
+        JQ scripts are executed per item returned, not against the entire JSON as
+        a whole. JQ scripts provide significantly more features than the native DSL
+        at the cost of performance.
+    """
+    import ijson
+
+    if isinstance(filter, str):
+        import jq
+        jq = True
     elif isinstance(filter, list):
-        out = {}
+        jq = False
 
-        for i in filter:
-            x = filter_copy(source, i, out)
-            out = x if x else out
+    def apply(_s, _f):
+        _out = {}
 
-        return out
+        for i in _f:
+            x = _filter(_s, i, _out)
+            _out = x if x else _out
+
+        return _out
+
+    out = [None] * size
+    idx = 0
+
+    for x in ijson.items(StringIO(source), 'item', use_float=jq):
+        if idx >= len(out):
+            out.extend([None] * size)
+
+        if jq:
+            out[idx] = deepcopy(jq.all(filter, x))
+        else:
+            out[idx] = deepcopy(apply(x, filter))
+
+        idx += 1
+
+    if idx == 0:
+        if jq:
+            out[idx] = deepcopy(jq.all(filter, json.loads(source)))
+        else:
+            out[0] = deepcopy(apply(json.loads(source), filter))
+
+        idx = 1
+
+    del out[idx:]
+
+    return out
+
 
 
 def to_defaultdict(factory, data):
