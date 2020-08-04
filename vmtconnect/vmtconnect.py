@@ -1764,6 +1764,11 @@ class Connection:
             case_sensitive (bool, optional): Search case sensitivity. (default: ``False``)
             from_cache (bool, optional): Uses the cached inventory if set. (default: ``False``)
 
+        Notes:
+            The option from_cache is deprecated, and will be removed in a future
+            version. This is due primarily to large memory concerns on XL instances.
+            Pagination should be used instead.
+
         Returns:
             A list of matching results.
         """
@@ -1778,7 +1783,7 @@ class Connection:
 
         for fclass in search_classes:
             if from_cache:
-                results += self._search_cache(name, fclass, case_sensitive)
+                results += self._search_cache('Market', name, fclass, case_sensitive)
                 continue
 
             try:
