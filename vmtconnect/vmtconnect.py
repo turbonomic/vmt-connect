@@ -1742,7 +1742,7 @@ class Connection:
                 criteria = self._search_criteria('EQ', name, sfilter, case_sensitive)
                 dto = {'className': fclass, 'criteriaList': [criteria]}
 
-                results += self.search(json.dumps(dto))
+                results += self.search(dto=json.dumps(dto))
             except Exception:
                 pass
 
