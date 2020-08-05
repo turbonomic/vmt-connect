@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Developer Interfaces &mdash; vmt-connect 3.3.1 documentation</title>
+  <title>Developer Interfaces &mdash; vmt-connect 3.4.0 documentation</title>
   
 
   
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                3.3.1
+                3.4.0
               </div>
             
           
@@ -1027,6 +1027,11 @@ the cursor. (default: <code class="docutils literal notranslate"><span class="pr
 into a single response when a cursor is returned, otherwise only
 the current result set is returned. This option overrides the
 <cite>pager</cite> parameter. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+<li><p><strong>limit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – Sets the response limit for a single call.
+This overrides results_limit, if it is also set.</p></li>
+<li><p><strong>nocache</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, responses will not be
+cached in the <a class="reference internal" href="#vmtconnect.Connection.last_response" title="vmtconnect.Connection.last_response"><code class="xref py py-attr docutils literal notranslate"><span class="pre">last_response</span></code></a> attribute.
+(default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
 <li><p><strong>**kwargs</strong> – Additional <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.24.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a> keyword arguments.</p></li>
 </ul>
 </dd>
@@ -1035,7 +1040,8 @@ the current result set is returned. This option overrides the
 <p class="admonition-title">Notes</p>
 <p>The <strong>fetch_all</strong> parameter default was changed in v3.2 from <code class="docutils literal notranslate"><span class="pre">True</span></code>
 to <code class="docutils literal notranslate"><span class="pre">False</span></code> with the addition of the <a class="reference internal" href="#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> response
-class.</p>
+class.
+String based <strong>query</strong> parameters are deprecated, use dictionaries.</p>
 </div>
 </dd></dl>
 
@@ -1115,8 +1121,16 @@ requests.</p></li>
 <li><p><strong>from_cache</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Uses the cached inventory if set. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list of matching results.</p>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>The option from_cache is deprecated, and will be removed in a future
+version. This is due primarily to large memory concerns on XL instances.
+Pagination should be used instead.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A list of matching results.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1185,7 +1199,7 @@ requests.</p></li>
 <h4><a class="toc-backref" href="#id11">Pager</a><a class="headerlink" href="#pager" title="Permalink to this headline">¶</a></h4>
 <dl class="py class">
 <dt id="vmtconnect.Pager">
-<em class="property">class </em><code class="sig-prename descclassname">vmtconnect.</code><code class="sig-name descname">Pager</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conn</span></em>, <em class="sig-param"><span class="n">response</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Pager" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">vmtconnect.</code><code class="sig-name descname">Pager</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conn</span></em>, <em class="sig-param"><span class="n">response</span></em>, <em class="sig-param"><span class="n">filter</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Pager" title="Permalink to this definition">¶</a></dt>
 <dd><p>API request pager class</p>
 <p>A <a class="reference internal" href="#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> is a special request handler which permits the processing
 of paged <a class="reference internal" href="#vmtconnect.Connection.request" title="vmtconnect.Connection.request"><code class="xref py py-meth docutils literal notranslate"><span class="pre">request()</span></code></a> results, keeping state between each
@@ -1200,6 +1214,7 @@ to.</p></li>
 <li><p><strong>response</strong> (<a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Response" title="(in Requests v2.24.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code></a>) – Requests <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Response" title="(in Requests v2.24.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code></a>
 object to build the pager from. This must be the object, and not the
 JSON parsed output.</p></li>
+<li><p><strong>filter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><em>dict</em></a>) – Filter to apply to results.</p></li>
 <li><p><strong>**kwargs</strong> – Additional <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.24.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a> keyword arguments.</p></li>
 </ul>
 </dd>
