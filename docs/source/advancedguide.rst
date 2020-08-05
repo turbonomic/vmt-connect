@@ -2,6 +2,9 @@
 .. _API: https://greencircle.vmturbo.com/community/products/pages/documentation
 .. _cryptography: https://pypi.org/project/cryptography/
 .. _Fernet: https://github.com/fernet/spec/blob/master/Spec.md
+.. _jq: https://stedolan.github.io/jq/
+.. _jq python: https://pypi.org/project/jq/
+.. _jq script: https://stedolan.github.io/jq/manual/
 .. _Turbonomic: http://www.turbonomic.com
 .. _Requests: https://requests.readthedocs.io/
 .. _proxies: https://requests.readthedocs.io/en/master/user/advanced/#proxies
@@ -77,15 +80,25 @@ an optional :py:class:`~vmtconnect.Pager` class for working with the paginated
 results. By default, *vmt-connect* will return the first page of results only
 unless the **pager** flag is set to ``True``.
 
-For example, when querying all entities in a given market, you will receive the
-first set of entries (300-500 depending on version) in the usual list of dictionaries
-format:
+Basic Pagination
+^^^^^^^^^^^^^^^^
+
+When querying all entities in a given market, for example, you will by default
+receive the first set of entries (300-500 depending on version) in the usual list
+of dictionaries format:
 
 .. code:: python
 
     conn = vmtconnect.Connection(username='user', password='pass')
     response = conn.get_entities()
 
+
+.. warning::
+    Automatic pagination in Turbonomic Classic is not implemented on all endpoints
+    that support pagination. Some, such as market actions, default to the historical
+    behavior of returning all results. When using Classic endpoints with pagination
+    it is recommended to manually set a **limit** value of reasonable size, such
+    as 100.
 
 Although *vmt-connect* detects the response is paged, in order to keep backwards
 compatibility with previous code it returns the expected response that previous
@@ -125,6 +138,197 @@ property of the :py:class:`~vmtconnect.Pager`, and checking if it is :py:attr:`~
 
         # do something with our data
         interesting_things(entitycache)
+
+Filters
+^^^^^^^
+
+Starting in v3.4.0, *vmt-connect* supports filtering JSON responses in order to
+reduce memory consumption when working with extremely large responses, and to
+permit fine grained control over the data received. Two methods of filtering
+are supported; a custom filtering domain specific language (DSL), and `jq`_ script
+syntax. The native DSL provides a simplified set of features, which provide
+significantly faster performance and memory reduction over jq. Using `jq script`_
+provides significantly more flexibility in terms of filtering and even re-writing
+the JSON response, at the cost of both speed and memory. Regardless which filter
+style is used, the filter is applied to each top-most object in the response.
+Thus if the response is a list, each object in the list will be filtered one at
+a time. If the response is a single key-value pari, the filter will be applied
+once to the whole response. For the purposes of demonstrating filter examples
+in the subsections below, please refer to this example JSON response.
+
+.. raw:: html
+
+   <details>
+   <summary><b>Show/Hide Example</b></summary>
+
+.. literalinclude:: ./_static/action.json
+  :language: json
+  :caption: action.json
+
+.. raw:: html
+
+   </details>
+
+|
+
+Native DSL
+""""""""""
+
+Native DSL filters are constructed using a list of filter strings. Each string
+contains either a list of keys, or a dot-reference path to a single key to extract
+from the source JSON response. You only need to specify the minimum level of depth
+required to retrieve the contents desired, thus if you want all contents under
+a specific key, you only need provide the path to said key. Multiple filters
+for the same top-level key will be merged, thus you can cherry pick a subset of
+an object using multiple filter entries. The below examples demonstrate these
+behaviors.
+
+.. code-block:: python
+    :caption: Multiple Keys Expanded
+
+    filter = [
+      'uuid',
+      'details',
+      'actionType',
+      'target'
+    ]
+
+.. code-block:: python
+    :caption: Multiple Keys Compact
+    :name: ex1
+
+    filter = [
+      'uuid,details,actionType,target'
+    ]
+
+This above equivalent examples will extract only the **uuid**, **details**,
+**actionType**, and the entire **target** object from every object in the response
+list. All other fields will be discarded.
+
+.. code-block:: python
+    :caption: Sub-selecting Parts of an object
+    :name: ex2
+
+    filter = [
+      'uuid,details,actionType',
+      'target.uuid',
+      'target.displayName'
+      'target.discoveredBy.displayName',
+      'currentValue',
+      'newValue'
+    ]
+
+Here we have extracted the **uuid**, **details**, and **actionType** again. In
+addition a sub-selection of the **target** object have been pulled, as well as
+the **currentValue** and **newValue** top level keys. All the **target** parts
+will be returned in their original structure, as referenced by the dot notation.
+
+.. code-block:: python
+    :caption: Sub-selecting Parts of an object
+
+    filter = [
+      'uuid,details,actionType,stats'
+    ]
+
+Nested lists are automatically parsed to include all items by default. Although
+you cannot filter individual indices based on their children, you can sub-select
+or slice portions of the list using Python's slicing syntax, as shown in the
+following examples.
+
+.. code-block:: python
+    :caption: Sub-selecting a specific item in a list
+
+    filter = [
+      'uuid,details,actionType',
+      'stats[0]'
+    ]
+
+|
+
+.. code-block:: python
+    :caption: Sub-selecting a range from a list, with stepping
+
+    filter = [
+      'uuid,details,actionType',
+      'stats[2:10:2]'
+    ]
+
+|
+
+.. code-block:: python
+    :caption: All of these are equivalent
+
+    filter = [
+      'stats',
+      'stats[]',
+      'stats[*]',
+      'stats[0:]'
+    ]
+
+|
+
+.. code-block:: python
+    :caption: Dot-referencing with lists
+
+    filter = [
+      'uuid,details,actionType',
+      'stats.name',
+      'stats.value'
+    ]
+
+|
+
+jq Script
+"""""""""
+
+In addition to the native DSL, *vmt-connect* supports `jq script`_ via the `jq python`_
+package. Jq provides a more powerful parsing language for not simply filtering,
+but also altering JSON content. This includes value checking, recursion, deletion,
+insertion, and numerous other functions. Unfortunately this capability comes at
+a significant performance and memory hit compared to the native DSL on very large
+responses. The entirety of jq cannot be covered here, though a couple examples
+are provided below to demonstrate the usage difference. The primary defining
+difference is that jq scripts must be provided as a single string, and not as a
+python list.
+
+.. code-block:: python
+    :caption: Jq style multiple keys selection
+
+    filter = '. | {uuid, details, actionType, target}'
+
+See :ref:`ex1`.
+
+|
+
+.. code-block:: python
+    :caption: Jq style multiple keys selection
+
+    filter = """
+      . | {
+        uuid,
+        details,
+        actionType,
+        target: (
+           .target | {
+             uuid,
+             className,
+             displayName,
+             discoveredBy: (.discoveredBy | {displayName})
+           }
+        )
+    }
+    """
+
+See :ref:`ex2`.
+
+|
+
+.. code-block:: python
+    :caption: Filtering based on values
+
+    filter = '. | select(.actionType == "DELETE") | {uuid, details, actionType, target}'
+
+|
 
 
 Version Control
@@ -232,4 +436,3 @@ files.
 
     # to change the basepath of the files, use the -b or --basepath option
     turboauth -b .secret -k .key -c user.cred
-    

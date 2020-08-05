@@ -1,0 +1,64 @@
+[
+  {
+    "uuid": "9223304850035275760",
+    "actionImpactID": 9223304850035276000,
+    "createTime": "2020-08-04T12:21:44-04:00",
+    "actionType": "RIGHT_SIZE",
+    "actionState": "PENDING_ACCEPT",
+    "actionMode": "MANUAL",
+    "details": "Scale down VMem for VirtualMachine cert58 from 14 GB to 12 GB",
+    "importance": 0,
+    "target": {
+      "uuid": "421c5dac-3d10-6d6d-2183-5c01f7b2ace9",
+      "displayName": "cert58",
+      "className": "VirtualMachine",
+      "discoveredBy": {
+        "uuid": "_UFCnUMYUEeqw6vcwGrTNAw",
+        "displayName": "vcenter.demo.example.com",
+        "type": "vCenter",
+        "readonly": false
+      }
+    },
+    "currentEntity": {
+      "uuid": "_lmEJ8tZuEeqG6vS3wpTEow",
+      "className": "VMem"
+    },
+    "newEntity": {
+      "uuid": "_t9Euw9dLEeqG6vS3wpTEow",
+      "className": "VMem",
+      "aspects": {
+        "virtualMachineAspect": {
+          "os": "Linux (Free)",
+          "type": "VMEntityAspectApiDTO"
+        }
+      }
+    },
+    "currentValue": "14680064.0",
+    "newValue": "12582912.0",
+    "resizeToValue": "12582912.0",
+    "stats": [
+      {
+        "name": "costPrice",
+        "filters": [
+          {
+            "type": "savingsType",
+            "value": "savings"
+          }
+        ],
+        "units": "$",
+        "value": 100
+      }
+    ],
+    "currentLocation": {
+      "uuid": "a600946a2bdb36c3527fa57bd35a5b8db76dd552",
+      "displayName": "DemoDC",
+      "className": "DataCenter"
+    },
+    "newLocation": {
+      "uuid": "a600946a2bdb36c3527fa57bd35a5b8db76dd552",
+      "displayName": "DemoDC",
+      "className": "DataCenter"
+    },
+    "actionID": 3208600312656
+  }
+]
