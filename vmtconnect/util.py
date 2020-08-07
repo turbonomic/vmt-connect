@@ -132,7 +132,7 @@ def _filter(src, filter, dest=None):
     tree = keys[1] if len(keys) > 1 else None
 
     if ',' in idx:
-        return {i: _filter(src[i], tree, rdest()) for i in idx.split(',')}
+        return {i: _filter(src[i], tree, rdest()) for i in idx.split(',') if i in src}
     elif sub and idx in src:
         if ':' in sub:
             sub = slice(*map(lambda x: int(x) if x.isdigit() else None,
