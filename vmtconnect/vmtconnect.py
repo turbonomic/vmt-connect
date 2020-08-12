@@ -12,16 +12,18 @@
 
 # libraries
 
-import re
-import warnings
 import base64
+from collections import defaultdict
+from copy import deepcopy
+import datetime
 import json
 import math
-import requests
-import datetime
+import re
+import warnings
 
-from collections import defaultdict
+import requests
 from urllib.parse import urlunparse, urlencode
+
 import vmtconnect.util
 
 
@@ -180,6 +182,7 @@ class HTTP400Error(HTTPError):
     """Raised when an HTTP 400 error is returned."""
     pass
 
+
 class HTTP401Error(HTTP400Error):
     """Raised when access fails, due to bad login or insufficient permissions."""
     pass
@@ -209,7 +212,7 @@ class HTTP503Error(HTTP500Error):
     pass
 
 
-class HTTPWarn(Exception):
+class HTTPWarning(Warning):
     """Raised when an HTTP error can always be safely ignored."""
     pass
 
@@ -524,10 +527,11 @@ class Pager:
         non-working pagination headers. These are chiefly XL versions prior to
         7.21.2.
     """
-    def __init__(self, conn, response, filter=None, **kwargs):
+    def __init__(self, conn, response, filter=None, filter_float=False, **kwargs):
         self.__conn = conn
         self.__response = response
         self.__filter = filter
+        self.__filter_float = filter_float
         self.__complete = False
         self.__kwargs = kwargs
         self.__next = "0"
@@ -628,7 +632,9 @@ class Pager:
 
     @property
     def filtered_response(self):
-        return vmtconnect.util.filter_copy(self.__response.content.decode(), self.__filter)
+        return vmtconnect.util.filter_copy(self.__response.content.decode(),
+                                           self.__filter,
+                                           use_float=self.__filter_float)
 
     @property
     def response_object(self):
@@ -732,19 +738,21 @@ class Connection:
         self.__verify = verify
         self.__version = None
         self.__cert = cert
-        self.__login = False
-
+        self.__logedin = False
         self.host = host or 'localhost'
-        self.protocol = 'https' if ssl else 'http'
+        self.protocol = 'http' if ssl == False else 'https'
         self.disable_hateoas = disable_hateoas
         self.fetch_all = False
         self.results_limit = 0
-        self.content_type = 'application/json'
         self.headers = headers or {}
         self.cookies = None
         self.proxies = proxies
         self.update_headers = {}
         self.last_response = None
+
+        if self.protocol == 'http':
+            msg = 'You should be using HTTPS'
+            warnings.warn(msg, HTTPWarning)
 
         # because the unversioned base path /vmturbo/rest is flagged for deprication
         # we have a circular dependency:
@@ -765,24 +773,30 @@ class Connection:
             raise VMTConnectionError('Missing credentials')
 
         try:
-            u, p = (base64.b64decode(self.__basic_auth)).decode().split(':')
-            body = {'username': (None, u), 'password': (None, p)}
-            self.request('login', 'POST', content_type=None, files=body)
-            self.__login = True
+            self.__login()
+            self.__logedin = True
+        except HTTPError:
+            if self.last_response.status_code == 301 and self.protocol == 'http' \
+            and self.last_response.headers.get('Location', '').startswith('https'):
+                msg = 'HTTP 301 Redirect to HTTPS detected using HTTP protocol, forcing to HTTPS'
+                warnings.warn(msg, HTTPWarning)
+                self.protocol = 'https'
+                self.__login()
+            else:
+                raise
         except HTTP401Error:
             raise
-        except Exception:
+        except Exception as e:
             # because classic accepts encoded credentials, we'll manually attach here
             self.headers.update(
                 {'Authorization': f'Basic {self.__basic_auth.decode()}'}
             )
-            self.__login = True
+            self.__logedin = True
 
         if self.is_xl():
             self.__req_ver = req_versions or VersionSpec(['7.21+'])
         else:
             self.__req_ver = req_versions or VersionSpec(['6.1+'])
-            self.results_limit = 100
 
         self.__req_ver.check(self.version)
         self.__get_system_markets()
@@ -836,6 +850,11 @@ class Connection:
 
         return self.__version
 
+    def __login(self):
+        u, p = (base64.b64decode(self.__basic_auth)).decode().split(':')
+        body = {'username': (None, u), 'password': (None, p)}
+        self.request('login', 'POST', disable_hateoas=False, content_type=None, files=body, allow_redirects=False)
+
     def __use_session(self, value):
         if value:
             self.session = True
@@ -860,7 +879,7 @@ class Connection:
             return path
 
         if path is None:
-            for base in ['/api/v3/', '/api/v2/', '/vmturbo/rest/']:
+            for base in ['/api/v3/', '/vmturbo/rest/']:
                 try:
                     self.base_path = base
                     v = self.version
@@ -874,10 +893,12 @@ class Connection:
         raise VMTUnknownVersion('Unable to determine base path')
 
     def __is_cache_valid(self, id):
-        if id in self.__inventory_cache and \
-           datetime.datetime.now() < self.__inventory_cache[id]['expires'] and \
-           self.__inventory_cache[id]['data']:
-            return True
+        try:
+            if datetime.datetime.now() < self.__inventory_cache[id]['expires'] and \
+            self.__inventory_cache[id]['data']:
+                return True
+        except KeyError:
+            pass
 
         return False
 
@@ -896,9 +917,8 @@ class Connection:
 
         for e in self.__inventory_cache[id]['data']:
             if (case_sensitive and e['displayName'] != name) or \
-               (e['displayName'].lower() != name.lower()):
-                continue
-            if type and e['className'] != type:
+               (e['displayName'].lower() != name.lower()) or \
+               (type and e['className'] != type):
                 continue
 
             results += [e]
@@ -910,12 +930,17 @@ class Connection:
         url = urlunparse((self.protocol, self.host,
                           self.base_path + resource.lstrip('/'), '', query, ''))
 
-        if data is not None:
-            self.headers.update({'Content-Type': kwargs.get('content_type', self.content_type)})
-
-        # strip kwargs that must not be passed to requests
+        # add custom content-type if specified, if None remove it completely,
+        # else add default type
         if 'content_type' in kwargs:
+            if kwargs['content_type']:
+                self.headers.update({'Content-Type': kwargs.get('content_type', 'application/json')})
+            elif 'Content-Type' in self.headers:
+                del self.headers['Content-Type']
+
             del kwargs['content_type']
+        else:
+            self.headers.update({'Content-Type': 'application/json'})
 
         kwargs['verify'] = self.__verify
         kwargs['headers'] = {**self.headers, **kwargs.get('headers', {})}
@@ -1027,9 +1052,11 @@ class Connection:
         nocache = kwargs.get('nocache', False)
         pager = kwargs.get('pager', False)
         uuid = kwargs.get('uuid', None)
+        filter_float = kwargs.get('filter_float', False)
+        disable_hateoas = kwargs.get('disable_hateoas', self.disable_hateoas)
         path += f'/{uuid}' if uuid is not None else ''
 
-        for x in ['fetch_all', 'filter', 'limit', 'nocache', 'pager', 'uuid']:
+        for x in ['fetch_all', 'filter', 'limit', 'nocache', 'pager', 'uuid', 'filter_float', 'disable_hateoas']:
             try:
                 del kwargs[x]
             except KeyError:
@@ -1046,14 +1073,14 @@ class Connection:
             limit = limit if limit else self.results_limit
             query = '&'.join([query or '', f"limit={limit}"])
 
-        if self.disable_hateoas:
+        if disable_hateoas:
             query = '&'.join([query or '', f"disable_hateoas=true"])
 
-        self.last_response = self._request(method, path, query, dto, **kwargs)
+        self.last_response = self._request(method, path, query.strip('&'), dto, **kwargs)
         self.request_check_error(self.last_response)
 
         if pager or 'x-next-cursor' in self.last_response.headers:
-            res = Pager(self, self.last_response, filter, **kwargs)
+            res = Pager(self, self.last_response, filter, filter_float, **kwargs)
             self._clear_response(nocache)
 
             if fetch_all:
@@ -1064,9 +1091,12 @@ class Connection:
                 return res.next
 
         if filter:
-            res = vmtconnect.util.filter_copy(self.last_response.content.decode(), filter)
+            res = vmtconnect.util.filter_copy(self.last_response.content.decode(),
+                                              filter,
+                                              use_float=filter_float)
         else:
             res = self.last_response.json()
+
         self._clear_response(nocache)
 
         return [res] if isinstance(res, dict) else res
@@ -1103,22 +1133,56 @@ class Connection:
 
         return self.request(f'markets/{market}/actions', **kwargs)
 
-    def get_cached_inventory(self, market, **kwargs):
-        """Returns the market entities inventory from cache, populating the
-        cache if necessary.
+    def get_cached_inventory(self, id, uuid=None, **kwargs):
+        """Returns the entities inventory from cache, populating the cache if
+        necessary. The ID provided should be either a market ID, or one of the
+        alternative inventory IDs:
+            __clusters - Clusters
+            __groups  - Groups
+            __group_entities - Group entities
+            __group_members - Group members
 
         Args:
-            market (str): Market id to get cached inventory for.
+            id (str): Inventory id to get cached inventory for.
+            uuid (str, optional): If supplied, the matching entity will be returned
+                instead of the entire cache.
 
         Returns:
             A list of market entities in :obj:`dict` form.
         """
-        if not self.__is_cache_valid(market):
-            delta = datetime.timedelta(seconds=self.__inventory_cache_timeout)
-            self.__inventory_cache[market]['data'] = self.request(f'markets/{market}/entities', fetch_all=True, **kwargs)
-            self.__inventory_cache[market]['expires'] = datetime.datetime.now() + delta
+        if not self.__is_cache_valid(id):
+            if id in self.__inventory_cache:
+                del self.__inventory_cache[id]
 
-        return self.__inventory_cache[market]['data']
+            self.__inventory_cache[id] = {}
+
+            if id == '__clusters':
+                self.__inventory_cache[id]['data'] = self.search(types=['Cluster'], fetch_all=True, **kwargs)
+            elif id == '__groups':
+                self.__inventory_cache[id]['data'] = self.request('groups', fetch_all=True, **kwargs)
+            elif id == '__group_entities':
+                self.__inventory_cache[id]['data'] = self.request(f'groups/{uuid}/entities', **kwargs)
+            elif id == '__group_members':
+                self.__inventory_cache[id]['data'] = self.request(f'groups/{uuid}/members', **kwargs)
+            else:
+                self.__inventory_cache[id]['data'] = self.request(f'markets/{id}/entities', fetch_all=True, **kwargs)
+
+            delta = datetime.timedelta(seconds=self.__inventory_cache_timeout)
+            self.__inventory_cache[id]['expires'] = datetime.datetime.now() + delta
+
+        if uuid:
+            res = [x for x in self.__inventory_cache[id]['data'] if x['uuid'] == uuid]
+
+            if id == '__group_entities' and not res:
+                res = self.request(f'groups/{uuid}/entities', **kwargs)
+                self.__inventory_cache[id]['data'].extend(res)
+            elif id == '__group_members' and not res:
+                res = self.request(f'groups/{uuid}/members', **kwargs)
+                self.__inventory_cache[id]['data'].extend(res)
+
+            return deepcopy(res)
+
+        return deepcopy(self.__inventory_cache[id]['data'])
 
     def get_current_user(self, **kwargs):
         """Returns the current user.
@@ -1241,7 +1305,7 @@ class Connection:
             entities = self.get_cached_inventory(market)
 
             if uuid:
-                entities = [x for x in entities if x['uuid'] == uuid]
+                entities = [deepcopy(x) for x in entities if x['uuid'] == uuid]
         else:
             if market is not None:
                 entities = self.get_market_entities(market, **kwargs)
@@ -1249,7 +1313,7 @@ class Connection:
                 entities = self.request(path, method='GET', query=query, **kwargs)
 
         if type and isinstance(entities, Pager):
-            return [x for x in entities if x['className'] == type]
+            return [deepcopy(x) for x in entities if x['className'] == type]
 
         return entities
 
@@ -1300,6 +1364,45 @@ class Connection:
             A list of datastores in :obj:`dict` form.
         """
         return self.get_entities('Storage', uuid=uuid, market=market, **kwargs)
+
+    def get_clusters(self, uuid=None, cache=False, **kwargs):
+        """Returns a list of clusters
+
+        Args:
+            uuid (str): Cluster UUID.
+            cache (bool, optional): If true, will retrieve entities from the
+                market cache. (default: ``False``)
+
+        Returns:
+            A list of clusters in :obj:`dict` form.
+        """
+        if cache:
+            clusters = self.get_cached_inventory('__clusters')
+        else:
+            clusters = self.search(types=['Cluster'], **kwargs)
+
+        if uuid:
+            return [deepcopy(x) for x in clusters if x['uuid'] == uuid]
+
+        return clusters
+
+    def get_entity_cluster(self, uuid, cache=False, **kwargs):
+        """Get the cluster an entity belongs to."""
+        clstr = self.get_clusters(cache=cache, **kwargs)
+
+        for c in clstr:
+            try:
+                if uuid in c['memberUuidList']:
+                    return c
+            except KeyError:
+                pms = self.get_group_entities(c['uuid'], **kwargs)
+                for p in pms:
+                    if uuid == p['uuid']:
+                        return p
+
+                    for vm in p.get('consumers', []):
+                        if uuid == vm['uuid']:
+                            return c
 
     def get_entity_groups(self, uuid, **kwargs):
         """Returns a list of groups the entity belongs to.
@@ -1370,25 +1473,35 @@ class Connection:
         Returns:
             A list of entities in :obj:`dict` form.
         """
-        entities = [x for x in self.get_entities(**kwargs) if x.get('remoteId') == remote_id]
+        entities = [deepcopy(x) for x in self.get_entities(**kwargs) if x.get('remoteId') == remote_id]
 
         if target_name and entities:
-            entities = [x for x in entities if x['discoveredBy']['displayName'] == target_name]
+            entities = [deepcopy(x) for x in entities if x['discoveredBy']['displayName'] == target_name]
 
         if target_uuid and entities:
-            entities = [x for x in entities if x['discoveredBy']['uuid'] == target_uuid]
+            entities = [deepcopy(x) for x in entities if x['discoveredBy']['uuid'] == target_uuid]
 
         return entities
 
-    def get_groups(self, uuid=None, **kwargs):
+    def get_groups(self, uuid=None, cache=False, **kwargs):
         """Returns a list of groups in the given market
 
         Args:
             uuid (str, optional): Specific UUID to lookup.
+            cache (bool, optional): If true, will retrieve entities from the
+                market cache. (default: ``False``)
 
         Returns:
             A list of groups in :obj:`dict` form.
         """
+        if cache:
+            groups = self.get_cached_inventory('__groups')
+
+            if uuid:
+                return [deepcopy(x) for x in groups if x['uuid'] == uuid]
+
+            return groups
+
         return self.request('groups', uuid=uuid, **kwargs)
 
     def get_group_actions(self, uuid=None, **kwargs):
@@ -1419,26 +1532,36 @@ class Connection:
 
         return None
 
-    def get_group_entities(self, uuid, **kwargs):
+    def get_group_entities(self, uuid, cache=False, **kwargs):
         """Returns a detailed list of member entities that belong to the group.
 
         Args:
             uuid (str): Group UUID.
+            cache (bool, optional): If true, will retrieve entities from the
+                market cache. (default: ``False``)
 
         Returns:
             A list containing all members of the group and their related consumers.
         """
+        if cache:
+            return self.get_cached_inventory('__group_entities', uuid=uuid, **kwargs)
+
         return self.request(f'groups/{uuid}/entities', **kwargs)
 
-    def get_group_members(self, uuid, **kwargs):
+    def get_group_members(self, uuid, cache=False, **kwargs):
         """Returns a list of members that belong to the group.
 
         Args:
             uuid (str): Group UUID.
+            cache (bool, optional): If true, will retrieve entities from the
+                market cache. (default: ``False``)
 
         Returns:
             A list containing all members of the group.
         """
+        if cache:
+            return self.get_cached_inventory('__group_members', uuid=uuid, **kwargs)
+
         return self.request(f'groups/{uuid}/members', **kwargs)
 
     def get_group_stats(self, uuid, stats_filter=None, start_date=None,

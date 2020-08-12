@@ -132,7 +132,7 @@ def _filter(src, filter, dest=None):
     tree = keys[1] if len(keys) > 1 else None
 
     if ',' in idx:
-        return {i: _filter(src[i], tree, rdest()) for i in idx.split(',')}
+        return {i: _filter(src[i], tree, rdest()) for i in idx.split(',') if i in src}
     elif sub and idx in src:
         if ':' in sub:
             sub = slice(*map(lambda x: int(x) if x.isdigit() else None,
@@ -146,7 +146,7 @@ def _filter(src, filter, dest=None):
         return ret(idx, _filter(src[idx], tree, rdest()))
 
 
-def filter_copy(source, filter, size=500):
+def filter_copy(source, filter, size=500, use_float=False):
     """Permits response nested key filtering.
 
     Args:
@@ -170,6 +170,7 @@ def filter_copy(source, filter, size=500):
     if isinstance(filter, str):
         import jq
         jq = True
+        use_float = True
     elif isinstance(filter, list):
         jq = False
 
@@ -185,7 +186,7 @@ def filter_copy(source, filter, size=500):
     out = [None] * size
     idx = 0
 
-    for x in ijson.items(StringIO(source), 'item', use_float=jq):
+    for x in ijson.items(StringIO(source), 'item', use_float=use_float):
         if idx >= len(out):
             out.extend([None] * size)
 
