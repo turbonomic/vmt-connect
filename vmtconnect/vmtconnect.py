@@ -1151,6 +1151,9 @@ class Connection:
             A list of market entities in :obj:`dict` form.
         """
         if not self.__is_cache_valid(id):
+            if id in self.__inventory_cache:
+                del self.__inventory_cache[id]
+
             self.__inventory_cache[id] = {}
 
             if id == '__clusters':
@@ -1158,10 +1161,8 @@ class Connection:
             elif id == '__groups':
                 self.__inventory_cache[id]['data'] = self.request('groups', fetch_all=True, **kwargs)
             elif id == '__group_entities':
-                del self.__inventory_cache[id]['data']
                 self.__inventory_cache[id]['data'] = self.request(f'groups/{uuid}/entities', **kwargs)
             elif id == '__group_members':
-                del self.__inventory_cache[id]['data']
                 self.__inventory_cache[id]['data'] = self.request(f'groups/{uuid}/members', **kwargs)
             else:
                 self.__inventory_cache[id]['data'] = self.request(f'markets/{id}/entities', fetch_all=True, **kwargs)
