@@ -107,7 +107,7 @@ can validate by checking the headers returned:
 
 .. code:: python
 
-    conn = vmtconnect.Connection(username='user', password='pass')
+    conn = vmtconnect.Session(username='user', password='pass')
     response = conn.get_entities()
 
     if 'x-next-cursor' in conn.last_response.headers:
@@ -139,8 +139,9 @@ property of the :py:class:`~vmtconnect.Pager`, and checking if it is :py:attr:`~
         # do something with our data
         interesting_things(entitycache)
 
-Filters
-^^^^^^^
+
+Response Filters
+----------------
 
 Starting in v3.4.0, *vmt-connect* supports filtering JSON responses in order to
 reduce memory consumption when working with extremely large responses, and to
@@ -153,8 +154,30 @@ the JSON response, at the cost of both speed and memory. Regardless which filter
 style is used, the filter is applied to each top-most object in the response.
 Thus if the response is a list, each object in the list will be filtered one at
 a time. If the response is a single key-value pari, the filter will be applied
-once to the whole response. For the purposes of demonstrating filter examples
-in the subsections below, please refer to this example JSON response.
+once to the whole response.
+
+Response filters may be applied to almost any method supported by *vmt-connect*,
+direct requests, as well as paged results. To apply a filter to a request simply
+add the **filter** keyword argument to the method call with the corresponding
+filter you wish to apply:
+
+.. code-block:: python
+    :caption: Example filtered request
+
+    conn = vmtconnect.Session(username='user', password='pass')
+    filter = ['uuid,displayName,details']
+    actions = conn.get_actions(filter=filter)
+
+
+.. code-block:: python
+    :caption: Example filtered request with pagination and cursor size limit
+
+    vconnmt = vmtconnect.Session(username='user', password='pass')
+    filter = ['uuid,displayName,details']
+    actions = conn.get_actions(filter=filter, pager=True, limit=100)
+
+For the purposes of demonstrating filter examples in the sub-sections below,
+please refer to this example JSON response.
 
 .. raw:: html
 
@@ -172,7 +195,7 @@ in the subsections below, please refer to this example JSON response.
 |
 
 Native DSL
-""""""""""
+^^^^^^^^^^
 
 Native DSL filters are constructed using a list of filter strings. Each string
 contains either a list of keys, or a dot-reference path to a single key to extract
@@ -276,10 +299,31 @@ following examples.
       'stats.value'
     ]
 
+A more formal definition of the DSL is provided in the following rail-road diagrams.
+
+**Filter**
+
+.. raw:: html
+    :file: _static/rrfilter.svg
+
+|
+
+**Field**
+
+.. raw:: html
+    :file: _static/rrfield.svg
+
+|
+
+**Slice**
+
+.. raw:: html
+    :file: _static/rrslice.svg
+
 |
 
 jq Script
-"""""""""
+^^^^^^^^^
 
 In addition to the native DSL, *vmt-connect* supports `jq script`_ via the `jq python`_
 package. Jq provides a more powerful parsing language for not simply filtering,

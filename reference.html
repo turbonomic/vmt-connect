@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Developer Interfaces &mdash; vmt-connect 3.4.0 documentation</title>
+  <title>Developer Interfaces &mdash; vmt-connect 3.4.1 documentation</title>
   
 
   
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                3.4.0
+                3.4.1
               </div>
             
           
@@ -531,15 +531,44 @@ listed.</p>
 
 <dl class="py method">
 <dt id="vmtconnect.Connection.get_cached_inventory">
-<code class="sig-name descname">get_cached_inventory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">market</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_cached_inventory" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the market entities inventory from cache, populating the
-cache if necessary.</p>
+<code class="sig-name descname">get_cached_inventory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">id</span></em>, <em class="sig-param"><span class="n">uuid</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_cached_inventory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the entities inventory from cache, populating the cache if
+necessary. The ID provided should be either a market ID, or one of the
+alternative inventory IDs:</p>
+<ul class="simple">
+<li><p>__clusters - Clusters</p></li>
+<li><p>__groups  - Groups</p></li>
+<li><p>__group_entities - Group entities</p></li>
+<li><p>__group_members - Group members</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>market</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Market id to get cached inventory for.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Inventory id to get cached inventory for.</p></li>
+<li><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – If supplied, the matching entity will be returned
+instead of the entire cache.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A list of market entities in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></a> form.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="vmtconnect.Connection.get_clusters">
+<code class="sig-name descname">get_clusters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uuid</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cache</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_clusters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of clusters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Cluster UUID.</p></li>
+<li><p><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If true, will retrieve entities from the
+market cache. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of clusters in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></a> form.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -639,6 +668,12 @@ the entity.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt id="vmtconnect.Connection.get_entity_cluster">
+<code class="sig-name descname">get_entity_cluster</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uuid</span></em>, <em class="sig-param"><span class="n">cache</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_entity_cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the cluster an entity belongs to.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt id="vmtconnect.Connection.get_entity_groups">
 <code class="sig-name descname">get_entity_groups</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uuid</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_entity_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of groups the entity belongs to.</p>
@@ -707,11 +742,15 @@ time if blank.</p></li>
 
 <dl class="py method">
 <dt id="vmtconnect.Connection.get_group_entities">
-<code class="sig-name descname">get_group_entities</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uuid</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_group_entities" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_group_entities</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uuid</span></em>, <em class="sig-param"><span class="n">cache</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_group_entities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a detailed list of member entities that belong to the group.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Group UUID.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Group UUID.</p></li>
+<li><p><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If true, will retrieve entities from the
+market cache. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A list containing all members of the group and their related consumers.</p>
@@ -721,11 +760,15 @@ time if blank.</p></li>
 
 <dl class="py method">
 <dt id="vmtconnect.Connection.get_group_members">
-<code class="sig-name descname">get_group_members</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uuid</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_group_members" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_group_members</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uuid</span></em>, <em class="sig-param"><span class="n">cache</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_group_members" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of members that belong to the group.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Group UUID.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – Group UUID.</p></li>
+<li><p><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If true, will retrieve entities from the
+market cache. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A list containing all members of the group.</p>
@@ -756,11 +799,15 @@ time string.</p></li>
 
 <dl class="py method">
 <dt id="vmtconnect.Connection.get_groups">
-<code class="sig-name descname">get_groups</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uuid</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_groups" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_groups</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">uuid</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cache</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Connection.get_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of groups in the given market</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uuid</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Specific UUID to lookup.</p></li>
+<li><p><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – If true, will retrieve entities from the
+market cache. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A list of groups in <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.8)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></a> form.</p>
@@ -1199,7 +1246,7 @@ Pagination should be used instead.</p>
 <h4><a class="toc-backref" href="#id11">Pager</a><a class="headerlink" href="#pager" title="Permalink to this headline">¶</a></h4>
 <dl class="py class">
 <dt id="vmtconnect.Pager">
-<em class="property">class </em><code class="sig-prename descclassname">vmtconnect.</code><code class="sig-name descname">Pager</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conn</span></em>, <em class="sig-param"><span class="n">response</span></em>, <em class="sig-param"><span class="n">filter</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Pager" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">vmtconnect.</code><code class="sig-name descname">Pager</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">conn</span></em>, <em class="sig-param"><span class="n">response</span></em>, <em class="sig-param"><span class="n">filter</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filter_float</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vmtconnect.Pager" title="Permalink to this definition">¶</a></dt>
 <dd><p>API request pager class</p>
 <p>A <a class="reference internal" href="#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> is a special request handler which permits the processing
 of paged <a class="reference internal" href="#vmtconnect.Connection.request" title="vmtconnect.Connection.request"><code class="xref py py-meth docutils literal notranslate"><span class="pre">request()</span></code></a> results, keeping state between each
@@ -1594,8 +1641,8 @@ the session.</p>
 </dd></dl>
 
 <dl class="py exception">
-<dt id="vmtconnect.HTTPWarn">
-<em class="property">exception </em><code class="sig-prename descclassname">vmtconnect.</code><code class="sig-name descname">HTTPWarn</code><a class="headerlink" href="#vmtconnect.HTTPWarn" title="Permalink to this definition">¶</a></dt>
+<dt id="vmtconnect.HTTPWarning">
+<em class="property">exception </em><code class="sig-prename descclassname">vmtconnect.</code><code class="sig-name descname">HTTPWarning</code><a class="headerlink" href="#vmtconnect.HTTPWarning" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raised when an HTTP error can always be safely ignored.</p>
 </dd></dl>
 

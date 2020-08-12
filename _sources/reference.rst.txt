@@ -77,7 +77,7 @@ Exceptions
 .. autoexception:: vmtconnect.HTTP500Error
 .. autoexception:: vmtconnect.HTTP502Error
 .. autoexception:: vmtconnect.HTTP503Error
-.. autoexception:: vmtconnect.HTTPWarn
+.. autoexception:: vmtconnect.HTTPWarning
 
 |
 
