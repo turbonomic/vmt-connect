@@ -1137,10 +1137,12 @@ class Connection:
         """Returns the entities inventory from cache, populating the cache if
         necessary. The ID provided should be either a market ID, or one of the
         alternative inventory IDs:
-            - __clusters - Clusters
-            - __groups  - Groups
-            - __group_entities - Group entities
-            - __group_members - Group members
+        
+        - __clusters - Clusters
+        - __groups  - Groups
+        - __group_entities - Group entities
+        - __group_members - Group members
+
 
         Args:
             id (str): Inventory id to get cached inventory for.

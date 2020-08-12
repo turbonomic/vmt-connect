@@ -299,6 +299,27 @@ following examples.
       'stats.value'
     ]
 
+A more formal definition of the DSL is provided in the following rail-road diagrams.
+
+**Filter**
+
+.. raw:: html
+    :file: _static/rrfilter.svg
+
+|
+
+**Field**
+
+.. raw:: html
+    :file: _static/rrfield.svg
+
+|
+
+**Slice**
+
+.. raw:: html
+    :file: _static/rrslice.svg
+
 |
 
 jq Script
