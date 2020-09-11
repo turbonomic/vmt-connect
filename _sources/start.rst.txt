@@ -35,7 +35,7 @@ Python, and install the Requests_ module.
 
 * Python:
 
-  - CPython_ >= 3.5
+  - CPython_ >= 3.6
 
 * Requests_ >= 2.21.0
 
@@ -73,10 +73,10 @@ __ releases_
 Contributors
 ============
 
-Author:
+Creator and Principal Author:
   * R.A. Stern
 
-Bug fixes and QA:
+Contributors:
   * Austin Portal
   * Chris Sawtelle
   * Ray Mileo
