@@ -7,6 +7,7 @@ SPHINXBUILD   = python -msphinx
 SPHINXPROJ    = vmt-connect
 SOURCEDIR     = source
 BUILDDIR      = ../../vmt-connect-docs
+LINKCHECKDIR  = source/_build/linkcheck
 #PYTHONPATH    = ../
 
 #export PYTHONPATH
@@ -17,6 +18,9 @@ help:
 
 clean:
 	@echo "Clean disabled."
+
+linkcheck:
+	@sphinx-build -b linkcheck "$(SOURCEDIR)" "$(LINKCHECKDIR)" 
 
 .PHONY: help Makefile clean
 
