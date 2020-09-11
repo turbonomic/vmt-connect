@@ -335,6 +335,14 @@ are provided below to demonstrate the usage difference. The primary defining
 difference is that jq scripts must be provided as a single string, and not as a
 python list.
 
+.. note::
+    Jq must be installed on the host system, and the jq python module must also
+    be installed for *vmt-connect* using pip Extras. Jq is not installed or enabled
+    by default with *vmt-connect*.
+
+    Example:
+      pip install vmt-connect[jq]
+
 .. code-block:: python
     :caption: Jq style multiple keys selection
 
