@@ -5,15 +5,8 @@ from setuptools import setup, find_packages
 
 
 
-here = os.path.abspath(os.path.dirname(__file__))
-
 about = {}
-with open(os.path.join(here, 'vmtconnect', '__about__.py'), 'r') as fp:
-    exec(fp.read(), about)
-
-with open(os.path.join(here, 'README.md'), 'r') as fp:
-    readme = fp.read()
-
+here = os.path.abspath(os.path.dirname(__file__))
 requires = [
     'cryptography>=3,<4',
     'ijson>=3.1.post0,<4',
@@ -23,6 +16,14 @@ requires = [
 extra_requires = {
     'jq': ['jq>=1.0.2,<2']
 }
+
+
+with open(os.path.join(here, 'vmtconnect', '__about__.py'), 'r') as fp:
+    exec(fp.read(), about)
+
+with open(os.path.join(here, 'README.md'), 'r') as fp:
+    readme = fp.read()
+
 
 setup(
     name=about['__title__'],

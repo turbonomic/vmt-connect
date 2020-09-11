@@ -1,0 +1,12 @@
+https://tabatkins.github.io/railroad-diagrams/generator.html
+
+ComplexDiagram(
+  Comment('field'),
+  NonTerminal('string'),
+  Optional(
+    Sequence(
+      '[',
+      Choice(0, Skip(), '*', NonTerminal('slice')),
+      ']'),
+  'skip')
+ )
