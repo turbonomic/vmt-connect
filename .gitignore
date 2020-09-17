@@ -11,3 +11,4 @@ vmtconnect.egg-info
 archive
 resources
 bin
+docs/source/_build

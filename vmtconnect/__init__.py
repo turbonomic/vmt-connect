@@ -842,7 +842,7 @@ class Connection:
         return self.__version
 
     def __login(self):
-        u, p = (base64.b64decode(self.__basic_auth)).decode().split(':')
+        u, p = (base64.b64decode(self.__basic_auth)).decode().split(':', maxsplit=1)
         body = {'username': (None, u), 'password': (None, p)}
         self.request('login', 'POST', disable_hateoas=False, content_type=None, files=body, allow_redirects=False)
 
