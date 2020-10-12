@@ -10,7 +10,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 requires = [
     'cryptography>=3,<4',
     'ijson>=3.1.post0,<4',
-    'requests>=2.21.0,<3'
+    'requests>=2.24.0,<3'
 ]
 
 extra_requires = {

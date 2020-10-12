@@ -1701,8 +1701,8 @@ class Connection:
             Group object in :obj:`dict` form.
 
         See Also:
-            REST API Guide `5.9 <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_,
-            `6.0 <https://cdn.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_,
+            REST API Guide `5.9 <https://archive.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_,
+            `6.0 <https://archive.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_,
             and the `Unofficial User Guide <http://rsnyc.sdf.org/vmt/>`_.
         """
         return self.request('groups', method='POST', dto=dto)
@@ -1832,8 +1832,8 @@ class Connection:
             A list of search results.
 
         See Also:
-            REST API Guide `5.9 <https://cdn.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_,
-            `6.0 <https://cdn.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_,
+            REST API Guide `5.9 <https://archive.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_,
+            `6.0 <https://archive.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_,
             and the `Unofficial User Guide <http://rsnyc.sdf.org/vmt/>`_.
 
             Search criteria list: `http://<host>/vmturbo/rest/search/criteria`

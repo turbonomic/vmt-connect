@@ -1,6 +1,6 @@
 .. # Links
 .. _API: https://greencircle.vmturbo.com/community/products/pages/documentation
-.. _Turbonomic: http://www.turbonomic.com
+.. _Turbonomic: https://www.turbonomic.com
 
 ================
 Basic User Guide

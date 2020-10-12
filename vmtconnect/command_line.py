@@ -12,6 +12,7 @@
 # libraries
 
 import argparse
+import base64
 import json
 import os
 from pathlib import Path
@@ -32,6 +33,12 @@ def cmd():
     parser.add_argument('-c', '--credfile',
                         default='.cred',
                         help='Credential filename')
+    parser.add_argument('-u', '--username',
+                        default=None,
+                        help='Username')
+    parser.add_argument('-p', '--password',
+                        default=None,
+                        help='Password')
     parser.add_argument('-f', '--force',
                         action='store_true',
                         default=False,
@@ -41,7 +48,13 @@ def cmd():
     args = parser.parse_args()
     cred = Credential(Path(args.basepath, args.keyfile),
                       Path(args.basepath, args.credfile))
-    cred.create(overwrite=args.force)
+
+    if args.username and args.password:
+        msg = base64.b64encode(f"{args.username}:{args.password}".encode()).decode()
+    else:
+        msg = None
+
+    cred.create(message=msg, overwrite=args.force)
 
 
 
