@@ -5,8 +5,8 @@
 .. _jq: https://stedolan.github.io/jq/
 .. _jq python: https://pypi.org/project/jq/
 .. _jq script: https://stedolan.github.io/jq/manual/
-.. _Turbonomic: http://www.turbonomic.com
-.. _Requests: https://requests.readthedocs.io/
+.. _Turbonomic: https://www.turbonomic.com
+.. _Requests: https://requests.readthedocs.io/en/master/
 .. _proxies: https://requests.readthedocs.io/en/master/user/advanced/#proxies
 .. _RFC 2732: https://tools.ietf.org/html/rfc2732
 
