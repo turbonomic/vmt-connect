@@ -125,8 +125,7 @@ class Credential:
         Returns:
             Credentials in the form of a Base64 auth string.
         """
-        return self.decrypt(self.read_value(self.__key_file).decode(),
-                            self.read_value(self.__msg_file))
+        return self.decrypt(self.read_value(self.__msg_file))
 
     def get_cipher(self, key=None):
         """Returns a Fernet cipher for the given key"""

@@ -1,7 +1,7 @@
 .. # Links
-.. _CPython: http://www.python.org/
+.. _CPython: https://www.python.org/
 .. _PyPi: http://pypi.org/
-.. _Requests: http://docs.python-requests.org/en/master/
+.. _Requests: https://requests.readthedocs.io/en/master/
 .. _IronPython: http://http://ironpython.net/
 .. _GitHub: https://github.com/turbonomic/vmt-connect
 .. _releases: https://github.com/turbonomic/vmt-connect/releases
