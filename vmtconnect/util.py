@@ -227,3 +227,5 @@ def to_defaultdict(factory, data):
 
     if isinstance(data, list):
         return [to_defaultdict(factory, v) for v in data]
+
+    return data
