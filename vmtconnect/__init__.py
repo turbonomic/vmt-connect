@@ -19,7 +19,9 @@ from copy import deepcopy
 import datetime
 import json
 import math
+import os
 import re
+import sys
 import warnings
 
 import requests
@@ -113,6 +115,15 @@ _exp_type = {
     '<': 'LT',
     '<=': 'LTE'
 }
+
+ENV = {}
+GLOBAL_ENV = 'vmtconnect.env'
+SCRIPT_ENV = None
+
+try:
+    SCRIPT_ENV = os.path.splitext(sys.argv[0])[0] + '.env'
+except Exception:
+    pass
 
 
 
@@ -495,7 +506,7 @@ class Pager:
         **kwargs: Additional :py:class:`requests.Request` keyword arguments.
 
     Attributes:
-        all (list): Collect and list of all responses combined.
+        all (list): Collect and list all responses combined.
         complete (bool): Flag indicating the cursor has been exhausted.
         next (list): Next response object. Calling this
             updates the :py:class:`~Pager` internal state.
@@ -517,6 +528,11 @@ class Pager:
         Some versions of Turbonomic have endpoints that return malformed, or
         non-working pagination headers. These are chiefly XL versions prior to
         7.21.2.
+
+        It is possible a cursor may expire before you've processed all results
+        for extremely large sets. A :py:class:`VMTNextCursorMissingError` will
+        be returned when the cursor is no longer availble. Therefore, you should
+        always catch this error type when working with a :py:class:`~Pager`.
     """
     def __init__(self, conn, response, filter=None, filter_float=False, **kwargs):
         self.__conn = conn
@@ -701,7 +717,7 @@ class Connection:
         side certificates using **cert**: the private key to your local certificate
         must be unencrypted. Currently, Requests, which vmt-connect relies on,
         does not support using encrypted keys. Requests uses certificates from
-        the package certifi.
+        the package certifi which should be kept up to date.
 
         The /api/v2 path was added in 6.4, and the /api/v3 path was added in XL
         branch 7.21. The XL API is not intended to be an extension of the Classic
@@ -749,6 +765,8 @@ class Connection:
         # we have a circular dependency:
         #   we need to know the version to know which base path to use
         #   we need the base path to query the version
+        # vmtconnect will attempt to resolve this by trying all known base paths
+        # until the correct one is found, or fail if it cannot sort it out
         self.__use_session(use_session)
         self.base_path = self.__resolve_base_path(base_url)
 
@@ -769,7 +787,7 @@ class Connection:
         except HTTPError:
             if self.last_response.status_code == 301 and self.protocol == 'http' \
             and self.last_response.headers.get('Location', '').startswith('https'):
-                msg = 'HTTP 301 Redirect to HTTPS detected using HTTP protocol, forcing to HTTPS'
+                msg = 'HTTP 301 Redirect to HTTPS detected when using HTTP, switching to HTTPS'
                 warnings.warn(msg, HTTPWarning)
                 self.protocol = 'https'
                 self.__login()
@@ -778,7 +796,7 @@ class Connection:
         except HTTP401Error:
             raise
         except Exception as e:
-            # because classic accepts encoded credentials, we'll manually attach here
+            # because classic accepts encoded credentials, we'll try manually attach here
             self.headers.update(
                 {'Authorization': f'Basic {self.__basic_auth.decode()}'}
             )
@@ -796,7 +814,7 @@ class Connection:
 
         # for inventory caching - used to prevent thrashing the API with
         # repeated calls for full inventory lookups within some expensive calls
-        # <!> deprecated
+        # <!> deprecated due to pagination and XL
         self.__inventory_cache_timeout = 600
         self.__inventory_cache = {'Market': {'data': None,
                                              'expires': datetime.datetime.now()
@@ -1701,9 +1719,7 @@ class Connection:
             Group object in :obj:`dict` form.
 
         See Also:
-            REST API Guide `5.9 <https://archive.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_,
-            `6.0 <https://archive.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_,
-            and the `Unofficial User Guide <http://rsnyc.sdf.org/vmt/>`_.
+            https://turbonomic.github.io/vmt-connect/start.html#turbonomic-rest-api-guides
         """
         return self.request('groups', method='POST', dto=dto)
 
@@ -1832,9 +1848,7 @@ class Connection:
             A list of search results.
 
         See Also:
-            REST API Guide `5.9 <https://archive.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_,
-            `6.0 <https://archive.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_,
-            and the `Unofficial User Guide <http://rsnyc.sdf.org/vmt/>`_.
+            https://turbonomic.github.io/vmt-connect/start.html#turbonomic-rest-api-guides
 
             Search criteria list: `http://<host>/vmturbo/rest/search/criteria`
         """
@@ -1991,3 +2005,23 @@ class VMTConnection(Session):
 def enumerate_stats(data, entity=None, period=None, stat=None):
     """Provided as an alias for backwards compatibility only."""
     return util.enumerate_stats(data, entity, period, stat)
+
+
+def __register_env(data):
+    for k, v in data.items():
+        try:
+            ENV[k] = v
+        except Exception as e:
+            pass
+
+
+
+# ----------------------------------------------------
+#  Load local environments if found
+# ----------------------------------------------------
+for file in [GLOBAL_ENV, SCRIPT_ENV]:
+    try:
+        with open(file, 'r') as fp:
+            __register_env(json.load(fp))
+    except Exception as e:
+        pass

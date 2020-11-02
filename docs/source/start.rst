@@ -83,6 +83,18 @@ Contributors:
   * Ryan Geyer
 
 
+Turbonomic REST API Guides
+==========================
+
+The following published user guides are available to aid in developing against
+the Turbonomic API. Additional resources are availble at https://docs.turbonomic.com/.
+
+  * `XL 8.0.1 <https://docs.turbonomic.com/docApp/doc/index.html?config=8.0.json#!/MAPPED&DEFAULT_DEDICATED_XL&showToc=1>_`
+  * `XL 7.22.2 <https://docs.turbonomic.com/pdfdocs/Turbonomic_User_Guide_7.21.2.pdf>_`
+  * `Unofficial User Guide <http://rsnyc.sdf.org/vmt/>`_ for 6.0.
+  * `6.0 <https://archive.turbonomic.com/wp-content/uploads/docs/Turbonomic_REST_API_PRINT_60.pdf>`_
+  * `5.9 <https://archive.turbonomic.com/wp-content/uploads/docs/VMT_REST2_API_PRINT.pdf>`_
+
 License
 =======
 
