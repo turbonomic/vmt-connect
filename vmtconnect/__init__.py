@@ -1409,7 +1409,7 @@ class Connection:
                 pms = self.get_group_entities(c['uuid'], **kwargs)
                 for p in pms:
                     if uuid == p['uuid']:
-                        return p
+                        return c
 
                     for vm in p.get('consumers', []):
                         if uuid == vm['uuid']:
