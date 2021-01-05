@@ -254,7 +254,7 @@ class Version:
         return self.version
 
     def __repr__(self):
-        return self.version
+        return self._version
 
     @staticmethod
     def map_version(name, version):
@@ -277,19 +277,20 @@ class Version:
         ver['snapshot'] = bool(extra)
 
         for x in fields:
+            label = x
+
             if x in ('version', 'build', 'branch'):
-                label = 'base_' + x
-            else:
-                label = x
+                label = 'base_' + label
 
             ver[label] = obj.get(x)
+
             try:
                 ver[label] = ver[label].rstrip(snapshot)
 
+                # late detection for build errors where the snapshot tag is
+                # getting added or simply not removed in some places
+                # observed in CWOM and Turbo builds.
                 if snapshot in obj.get(x):
-                    # late detection for build errors where the snapshot tag is
-                    # getting added or simply not removed in some places
-                    # observed in CWOM and Turbo builds.
                     ver['snapshot'] = True
 
                 ver[label] = ver[label].rstrip(extra)
@@ -309,11 +310,14 @@ class Version:
                                           versions.names[ver['product']],
                                           ver['version'])
 
+        ver['_version'] = serialize_version(ver['base_version'])
         ver['components'] = obj['versionInfo'].rstrip(sep).split(sep)
         # for manual XL detection, or other feature checking
-        ver['base_major'] = int(ver['base_version'].split('.')[0])
-        ver['base_minor'] = int(ver['base_version'].split('.')[1])
-        ver['base_patch'] = int(ver['base_version'].split('.')[2])
+        comps = ver['base_version'].split('.')
+        ver['base_major'] = int(comps[0])
+        ver['base_minor'] = int(comps[1])
+        ver['base_patch'] = int(comps[2])
+        ver['base_extra'] = int(comps[3]) if len(comps) > 3 else 0
 
         # XL platform specific detection
         if 'action-orchestrator: ' in obj['versionInfo'] and ver['base_major'] >= 7:
@@ -380,32 +384,24 @@ class VersionSpec:
 
     @staticmethod
     def str_to_ver(string):
-        string = string.strip('+')
+        try:
+            string = string.strip('+')
 
-        if not re.search(r'[\d.]+\d+', string) or \
-           not string.replace('.', '').isdigit():
+            return serialize_version(string)
+        except Exception:
             msg = 'Unrecognized version format. ' \
                   f"This may be due to a broken snapshot build: {string}"
             raise VMTFormatError()
 
-        return string.split('.')
-
     @staticmethod
     def cmp_ver(a, b):
-        def pad(data, min=3):
-            while len(data) < 3:
-                data.append(0)
+        a = VersionSpec.str_to_ver(a)
+        b = VersionSpec.str_to_ver(b)
 
-            return data
-
-        a1 = pad(VersionSpec.str_to_ver(a), 3)
-        b1 = pad(VersionSpec.str_to_ver(b), 3)
-
-        for x in range(0, len(a1)):
-            if int(a1[x]) > int(b1[x]):
-                return 1
-            if int(a1[x]) < int(b1[x]):
-                return -1
+        if int(a) > int(b):
+            return 1
+        elif int(a) < int(b):
+            return -1
 
         return 0
 
@@ -1409,7 +1405,7 @@ class Connection:
                 pms = self.get_group_entities(c['uuid'], **kwargs)
                 for p in pms:
                     if uuid == p['uuid']:
-                        return p
+                        return c
 
                     for vm in p.get('consumers', []):
                         if uuid == vm['uuid']:
@@ -2013,6 +2009,19 @@ def __register_env(data):
             ENV[k] = v
         except Exception as e:
             pass
+
+
+def serialize_version(string, delim='.', minlen=4):
+    comps = string.split(delim)
+    serial = ''
+
+    for x in range(minlen):
+        try:
+            serial += comps[x] if x < 1 else f"{int(comps[x]):>02d}"
+        except IndexError:
+            serial += '00'
+
+    return serial
 
 
 
