@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Developer Interfaces &mdash; vmt-connect 3.5.0 documentation</title>
+  <title>Developer Interfaces &mdash; vmt-connect 3.5.1 documentation</title>
   
 
   
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                3.5.0
+                3.5.1
               </div>
             
           
@@ -241,7 +241,7 @@
 method also supports a per call <strong>fetch_all</strong> flag, as well as a <strong>pager</strong> flag.
 Each of these override the connection global property, and will be safely
 ignored if the endpoint does not support, or does not require paging the
-results. Additionally, you may pass <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.24.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a> keyword
+results. Additionally, you may pass <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a> keyword
 arguments to each call if required (e.g. <a class="reference external" href="https://requests.readthedocs.io/en/master/user/quickstart/#timeouts">timeout</a>).
 Care should be taken, as some parameters will break <em>vmt-connect</em> calls if they
 conflict with existing headers, or alter expected results.</p>
@@ -263,8 +263,8 @@ may be used in place of a <code class="docutils literal notranslate"><span class
 <li><p><strong>verify</strong> (<em>string</em><em>, </em><em>optional</em>) – SSL certificate bundle path. (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
 <li><p><strong>cert</strong> (<em>string</em><em>, </em><em>optional</em>) – Local client side certificate file.</p></li>
 <li><p><strong>headers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em>, </em><em>optional</em>) – Dicitonary of additional persistent headers.</p></li>
-<li><p><strong>use_session</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, a <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Session" title="(in Requests v2.24.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Session</span></code></a>
-will be created, otherwise individual <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.24.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a>
+<li><p><strong>use_session</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, a <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Session" title="(in Requests v2.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Session</span></code></a>
+will be created, otherwise individual <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a>
 calls will be made. (default: <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p></li>
 <li><p><strong>proxies</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary of proxy definitions.</p></li>
 </ul>
@@ -310,7 +310,7 @@ calls will be made. (default: <code class="docutils literal notranslate"><span c
 received.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Response" title="(in Requests v2.24.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Response" title="(in Requests v2.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1077,7 +1077,7 @@ This overrides results_limit, if it is also set.</p></li>
 <li><p><strong>nocache</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>, </em><em>optional</em>) – If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, responses will not be
 cached in the <a class="reference internal" href="#vmtconnect.Connection.last_response" title="vmtconnect.Connection.last_response"><code class="xref py py-attr docutils literal notranslate"><span class="pre">last_response</span></code></a> attribute.
 (default: <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
-<li><p><strong>**kwargs</strong> – Additional <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.24.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a> keyword arguments.</p></li>
+<li><p><strong>**kwargs</strong> – Additional <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a> keyword arguments.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1254,11 +1254,11 @@ existing <a class="reference internal" href="#vmtconnect.Connection" title="vmtc
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>conn</strong> (<a class="reference internal" href="#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a>) – Connection object to associate the pager
 to.</p></li>
-<li><p><strong>response</strong> (<a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Response" title="(in Requests v2.24.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code></a>) – Requests <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Response" title="(in Requests v2.24.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code></a>
+<li><p><strong>response</strong> (<a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Response" title="(in Requests v2.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code></a>) – Requests <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Response" title="(in Requests v2.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Response</span></code></a>
 object to build the pager from. This must be the object, and not the
 JSON parsed output.</p></li>
 <li><p><strong>filter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Filter to apply to results.</p></li>
-<li><p><strong>**kwargs</strong> – Additional <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.24.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a> keyword arguments.</p></li>
+<li><p><strong>**kwargs</strong> – Additional <a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a> keyword arguments.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1346,7 +1346,7 @@ updates the <a class="reference internal" href="#vmtconnect.Pager" title="vmtcon
 <dd><p>Most recent response object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.24.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://requests.readthedocs.io/en/master/api/#requests.Request" title="(in Requests v2.25.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">requests.Request</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
