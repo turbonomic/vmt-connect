@@ -210,7 +210,6 @@ def filter_copy(source, filter, size=500, use_float=False):
     return out
 
 
-
 def to_defaultdict(factory, data):
     """
     Convert a list or dictionary to a defaultdict object
@@ -229,3 +228,7 @@ def to_defaultdict(factory, data):
         return [to_defaultdict(factory, v) for v in data]
 
     return data
+
+
+def str_to_bool(str):
+    return str.lower() in ('yes', 'true', 'y', 't', '1')
