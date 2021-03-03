@@ -18,6 +18,14 @@ import re
 
 
 
+_template_resources = [
+    'computeResources',
+    'infrastructureResources',
+    'storageResources'
+]
+
+
+
 def enumerate_stats(data, entity=None, period=None, stat=None):
     """Enumerates stats endpoint results
 
@@ -60,6 +68,49 @@ def enumerate_stats(data, entity=None, period=None, stat=None):
                 if stat is not None and not stat(v3):
                     continue
                 yield v2['date'], v3
+
+
+def enumerate_template_resources(data, restype=None, res=None):
+    """Enumerates template commodities
+
+    Provides an iterator for more intuitive and cleaner parsing of nested
+    template resource data. Each iteration returns a tuple containing the
+    resource type, as well as the next resource entry as a dictionary.
+
+    Args:
+        data (list): Template data to parse.
+        restype (function, optional): Optional resource type level filter function.
+        res (function, optional): Optional resource level filter function.
+
+    Notes:
+        Filter functions must return ``True``, to continue processing, or ``False``
+        to skip processing the current level element.
+
+    Examples:
+        .. code-block:: python
+
+            # filter stats for a single type
+            desired_res = 'computeResources'
+            enumerate_template_resources(data, restype=lambda x: x == desired_res)
+
+            # filter specific stats for all IDs
+            blacklist = ['diskConsumedFactor']
+            enumerate_template_resources(data, res=lambda x: x['name'] not in blacklist)
+    """
+    if isinstance(data, list):
+        data = data[0]
+
+    for r in _template_resources:
+        if restype is not None and not restype(r):
+            continue
+
+        try:
+            for k1, v1 in enumerate(data[r][0]['stats']):
+                if res is not None and not res(v1):
+                    continue
+                yield r, v1
+        except KeyError:
+            pass
 
 
 def unit_cast(value, ufrom, uto, factor, unit_list, precision=False):
