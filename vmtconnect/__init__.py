@@ -1,4 +1,4 @@
-# Copyright 2017-2020 R.A. Stern
+# Copyright 2017-2021 R.A. Stern
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -857,8 +857,12 @@ class Connection:
 
     def __login(self):
         u, p = (base64.b64decode(self.__basic_auth)).decode().split(':', maxsplit=1)
-        body = {'username': (None, u), 'password': (None, p)}
-        self.request('login', 'POST', disable_hateoas=False, content_type=None, files=body, allow_redirects=False)
+        self.request('login',
+                     'POST',
+                     disable_hateoas=False,
+                     content_type=None,
+                     files={'username': (None, u), 'password': (None, p)},
+                     allow_redirects=False)
 
     def __use_session(self, value):
         if value:
@@ -1410,6 +1414,17 @@ class Connection:
                     for vm in p.get('consumers', []):
                         if uuid == vm['uuid']:
                             return c
+
+    def get_entity_actions(self, uuid=None, **kwargs):
+        """Returns a list of entity actions.
+
+        Args:
+            uuid (str): Entity UUID.
+
+        Returns:
+            A list containing all actions for the given the entity.
+        """
+        return self.request(f'entities/{uuid}/actions', **kwargs)
 
     def get_entity_groups(self, uuid, **kwargs):
         """Returns a list of groups the entity belongs to.
