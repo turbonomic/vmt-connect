@@ -65,7 +65,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'vmt-connect'
-copyright = u'2017-2020'
+copyright = u'2017-2021'
 author = u'R.A. Stern'
 
 # The version info for the project you're documenting, acts as replacement for
