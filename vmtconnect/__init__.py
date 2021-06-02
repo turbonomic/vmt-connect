@@ -1071,7 +1071,7 @@ class Connection:
             except KeyError:
                 pass
 
-        if isinstance(query, str):
+        if query and isinstance(query, str):
             msg = 'Query parameters should be passed in as a dictionary.'
             warnings.warn(msg, DeprecationWarning)
 
