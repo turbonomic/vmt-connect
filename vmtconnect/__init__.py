@@ -1176,7 +1176,7 @@ class Connection:
             elif id == '__group_members':
                 self.__inventory_cache[id]['data'] = self.request(f'groups/{uuid}/members', **kwargs)
             else:
-                self.__inventory_cache[id]['data'] = self.request(f'markets/{id}/entities', fetch_all=True, **kwargs)
+                self.__inventory_cache[id]['data'] = self.request(f'markets/{uuid}/entities', fetch_all=True, **kwargs)
 
             delta = datetime.timedelta(seconds=self.__inventory_cache_timeout)
             self.__inventory_cache[id]['expires'] = datetime.datetime.now() + delta
@@ -1415,7 +1415,7 @@ class Connection:
                         if uuid == vm['uuid']:
                             return c
 
-    def get_entity_actions(self, uuid=None, **kwargs):
+    def get_entity_actions(self, uuid, **kwargs):
         """Returns a list of entity actions.
 
         Args:
@@ -1526,7 +1526,7 @@ class Connection:
 
         return self.request('groups', uuid=uuid, **kwargs)
 
-    def get_group_actions(self, uuid=None, **kwargs):
+    def get_group_actions(self, uuid, **kwargs):
         """Returns a list of group actions.
 
         Args:
@@ -1668,6 +1668,17 @@ class Connection:
             A list containing targets in :obj:`dict` form.
         """
         return self.request('targets', uuid=uuid, **kwargs)
+
+    def get_target_actions(self, uuid, **kwargs):
+        """Returns a list actions on a target.
+
+        Args:
+            uuid (str): Entity UUID.
+
+        Returns:
+            A list containing all actions for entities of the given the target.
+        """
+        return self.request(f'targets/{uuid}/actions', **kwargs)
 
     def get_target_for_entity(self, uuid=None, name=None,
                               type='VirtualMachine', **kwargs):
