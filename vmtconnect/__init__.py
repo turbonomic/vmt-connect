@@ -1,4 +1,4 @@
-# Copyright 2017-2020 R.A. Stern
+# Copyright 2017-2021 R.A. Stern
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -657,7 +657,7 @@ class Connection:
     Each of these override the connection global property, and will be safely
     ignored if the endpoint does not support, or does not require paging the
     results. Additionally, you may pass :py:class:`requests.Request` keyword
-    arguments to each call if required (e.g. `timeout <https://requests.readthedocs.io/en/master/user/quickstart/#timeouts>`_).
+    arguments to each call if required (e.g. `timeout <https://docs.python-requests.org/en/master/user/quickstart/#timeouts>`_).
     Care should be taken, as some parameters will break *vmt-connect* calls if they
     conflict with existing headers, or alter expected results.
 
@@ -857,8 +857,12 @@ class Connection:
 
     def __login(self):
         u, p = (base64.b64decode(self.__basic_auth)).decode().split(':', maxsplit=1)
-        body = {'username': (None, u), 'password': (None, p)}
-        self.request('login', 'POST', disable_hateoas=False, content_type=None, files=body, allow_redirects=False)
+        self.request('login',
+                     'POST',
+                     disable_hateoas=False,
+                     content_type=None,
+                     files={'username': (None, u), 'password': (None, p)},
+                     allow_redirects=False)
 
     def __use_session(self, value):
         if value:
@@ -1067,7 +1071,7 @@ class Connection:
             except KeyError:
                 pass
 
-        if isinstance(query, str):
+        if query and isinstance(query, str):
             msg = 'Query parameters should be passed in as a dictionary.'
             warnings.warn(msg, DeprecationWarning)
 
@@ -1172,7 +1176,7 @@ class Connection:
             elif id == '__group_members':
                 self.__inventory_cache[id]['data'] = self.request(f'groups/{uuid}/members', **kwargs)
             else:
-                self.__inventory_cache[id]['data'] = self.request(f'markets/{id}/entities', fetch_all=True, **kwargs)
+                self.__inventory_cache[id]['data'] = self.request(f'markets/{uuid}/entities', fetch_all=True, **kwargs)
 
             delta = datetime.timedelta(seconds=self.__inventory_cache_timeout)
             self.__inventory_cache[id]['expires'] = datetime.datetime.now() + delta
@@ -1411,6 +1415,17 @@ class Connection:
                         if uuid == vm['uuid']:
                             return c
 
+    def get_entity_actions(self, uuid, **kwargs):
+        """Returns a list of entity actions.
+
+        Args:
+            uuid (str): Entity UUID.
+
+        Returns:
+            A list containing all actions for the given the entity.
+        """
+        return self.request(f'entities/{uuid}/actions', **kwargs)
+
     def get_entity_groups(self, uuid, **kwargs):
         """Returns a list of groups the entity belongs to.
 
@@ -1511,7 +1526,7 @@ class Connection:
 
         return self.request('groups', uuid=uuid, **kwargs)
 
-    def get_group_actions(self, uuid=None, **kwargs):
+    def get_group_actions(self, uuid, **kwargs):
         """Returns a list of group actions.
 
         Args:
@@ -1653,6 +1668,17 @@ class Connection:
             A list containing targets in :obj:`dict` form.
         """
         return self.request('targets', uuid=uuid, **kwargs)
+
+    def get_target_actions(self, uuid, **kwargs):
+        """Returns a list actions on a target.
+
+        Args:
+            uuid (str): Entity UUID.
+
+        Returns:
+            A list containing all actions for entities of the given the target.
+        """
+        return self.request(f'targets/{uuid}/actions', **kwargs)
 
     def get_target_for_entity(self, uuid=None, name=None,
                               type='VirtualMachine', **kwargs):

@@ -9,12 +9,12 @@ about = {}
 here = os.path.abspath(os.path.dirname(__file__))
 requires = [
     'cryptography>=3,<4',
-    'ijson>=3.1.post0,<4',
-    'requests>=2.24.0,<3'
+    'ijson>=3.1.4,<4',
+    'requests>=2.25.1,<3'
 ]
 
 extra_requires = {
-    'jq': ['jq>=1.0.2,<2']
+    'jq': ['jq>=1.1.3,<2']
 }
 
 

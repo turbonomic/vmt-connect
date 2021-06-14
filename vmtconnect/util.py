@@ -13,7 +13,7 @@
 from collections import defaultdict
 from copy import deepcopy
 from decimal import Decimal
-from io import StringIO
+from io import StringIO, BytesIO
 import re
 
 
@@ -237,7 +237,8 @@ def filter_copy(source, filter, size=500, use_float=False):
     out = [None] * size
     idx = 0
 
-    for x in ijson.items(StringIO(source), 'item', use_float=use_float):
+    # to remove ijson BytesIO warning
+    for x in ijson.items(BytesIO(source.encode('utf-8')), 'item', use_float=use_float):
         if idx >= len(out):
             out.extend([None] * size)
 
