@@ -657,7 +657,7 @@ class Connection:
     Each of these override the connection global property, and will be safely
     ignored if the endpoint does not support, or does not require paging the
     results. Additionally, you may pass :py:class:`requests.Request` keyword
-    arguments to each call if required (e.g. `timeout <https://requests.readthedocs.io/en/master/user/quickstart/#timeouts>`_).
+    arguments to each call if required (e.g. `timeout <https://docs.python-requests.org/en/master/user/quickstart/#timeouts>`_).
     Care should be taken, as some parameters will break *vmt-connect* calls if they
     conflict with existing headers, or alter expected results.
 

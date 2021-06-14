@@ -1,14 +1,14 @@
 .. # Links
-.. _API: https://greencircle.vmturbo.com/community/products/pages/documentation
+.. _API: https://support-turbonomic.force.com/TurbonomicCustomerCommunity/s/documentation
 .. _cryptography: https://pypi.org/project/cryptography/
 .. _Fernet: https://github.com/fernet/spec/blob/master/Spec.md
 .. _jq: https://stedolan.github.io/jq/
 .. _jq python: https://pypi.org/project/jq/
 .. _jq script: https://stedolan.github.io/jq/manual/
 .. _Turbonomic: https://www.turbonomic.com
-.. _Requests: https://requests.readthedocs.io/en/master/
-.. _proxies: https://requests.readthedocs.io/en/master/user/advanced/#proxies
-.. _RFC 2732: https://tools.ietf.org/html/rfc2732
+.. _Requests: https://docs.python-requests.org/en/master/
+.. _proxies: https://docs.python-requests.org/en/master/user/advanced/#proxies
+.. _RFC 2732: https://datatracker.ietf.org/doc/html/rfc2732
 
 ==============
 Advanced Usage
