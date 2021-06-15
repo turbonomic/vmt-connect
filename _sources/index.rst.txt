@@ -2,7 +2,7 @@
    sphinx-quickstart on Tue Jul 18 10:49:54 2017.
 
 .. # Links
-.. _APIs: https://greencircle.vmturbo.com/community/products/pages/documentation
+.. _APIs: https://support-turbonomic.force.com/TurbonomicCustomerCommunity/s/documentation
 .. _Turbonomic: https://www.turbonomic.com
 
 ==================================

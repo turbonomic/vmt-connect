@@ -1,5 +1,5 @@
 .. # Links
-.. _API: https://greencircle.vmturbo.com/community/products/pages/documentation
+.. _API: https://support-turbonomic.force.com/TurbonomicCustomerCommunity/s/documentation
 .. _Turbonomic: https://www.turbonomic.com
 
 ================

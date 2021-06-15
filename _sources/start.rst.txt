@@ -1,11 +1,11 @@
 .. # Links
 .. _CPython: https://www.python.org/
 .. _PyPi: http://pypi.org/
-.. _Requests: https://requests.readthedocs.io/en/master/
+.. _Requests: https://docs.python-requests.org/en/master/
 .. _IronPython: http://http://ironpython.net/
 .. _GitHub: https://github.com/turbonomic/vmt-connect
 .. _releases: https://github.com/turbonomic/vmt-connect/releases
-.. _Apache 2.0: https://github.com/turbonomic/vmt-connect/blob/master/LICENSE
+.. _Apache 2.0: https://www.apache.org/licenses/LICENSE-2.0.txt
 .. _Turbonomic: https://www.turbonomic.com
 
 ===============
@@ -63,7 +63,7 @@ However, you may find it more useful to alias the import
 Source Code
 ===========
 
-*vmt-connect* is now an official Turbonomic_ Open Source project. The source code
+*vmt-connect* is an official Turbonomic_ Open Source project. The source code
 continues to be hosted on GitHub_.
 
 Individual release archives may be found `here`__.
@@ -87,8 +87,9 @@ Turbonomic REST API Guides
 ==========================
 
 The following published user guides are available to aid in developing against
-the Turbonomic API. Additional resources are availble at https://docs.turbonomic.com/.
+the Turbonomic REST API. Additional resources are available on the `Turbonomic Documentation <https://support-turbonomic.force.com/TurbonomicCustomerCommunity/s/documentation>`_ website.
 
+  * `XL 8.1.0 <https://docs.turbonomic.com/pdfdocs/Turbonomic_API_PRINT_8.1.0.pdf>`_
   * `XL 8.0.1 <https://docs.turbonomic.com/docApp/doc/index.html?config=8.0.json#!/MAPPED&DEFAULT_DEDICATED_XL&showToc=1>`_
   * `XL 7.22.2 <https://docs.turbonomic.com/pdfdocs/Turbonomic_User_Guide_7.21.2.pdf>`_
   * `Unofficial User Guide <http://rsnyc.sdf.org/vmt/>`_ for 6.0.
@@ -99,4 +100,4 @@ License
 =======
 
 *vmt-connect* is distributed under the `Apache 2.0`_ software license, which may
-also be obtained from the Apache Software Foundation, http://www.apache.org/licenses/LICENSE-2.0
+also be obtained from the Apache Software Foundation, https://www.apache.org/licenses/LICENSE-2.0.txt

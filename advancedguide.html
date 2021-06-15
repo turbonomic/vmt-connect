@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Advanced Usage &mdash; vmt-connect 3.5.2 documentation</title>
+  <title>Advanced Usage &mdash; vmt-connect 3.6.0 documentation</title>
   
 
   
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                3.5.2
+                3.6.0
               </div>
             
           
@@ -192,7 +192,7 @@ username and password joined by a colon (:).</p>
 <p>The <cite>host</cite> parameter defaults to the string literal <code class="docutils literal notranslate"><span class="pre">localhost</span></code> for convenience
 when working with code that will live on the Turbonomic control instance itself.
 If using an IPv6 address, you will need to provide the requisite square brackets
-surrounding the address as defined in <a class="reference external" href="https://tools.ietf.org/html/rfc2732">RFC 2732</a>.</p>
+surrounding the address as defined in <a class="reference external" href="https://datatracker.ietf.org/doc/html/rfc2732">RFC 2732</a>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># all of these are equivalent</span>
 <span class="n">auth</span> <span class="o">=</span> <span class="s1">&#39;...&#39;</span>
 <span class="n">vmt</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="n">auth</span><span class="p">)</span>                <span class="c1"># &#39;localhost&#39;</span>
@@ -201,7 +201,7 @@ surrounding the address as defined in <a class="reference external" href="https:
 </pre></div>
 </div>
 <p>Additional HTTP headers may be provided using the <cite>headers</cite> parameters. Headers
-must be supplied in a format compatible with <a class="reference external" href="https://requests.readthedocs.io/en/master/">Requests</a>. Any headers supplied
+must be supplied in a format compatible with <a class="reference external" href="https://docs.python-requests.org/en/master/">Requests</a>. Any headers supplied
 in this manner will be attached to all requests sent. If you require specific
 headers for a specific call, you may attach headers to the  individual query
 directly.</p>
@@ -213,7 +213,7 @@ directly.</p>
 <span class="n">vmt</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="s1">&#39;...&#39;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">customheaders</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Like headers, Requests <a class="reference external" href="https://requests.readthedocs.io/en/master/user/advanced/#proxies">proxies</a> are also supported in the proper format, and
+<p>Like headers, Requests <a class="reference external" href="https://docs.python-requests.org/en/master/user/advanced/#proxies">proxies</a> are also supported in the proper format, and
 are passed to the <cite>proxies</cite> parameter.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">proxies</span> <span class="o">=</span> <span class="p">{</span>
   <span class="s1">&#39;http&#39;</span><span class="p">:</span> <span class="s1">&#39;http://10.10.1.10:3128&#39;</span><span class="p">,</span>
@@ -1170,7 +1170,7 @@ turboauth -b .secret -k .key -c user.cred
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2017-2020
+        &copy; Copyright 2017-2021
 
     </p>
   </div>
