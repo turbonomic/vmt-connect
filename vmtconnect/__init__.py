@@ -612,7 +612,8 @@ class Pager:
         except (ValueError, KeyError):
             self._complete()
 
-        res = self.filtered_response if self.__filter else self.__response.json()
+        #res = self.filtered_response if self.__filter else self.__response.json()
+        res = self.response
         self.__conn.cookies = self.__response.cookies
         self.page += 1
         self.records = len(res)
@@ -628,8 +629,8 @@ class Pager:
         else:
             self._complete()
 
-        if self.__filter:
-            self.__response = None
+        #if self.__filter:
+        #    self.__response = None
 
         return [res] if isinstance(res, dict) else res
 
@@ -645,7 +646,11 @@ class Pager:
 
     @property
     def response(self):
-        res = self.__response.json()
+        if self.__filter:
+            res = self.filtered_response
+        else:
+            res = self.__response.json()
+
         return [res] if isinstance(res, dict) else res
 
 
