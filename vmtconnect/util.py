@@ -14,6 +14,7 @@ from collections import defaultdict
 from copy import deepcopy
 from decimal import Decimal
 from io import StringIO, BytesIO
+import json
 import re
 
 
@@ -220,10 +221,10 @@ def filter_copy(source, filter, size=500, use_float=False):
 
     if isinstance(filter, str):
         import jq
-        jq = True
+        _jq = True
         use_float = True
     elif isinstance(filter, list):
-        jq = False
+        _jq = False
 
     def apply(_s, _f):
         _out = {}
@@ -237,29 +238,21 @@ def filter_copy(source, filter, size=500, use_float=False):
     out = [None] * size
     idx = 0
 
-    # to remove ijson BytesIO warning
-    for x in ijson.items(BytesIO(source.encode('utf-8')), 'item', use_float=use_float):
-        if idx >= len(out):
-            out.extend([None] * size)
+    if not _jq:
+        # to remove ijson BytesIO warning
+        for x in ijson.items(BytesIO(source.encode('utf-8')), 'item', use_float=use_float):
+            if idx >= len(out):
+                out.extend([None] * size)
 
-        if jq:
-            out[idx] = deepcopy(jq.all(filter, x))
-        else:
             out[idx] = deepcopy(apply(x, filter))
+            idx += 1
 
-        idx += 1
+        del out[idx:]
 
-    if idx == 0:
-        if jq:
-            out[idx] = deepcopy(jq.all(filter, json.loads(source)))
-        else:
-            out[0] = deepcopy(apply(json.loads(source), filter))
+        return out
 
-        idx = 1
-
-    del out[idx:]
-
-    return out
+    else:
+        return deepcopy(jq.compile(filter).input(text=source).first())
 
 
 def to_defaultdict(factory, data):
