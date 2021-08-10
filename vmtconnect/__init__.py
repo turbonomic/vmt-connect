@@ -68,6 +68,7 @@ __all__ = [
 _entity_filter_class = {
     'application': 'Application',
     'applicationserver': 'ApplicationServer',
+    'businessapplication': 'BusinessApplication',
     'database': 'Database',
     'db': 'Database',                       # for convenience
     'ds': 'Storage',                        # for convenience
@@ -91,6 +92,7 @@ _entity_filter_class = {
 _class_filter_prefix = {
     'Application': 'apps',
     'ApplicationServer': 'appSrvs',
+    'BusinessApplication': 'busApps',
     'Database': 'database',
     'DiskArray': 'diskarray',
     'Cluster': 'clusters',
