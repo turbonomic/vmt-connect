@@ -379,10 +379,11 @@ class VersionSpec:
         self.allow_snapshot = snapshot
         self.cmp_base = cmp_base
 
-        try:
-            self.versions.sort()
-        except AttributeError:
-            raise VMTFormatError('Invalid input format')
+        if required:
+            try:
+                self.versions.sort()
+            except AttributeError:
+                raise VMTFormatError('Invalid input format')
 
     @staticmethod
     def str_to_ver(string):
