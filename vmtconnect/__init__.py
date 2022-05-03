@@ -559,7 +559,7 @@ class Pager:
 
         if 'cursor' in partial:
             self.__resource, self.__query = partial.split('?', 1)
-            self.__query = re.sub(r'(?<=\?|&)cursor=([\d]+)', f"cursor={self.__next}", self.__query)
+            self.__query = re.sub(r'(?<=\?|&)cursor=(.+?)(?![^&])', f"cursor={self.__next}", self.__query)
         else:
             try:
                 self.__resource, self.__query = partial.split('?', 1)
