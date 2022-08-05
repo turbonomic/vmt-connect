@@ -1103,6 +1103,8 @@ class Connection:
             res = util.filter_copy(self.last_response.content.decode(),
                                    filter,
                                    use_float=filter_float)
+        elif method == "DELETE" and len(self.last_response.content) == 0:
+            res = list()
         else:
             res = self.last_response.json()
 
