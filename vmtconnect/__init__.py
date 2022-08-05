@@ -1861,6 +1861,7 @@ class Connection:
             entity_types (list, optional): Member entity types filter.
             probe_types (list, optional): Target probe type filter.
             regex (bool, optional): Flag for regex query string searching.
+            query_type (str, optional): Specifies the type of query.
             Set
             uuid (str): UUID of an object to lookup.
             Set
@@ -1887,13 +1888,16 @@ class Connection:
         query = {}
         remove = []
         args = ['q', 'types', 'scopes', 'state', 'environment_type', 'group_type',
-        'detail_type', 'entity_types', 'regex', 'probe_types']
+        'detail_type', 'entity_types', 'regex', 'probe_types', 'query_type']
 
         for k in args:
             v = kwargs.get(k)
             if v is not None:
                 if k in ['types', 'scopes', 'entity_types', 'probe_types']:
                     query[k] = ','.join(v)
+                elif k == 'query_type':
+                    if v.upper() in ['REGEX', 'EXACT', 'CONTAINS']:
+                        query[k] = v
                 else:
                     query[k] = v
 
@@ -1901,7 +1905,6 @@ class Connection:
 
         for x in remove:
             del kwargs[x]
-
         return self.request('search', query=query, **kwargs)
 
     def search_by_name(self, name, type=None, case_sensitive=False,
