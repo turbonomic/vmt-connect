@@ -1546,11 +1546,10 @@ class Connection:
         Returns:
             A list containing the group in :obj:`dict` form.
         """
-        groups = self.get_groups(**kwargs)
+        groups = self.search(types=["Group"], q=name, **kwargs)
 
-        for grp in groups:
-            if grp['displayName'] == name:
-                return [grp]
+        if isinstance(groups, list) and len(groups) > 0:
+            return [groups[0]]
 
         return None
 
