@@ -377,10 +377,11 @@ class VersionSpec:
         self.allow_snapshot = snapshot
         self.cmp_base = cmp_base
 
-        try:
-            self.versions.sort()
-        except AttributeError:
-            raise VMTFormatError('Invalid input format')
+        if self.versions:
+            try:
+                self.versions.sort()
+            except AttributeError:
+                raise VMTFormatError('Invalid input format')
 
     @staticmethod
     def str_to_ver(string):
@@ -407,11 +408,12 @@ class VersionSpec:
 
     @staticmethod
     def _check(current, versions, required=True, warn=True):
-        for v in versions:
-            res = VersionSpec.cmp_ver(current, v)
+        if versions:
+            for v in versions:
+                res = VersionSpec.cmp_ver(current, v)
 
-            if (res >= 0 and v[-1] == '+') or res == 0:
-                return True
+                if (res >= 0 and v[-1] == '+') or res == 0:
+                    return True
 
         if required:
             raise VMTVersionError('Required version not met')
