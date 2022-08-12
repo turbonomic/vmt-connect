@@ -1295,12 +1295,6 @@ class Connection:
         Returns:
             A list of entities in :obj:`dict` form.
 
-
-        Notes:
-            **type** filtering is performed locally and is not compatible with
-            responses that return a :py:class:`~Pager` object. Therefore, if you
-            attempt to request a :py:class:`~Pager` response, **type** will be
-            ignored.
         """
         query = {}
 
@@ -1325,7 +1319,7 @@ class Connection:
             else:
                 entities = self.request(path, method='GET', query=query, **kwargs)
 
-        if type and isinstance(entities, Pager):
+        if type and isinstance(entities, list):
             return [deepcopy(x) for x in entities if x['className'] == type]
 
         return entities
@@ -1340,6 +1334,8 @@ class Connection:
         Returns:
             A list of virtual machines in :obj:`dict` form.
         """
+        if uuid is None:
+            kwargs["fetch_all"] = True
         return self.get_entities('VirtualMachine', uuid=uuid, market=market, **kwargs)
 
     def get_physicalmachines(self, uuid=None, market='Market', **kwargs):
@@ -1352,6 +1348,8 @@ class Connection:
         Returns:
             A list of hosts in :obj:`dict` form.
         """
+        if uuid is None:
+            kwargs["fetch_all"] = True
         return self.get_entities('PhysicalMachine', uuid=uuid, market=market, **kwargs)
 
     def get_datacenters(self, uuid=None, market='Market', **kwargs):
@@ -1364,6 +1362,8 @@ class Connection:
         Returns:
             A list of datacenters in :obj:`dict` form.
         """
+        if uuid is None:
+            kwargs["fetch_all"] = True
         return self.get_entities('DataCenter', uuid=uuid, market=market, **kwargs)
 
     def get_datastores(self, uuid=None, market='Market', **kwargs):
@@ -1376,6 +1376,8 @@ class Connection:
         Returns:
             A list of datastores in :obj:`dict` form.
         """
+        if uuid is None:
+            kwargs["fetch_all"] = True
         return self.get_entities('Storage', uuid=uuid, market=market, **kwargs)
 
     def get_clusters(self, uuid=None, cache=False, **kwargs):
