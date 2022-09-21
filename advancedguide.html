@@ -1,72 +1,38 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Advanced Usage &mdash; vmt-connect 3.6.0 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-
-  
-  
-  
-  
-
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced Usage &mdash; vmt-connect 3.6.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Developer Interfaces" href="reference.html" />
     <link rel="prev" title="Basic User Guide" href="userguide.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> vmt-connect
-          
-
-          
+            <a href="index.html" class="icon icon-home"> vmt-connect
           </a>
-
-          
-            
-            
               <div class="version">
-                3.6.0
+                3.6.2
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -74,18 +40,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="userguide.html">Basic User Guide</a></li>
@@ -111,73 +66,34 @@
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Developer Interfaces</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">vmt-connect</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Advanced Usage</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="_sources/advancedguide.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="advanced-usage">
-<h1>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="connections">
-<h2>Connections<a class="headerlink" href="#connections" title="Permalink to this headline">¶</a></h2>
+             
+  <section id="advanced-usage">
+<h1>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Permalink to this heading"></a></h1>
+<section id="connections">
+<h2>Connections<a class="headerlink" href="#connections" title="Permalink to this heading"></a></h2>
 <p>All parameters to the <a class="reference internal" href="reference.html#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a> and <a class="reference internal" href="reference.html#vmtconnect.Session" title="vmtconnect.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a>
 classes are technically optional, however Turbonomic does require authentication.
 Thus while <code class="docutils literal notranslate"><span class="pre">vmtconnect.Connection()</span></code> and <code class="docutils literal notranslate"><span class="pre">vmtconnect.Session()</span></code> are valid
@@ -201,7 +117,7 @@ surrounding the address as defined in <a class="reference external" href="https:
 </pre></div>
 </div>
 <p>Additional HTTP headers may be provided using the <cite>headers</cite> parameters. Headers
-must be supplied in a format compatible with <a class="reference external" href="https://docs.python-requests.org/en/master/">Requests</a>. Any headers supplied
+must be supplied in a format compatible with <a class="reference external" href="https://requests.readthedocs.io/en/latest/">Requests</a>. Any headers supplied
 in this manner will be attached to all requests sent. If you require specific
 headers for a specific call, you may attach headers to the  individual query
 directly.</p>
@@ -213,7 +129,7 @@ directly.</p>
 <span class="n">vmt</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="s1">&#39;...&#39;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">customheaders</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Like headers, Requests <a class="reference external" href="https://docs.python-requests.org/en/master/user/advanced/#proxies">proxies</a> are also supported in the proper format, and
+<p>Like headers, Requests <a class="reference external" href="https://requests.readthedocs.io/en/latest/user/advanced/#proxies">proxies</a> are also supported in the proper format, and
 are passed to the <cite>proxies</cite> parameter.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">proxies</span> <span class="o">=</span> <span class="p">{</span>
   <span class="s1">&#39;http&#39;</span><span class="p">:</span> <span class="s1">&#39;http://10.10.1.10:3128&#39;</span><span class="p">,</span>
@@ -223,15 +139,15 @@ are passed to the <cite>proxies</cite> parameter.</p>
 <span class="n">vmt</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span><span class="n">auth</span><span class="o">=</span><span class="s1">&#39;...&#39;</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="n">proxies</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="paged-results">
-<h2>Paged Results<a class="headerlink" href="#paged-results" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="paged-results">
+<h2>Paged Results<a class="headerlink" href="#paged-results" title="Permalink to this heading"></a></h2>
 <p>For versions of Turbonomic that support paged responses, <em>vmt-connect</em> provides
 an optional <a class="reference internal" href="reference.html#vmtconnect.Pager" title="vmtconnect.Pager"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pager</span></code></a> class for working with the paginated
 results. By default, <em>vmt-connect</em> will return the first page of results only
 unless the <strong>pager</strong> flag is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
-<div class="section" id="basic-pagination">
-<h3>Basic Pagination<a class="headerlink" href="#basic-pagination" title="Permalink to this headline">¶</a></h3>
+<section id="basic-pagination">
+<h3>Basic Pagination<a class="headerlink" href="#basic-pagination" title="Permalink to this heading"></a></h3>
 <p>When querying all entities in a given market, for example, you will by default
 receive the first set of entries (300-500 depending on version) in the usual list
 of dictionaries format:</p>
@@ -278,10 +194,10 @@ property of the <a class="reference internal" href="reference.html#vmtconnect.Pa
     <span class="n">interesting_things</span><span class="p">(</span><span class="n">entitycache</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="response-filters">
-<h2>Response Filters<a class="headerlink" href="#response-filters" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="response-filters">
+<h2>Response Filters<a class="headerlink" href="#response-filters" title="Permalink to this heading"></a></h2>
 <p>Starting in v3.4.0, <em>vmt-connect</em> supports filtering JSON responses in order to
 reduce memory consumption when working with extremely large responses, and to
 permit fine grained control over the data received. Two methods of filtering
@@ -299,7 +215,7 @@ direct requests, as well as paged results. To apply a filter to a request simply
 add the <strong>filter</strong> keyword argument to the method call with the corresponding
 filter you wish to apply:</p>
 <div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">Example filtered request</span><a class="headerlink" href="#id2" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Example filtered request</span><a class="headerlink" href="#id2" title="Permalink to this code"></a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">conn</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;pass&#39;</span><span class="p">)</span>
 <span class="nb">filter</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;uuid,displayName,details&#39;</span><span class="p">]</span>
 <span class="n">actions</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_actions</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">)</span>
@@ -307,7 +223,7 @@ filter you wish to apply:</p>
 </div>
 </div>
 <div class="literal-block-wrapper docutils container" id="id3">
-<div class="code-block-caption"><span class="caption-text">Example filtered request with pagination and cursor size limit</span><a class="headerlink" href="#id3" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Example filtered request with pagination and cursor size limit</span><a class="headerlink" href="#id3" title="Permalink to this code"></a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vconnmt</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;pass&#39;</span><span class="p">)</span>
 <span class="nb">filter</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;uuid,displayName,details&#39;</span><span class="p">]</span>
 <span class="n">actions</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">get_actions</span><span class="p">(</span><span class="nb">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">,</span> <span class="n">pager</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
@@ -318,79 +234,79 @@ filter you wish to apply:</p>
 please refer to this example JSON response.</p>
 <details>
 <summary><b>Show/Hide Example</b></summary><div class="literal-block-wrapper docutils container" id="id4">
-<div class="code-block-caption"><span class="caption-text">action.json</span><a class="headerlink" href="#id4" title="Permalink to this code">¶</a></div>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
-  <span class="p">{</span>
-    <span class="nt">&quot;uuid&quot;</span><span class="p">:</span> <span class="s2">&quot;9223304850035275760&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;actionImpactID&quot;</span><span class="p">:</span> <span class="mi">9223304850035276000</span><span class="p">,</span>
-    <span class="nt">&quot;createTime&quot;</span><span class="p">:</span> <span class="s2">&quot;2020-08-04T12:21:44-04:00&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;actionType&quot;</span><span class="p">:</span> <span class="s2">&quot;RIGHT_SIZE&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;actionState&quot;</span><span class="p">:</span> <span class="s2">&quot;PENDING_ACCEPT&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;actionMode&quot;</span><span class="p">:</span> <span class="s2">&quot;MANUAL&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;details&quot;</span><span class="p">:</span> <span class="s2">&quot;Scale down VMem for VirtualMachine cert58 from 14 GB to 12 GB&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;importance&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="nt">&quot;target&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;uuid&quot;</span><span class="p">:</span> <span class="s2">&quot;421c5dac-3d10-6d6d-2183-5c01f7b2ace9&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;displayName&quot;</span><span class="p">:</span> <span class="s2">&quot;cert58&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;className&quot;</span><span class="p">:</span> <span class="s2">&quot;VirtualMachine&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;discoveredBy&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;uuid&quot;</span><span class="p">:</span> <span class="s2">&quot;_UFCnUMYUEeqw6vcwGrTNAw&quot;</span><span class="p">,</span>
-        <span class="nt">&quot;displayName&quot;</span><span class="p">:</span> <span class="s2">&quot;vcenter.demo.example.com&quot;</span><span class="p">,</span>
-        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;vCenter&quot;</span><span class="p">,</span>
-        <span class="nt">&quot;readonly&quot;</span><span class="p">:</span> <span class="kc">false</span>
-      <span class="p">}</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;currentEntity&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;uuid&quot;</span><span class="p">:</span> <span class="s2">&quot;_lmEJ8tZuEeqG6vS3wpTEow&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;className&quot;</span><span class="p">:</span> <span class="s2">&quot;VMem&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;newEntity&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;uuid&quot;</span><span class="p">:</span> <span class="s2">&quot;_t9Euw9dLEeqG6vS3wpTEow&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;className&quot;</span><span class="p">:</span> <span class="s2">&quot;VMem&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;aspects&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;virtualMachineAspect&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="nt">&quot;os&quot;</span><span class="p">:</span> <span class="s2">&quot;Linux (Free)&quot;</span><span class="p">,</span>
-          <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;VMEntityAspectApiDTO&quot;</span>
-        <span class="p">}</span>
-      <span class="p">}</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;currentValue&quot;</span><span class="p">:</span> <span class="s2">&quot;14680064.0&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;newValue&quot;</span><span class="p">:</span> <span class="s2">&quot;12582912.0&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;resizeToValue&quot;</span><span class="p">:</span> <span class="s2">&quot;12582912.0&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;stats&quot;</span><span class="p">:</span> <span class="p">[</span>
-      <span class="p">{</span>
-        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;costPrice&quot;</span><span class="p">,</span>
-        <span class="nt">&quot;filters&quot;</span><span class="p">:</span> <span class="p">[</span>
-          <span class="p">{</span>
-            <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;savingsType&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;savings&quot;</span>
-          <span class="p">}</span>
-        <span class="p">],</span>
-        <span class="nt">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;$&quot;</span><span class="p">,</span>
-        <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mi">100</span>
-      <span class="p">}</span>
-    <span class="p">],</span>
-    <span class="nt">&quot;currentLocation&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;uuid&quot;</span><span class="p">:</span> <span class="s2">&quot;a600946a2bdb36c3527fa57bd35a5b8db76dd552&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;displayName&quot;</span><span class="p">:</span> <span class="s2">&quot;DemoDC&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;className&quot;</span><span class="p">:</span> <span class="s2">&quot;DataCenter&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;newLocation&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;uuid&quot;</span><span class="p">:</span> <span class="s2">&quot;a600946a2bdb36c3527fa57bd35a5b8db76dd552&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;displayName&quot;</span><span class="p">:</span> <span class="s2">&quot;DemoDC&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;className&quot;</span><span class="p">:</span> <span class="s2">&quot;DataCenter&quot;</span>
-    <span class="p">},</span>
-    <span class="nt">&quot;actionID&quot;</span><span class="p">:</span> <span class="mi">3208600312656</span>
-  <span class="p">}</span>
-<span class="p">]</span>
+<div class="code-block-caption"><span class="caption-text">action.json</span><a class="headerlink" href="#id4" title="Permalink to this code"></a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="w"></span>
+<span class="w">  </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;9223304850035275760&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;actionImpactID&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9223304850035276000</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;createTime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2020-08-04T12:21:44-04:00&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;actionType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RIGHT_SIZE&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;actionState&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PENDING_ACCEPT&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;actionMode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MANUAL&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Scale down VMem for VirtualMachine cert58 from 14 GB to 12 GB&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;importance&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;421c5dac-3d10-6d6d-2183-5c01f7b2ace9&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cert58&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;className&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;VirtualMachine&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;discoveredBy&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;_UFCnUMYUEeqw6vcwGrTNAw&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vcenter.demo.example.com&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vCenter&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;readonly&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;currentEntity&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;_lmEJ8tZuEeqG6vS3wpTEow&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;className&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;VMem&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;newEntity&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;_t9Euw9dLEeqG6vS3wpTEow&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;className&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;VMem&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;aspects&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;virtualMachineAspect&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">          </span><span class="nt">&quot;os&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Linux (Free)&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;VMEntityAspectApiDTO&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;currentValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;14680064.0&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;newValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;12582912.0&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;resizeToValue&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;12582912.0&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;stats&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">      </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;costPrice&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;filters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">          </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;savingsType&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;savings&quot;</span><span class="w"></span>
+<span class="w">          </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">],</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;units&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">],</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;currentLocation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;a600946a2bdb36c3527fa57bd35a5b8db76dd552&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DemoDC&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;className&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DataCenter&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;newLocation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;a600946a2bdb36c3527fa57bd35a5b8db76dd552&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;displayName&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DemoDC&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;className&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DataCenter&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;actionID&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3208600312656</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">]</span><span class="w"></span>
 </pre></div>
 </div>
 </div>
 </details><div class="line-block">
 <div class="line"><br /></div>
 </div>
-<div class="section" id="native-dsl">
-<h3>Native DSL<a class="headerlink" href="#native-dsl" title="Permalink to this headline">¶</a></h3>
+<section id="native-dsl">
+<h3>Native DSL<a class="headerlink" href="#native-dsl" title="Permalink to this heading"></a></h3>
 <p>Native DSL filters are constructed using a list of filter strings. Each string
 contains either a list of keys, or a dot-reference path to a single key to extract
 from the source JSON response. You only need to specify the minimum level of depth
@@ -400,7 +316,7 @@ for the same top-level key will be merged, thus you can cherry pick a subset of
 an object using multiple filter entries. The below examples demonstrate these
 behaviors.</p>
 <div class="literal-block-wrapper docutils container" id="id5">
-<div class="code-block-caption"><span class="caption-text">Multiple Keys Expanded</span><a class="headerlink" href="#id5" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Multiple Keys Expanded</span><a class="headerlink" href="#id5" title="Permalink to this code"></a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">filter</span> <span class="o">=</span> <span class="p">[</span>
   <span class="s1">&#39;uuid&#39;</span><span class="p">,</span>
   <span class="s1">&#39;details&#39;</span><span class="p">,</span>
@@ -411,7 +327,7 @@ behaviors.</p>
 </div>
 </div>
 <div class="literal-block-wrapper docutils container" id="ex1">
-<div class="code-block-caption"><span class="caption-text">Multiple Keys Compact</span><a class="headerlink" href="#ex1" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Multiple Keys Compact</span><a class="headerlink" href="#ex1" title="Permalink to this code"></a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">filter</span> <span class="o">=</span> <span class="p">[</span>
   <span class="s1">&#39;uuid,details,actionType,target&#39;</span>
 <span class="p">]</span>
@@ -422,7 +338,7 @@ behaviors.</p>
 <strong>actionType</strong>, and the entire <strong>target</strong> object from every object in the response
 list. All other fields will be discarded.</p>
 <div class="literal-block-wrapper docutils container" id="ex2">
-<div class="code-block-caption"><span class="caption-text">Sub-selecting Parts of an object</span><a class="headerlink" href="#ex2" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Sub-selecting Parts of an object</span><a class="headerlink" href="#ex2" title="Permalink to this code"></a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">filter</span> <span class="o">=</span> <span class="p">[</span>
   <span class="s1">&#39;uuid,details,actionType&#39;</span><span class="p">,</span>
   <span class="s1">&#39;target.uuid&#39;</span><span class="p">,</span>
@@ -439,7 +355,7 @@ addition a sub-selection of the <strong>target</strong> object have been pulled,
 the <strong>currentValue</strong> and <strong>newValue</strong> top level keys. All the <strong>target</strong> parts
 will be returned in their original structure, as referenced by the dot notation.</p>
 <div class="literal-block-wrapper docutils container" id="id6">
-<div class="code-block-caption"><span class="caption-text">Sub-selecting Parts of an object</span><a class="headerlink" href="#id6" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Sub-selecting Parts of an object</span><a class="headerlink" href="#id6" title="Permalink to this code"></a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">filter</span> <span class="o">=</span> <span class="p">[</span>
   <span class="s1">&#39;uuid,details,actionType,stats&#39;</span>
 <span class="p">]</span>
@@ -451,7 +367,7 @@ you cannot filter individual indices based on their children, you can sub-select
 or slice portions of the list using Python’s slicing syntax, as shown in the
 following examples.</p>
 <div class="literal-block-wrapper docutils container" id="id7">
-<div class="code-block-caption"><span class="caption-text">Sub-selecting a specific item in a list</span><a class="headerlink" href="#id7" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Sub-selecting a specific item in a list</span><a class="headerlink" href="#id7" title="Permalink to this code"></a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">filter</span> <span class="o">=</span> <span class="p">[</span>
   <span class="s1">&#39;uuid,details,actionType&#39;</span><span class="p">,</span>
   <span class="s1">&#39;stats[0]&#39;</span>
@@ -463,7 +379,7 @@ following examples.</p>
 <div class="line"><br /></div>
 </div>
 <div class="literal-block-wrapper docutils container" id="id8">
-<div class="code-block-caption"><span class="caption-text">Sub-selecting a range from a list, with stepping</span><a class="headerlink" href="#id8" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Sub-selecting a range from a list, with stepping</span><a class="headerlink" href="#id8" title="Permalink to this code"></a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">filter</span> <span class="o">=</span> <span class="p">[</span>
   <span class="s1">&#39;uuid,details,actionType&#39;</span><span class="p">,</span>
   <span class="s1">&#39;stats[2:10:2]&#39;</span>
@@ -475,7 +391,7 @@ following examples.</p>
 <div class="line"><br /></div>
 </div>
 <div class="literal-block-wrapper docutils container" id="id9">
-<div class="code-block-caption"><span class="caption-text">All of these are equivalent</span><a class="headerlink" href="#id9" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">All of these are equivalent</span><a class="headerlink" href="#id9" title="Permalink to this code"></a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">filter</span> <span class="o">=</span> <span class="p">[</span>
   <span class="s1">&#39;stats&#39;</span><span class="p">,</span>
   <span class="s1">&#39;stats[]&#39;</span><span class="p">,</span>
@@ -489,7 +405,7 @@ following examples.</p>
 <div class="line"><br /></div>
 </div>
 <div class="literal-block-wrapper docutils container" id="id10">
-<div class="code-block-caption"><span class="caption-text">Dot-referencing with lists</span><a class="headerlink" href="#id10" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Dot-referencing with lists</span><a class="headerlink" href="#id10" title="Permalink to this code"></a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">filter</span> <span class="o">=</span> <span class="p">[</span>
   <span class="s1">&#39;uuid,details,actionType&#39;</span><span class="p">,</span>
   <span class="s1">&#39;stats.name&#39;</span><span class="p">,</span>
@@ -995,9 +911,9 @@ following examples.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-</div>
-<div class="section" id="id1">
-<h3>jq Script<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="id1">
+<h3>jq Script<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
 <p>In addition to the native DSL, <em>vmt-connect</em> supports <a class="reference external" href="https://stedolan.github.io/jq/manual/">jq script</a> via the <a class="reference external" href="https://pypi.org/project/jq/">jq python</a>
 package. Jq provides a more powerful parsing language for not simply filtering,
 but also altering JSON content. This includes value checking, recursion, deletion,
@@ -1018,7 +934,7 @@ by default with <em>vmt-connect</em>.</p>
 </dl>
 </div>
 <div class="literal-block-wrapper docutils container" id="id11">
-<div class="code-block-caption"><span class="caption-text">Jq style multiple keys selection</span><a class="headerlink" href="#id11" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Jq style multiple keys selection</span><a class="headerlink" href="#id11" title="Permalink to this code"></a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">filter</span> <span class="o">=</span> <span class="s1">&#39;. | {uuid, details, actionType, target}&#39;</span>
 </pre></div>
 </div>
@@ -1028,7 +944,7 @@ by default with <em>vmt-connect</em>.</p>
 <div class="line"><br /></div>
 </div>
 <div class="literal-block-wrapper docutils container" id="id12">
-<div class="code-block-caption"><span class="caption-text">Jq style multiple keys selection</span><a class="headerlink" href="#id12" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Jq style multiple keys selection</span><a class="headerlink" href="#id12" title="Permalink to this code"></a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">filter</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">  . | {</span>
 <span class="s2">    uuid,</span>
@@ -1052,7 +968,7 @@ by default with <em>vmt-connect</em>.</p>
 <div class="line"><br /></div>
 </div>
 <div class="literal-block-wrapper docutils container" id="id13">
-<div class="code-block-caption"><span class="caption-text">Filtering based on values</span><a class="headerlink" href="#id13" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Filtering based on values</span><a class="headerlink" href="#id13" title="Permalink to this code"></a></div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">filter</span> <span class="o">=</span> <span class="s1">&#39;. | select(.actionType == &quot;DELETE&quot;) | {uuid, details, actionType, target}&#39;</span>
 </pre></div>
 </div>
@@ -1060,10 +976,10 @@ by default with <em>vmt-connect</em>.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-</div>
-</div>
-<div class="section" id="version-control">
-<h2>Version Control<a class="headerlink" href="#version-control" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="version-control">
+<h2>Version Control<a class="headerlink" href="#version-control" title="Permalink to this heading"></a></h2>
 <p>When specific implementations, integrations, or scripts require specific versions
 of Turbonomic, need to override one of the minimum versions, or need to exclude
 incompatible versions, you will need to pass in a custom <a class="reference internal" href="reference.html#vmtconnect.VersionSpec" title="vmtconnect.VersionSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionSpec</span></code></a>
@@ -1088,9 +1004,9 @@ set the <strong>snapshot</strong> parameter to <code class="docutils literal not
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spec</span> <span class="o">=</span> <span class="n">vmtconnect</span><span class="o">.</span><span class="n">VersionSpec</span><span class="p">([</span><span class="s1">&#39;7.21+&#39;</span><span class="p">],</span> <span class="n">snapshot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="credentials">
-<h2>Credentials<a class="headerlink" href="#credentials" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="credentials">
+<h2>Credentials<a class="headerlink" href="#credentials" title="Permalink to this heading"></a></h2>
 <p>Prior to v3.3.0, <em>vmt-connect</em> provided no native mechanism for securing credentials.
 To fill the gap Turbonomic provided a package called “TurboAPICredStore”, which
 provided for the creation and management of encrypted API credentials. That library
@@ -1104,8 +1020,8 @@ called a token, there is a unique encryption key, the secret, which must be secu
 separately. <em>vmt-connect</em> necessarily leaves the security of the secret key up
 to the user, and appropriate measures must be taken to ensure access to the secret
 is available only to intended parties.</p>
-<div class="section" id="module-interface">
-<h3>Module Interface<a class="headerlink" href="#module-interface" title="Permalink to this headline">¶</a></h3>
+<section id="module-interface">
+<h3>Module Interface<a class="headerlink" href="#module-interface" title="Permalink to this heading"></a></h3>
 <p>Encrypted credentials can be created, and retrieved using the security module’s
 <a class="reference internal" href="reference.html#vmtconnect.security.Credential" title="vmtconnect.security.Credential"><code class="xref py py-class docutils literal notranslate"><span class="pre">Credential</span></code></a> class. Creating new credentials can
 be done with the interactive using the <a class="reference internal" href="reference.html#vmtconnect.security.Credential.create" title="vmtconnect.security.Credential.create"><code class="xref py py-meth docutils literal notranslate"><span class="pre">create()</span></code></a>
@@ -1126,9 +1042,9 @@ Credentials can then be decrypted directly:</p>
 <span class="n">auth</span> <span class="o">=</span> <span class="n">cred</span><span class="o">.</span><span class="n">decrypt</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="command-line-interface">
-<h3>Command-line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="command-line-interface">
+<h3>Command-line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this heading"></a></h3>
 <p>The command-line interface utility, turboauth, is intended for creating encrypted
 credentials for the Turbonomic API in anticipation for automated integrations.
 The command can be used to create new, or replace existing credential and key
@@ -1145,64 +1061,39 @@ turboauth -k .key -c user.cred -f
 turboauth -b .secret -k .key -c user.cred
 </pre></div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="reference.html" class="btn btn-neutral float-right" title="Developer Interfaces" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="userguide.html" class="btn btn-neutral float-left" title="Basic User Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="userguide.html" class="btn btn-neutral float-left" title="Basic User Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reference.html" class="btn btn-neutral float-right" title="Developer Interfaces" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        
-        &copy; Copyright 2017-2021
-
-    </p>
+    <p>&#169; Copyright 2017-2022.</p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

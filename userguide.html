@@ -1,72 +1,38 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>Basic User Guide &mdash; vmt-connect 3.6.0 documentation</title>
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-
-  
-  
-  
-  
-
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basic User Guide &mdash; vmt-connect 3.6.2 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Advanced Usage" href="advancedguide.html" />
     <link rel="prev" title="Getting Started" href="start.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> vmt-connect
-          
-
-          
+            <a href="index.html" class="icon icon-home"> vmt-connect
           </a>
-
-          
-            
-            
               <div class="version">
-                3.6.0
+                3.6.2
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -74,18 +40,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Basic User Guide</a><ul>
@@ -98,79 +53,40 @@
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Developer Interfaces</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">vmt-connect</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Basic User Guide</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-            
             <a href="_sources/userguide.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="basic-user-guide">
-<h1>Basic User Guide<a class="headerlink" href="#basic-user-guide" title="Permalink to this headline">¶</a></h1>
-<p><em>vmt-connect</em> provides base communication operations with the <a class="reference external" href="https://www.turbonomic.com">Turbonomic</a> <a class="reference external" href="https://support-turbonomic.force.com/TurbonomicCustomerCommunity/s/documentation">API</a>
+             
+  <section id="basic-user-guide">
+<h1>Basic User Guide<a class="headerlink" href="#basic-user-guide" title="Permalink to this heading"></a></h1>
+<p><em>vmt-connect</em> provides base communication operations with the <a class="reference external" href="https://www.ibm.com/cloud/turbonomic">Turbonomic</a> <a class="reference external" href="https://www.ibm.com/docs/en/tarm/8.6.3?topic=api-reference">API</a>
 through two primary connection interfaces. The first is a standard REST based
 <a class="reference internal" href="reference.html#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a>, while the second is a session based connection
 class, <a class="reference internal" href="reference.html#vmtconnect.Session" title="vmtconnect.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a>. There is also a legacy class <a class="reference internal" href="reference.html#vmtconnect.VMTConnection" title="vmtconnect.VMTConnection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VMTConnection</span></code></a>
 that serves as an alias to <a class="reference internal" href="reference.html#vmtconnect.Session" title="vmtconnect.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a> for backwards compatibility.
 This will be removed in v4.0, and code should be updated to the proper connection class.</p>
-<div class="section" id="getting-connected">
-<h2>Getting Connected<a class="headerlink" href="#getting-connected" title="Permalink to this headline">¶</a></h2>
+<section id="getting-connected">
+<h2>Getting Connected<a class="headerlink" href="#getting-connected" title="Permalink to this heading"></a></h2>
 <p>Using the <a class="reference internal" href="reference.html#vmtconnect.Connection" title="vmtconnect.Connection"><code class="xref py py-class docutils literal notranslate"><span class="pre">Connection</span></code></a> class to connect to Turbonomic is very simple.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">vmtconnect</span>
 
@@ -190,9 +106,9 @@ vCenter instance.</p>
 <span class="n">vc_vms</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vms</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;discoveredBy&#39;</span><span class="p">][</span><span class="s1">&#39;uuid&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">vc_uuid</span><span class="p">]</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="legacy-connections">
-<h2>Legacy Connections<a class="headerlink" href="#legacy-connections" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="legacy-connections">
+<h2>Legacy Connections<a class="headerlink" href="#legacy-connections" title="Permalink to this heading"></a></h2>
 <p>Any existing code using the <a class="reference internal" href="reference.html#vmtconnect.VMTConnection" title="vmtconnect.VMTConnection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VMTConnection</span></code></a> class should continue
 to operate as before. The underlying communication will be handled by the <a class="reference internal" href="reference.html#vmtconnect.Session" title="vmtconnect.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">Session</span></code></a>
 class, and code should be updated to the new class names as soon as possible.
@@ -202,9 +118,9 @@ The legacy interface is scheduled to be removed in v4.0.</p>
 <span class="n">vmt</span> <span class="o">=</span> <span class="n">vc</span><span class="o">.</span><span class="n">VMTConnection</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="s1">&#39;bob&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;*****&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="working-with-results">
-<h2>Working with Results<a class="headerlink" href="#working-with-results" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="working-with-results">
+<h2>Working with Results<a class="headerlink" href="#working-with-results" title="Permalink to this heading"></a></h2>
 <p>Regardless of the connection class used, all JSON results are automatically
 deserialized into Python objects and can be accessed directly. Because Turbonomic
 may return a single item or a list of items on most endpoints, the connection
@@ -224,64 +140,39 @@ on, continuing from the earlier example.</p>
 </pre></div>
 </div>
 <p>For more details on the exact data structure of each Turbonomic entity, see the
-<a class="reference external" href="https://support-turbonomic.force.com/TurbonomicCustomerCommunity/s/documentation">API</a> documentation.</p>
-</div>
-</div>
+<a class="reference external" href="https://www.ibm.com/docs/en/tarm/8.6.3?topic=api-reference">API</a> documentation.</p>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="advancedguide.html" class="btn btn-neutral float-right" title="Advanced Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="start.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="start.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="advancedguide.html" class="btn btn-neutral float-right" title="Advanced Usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        
-        &copy; Copyright 2017-2021
-
-    </p>
+    <p>&#169; Copyright 2017-2022.</p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
