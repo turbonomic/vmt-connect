@@ -200,5 +200,5 @@ man_pages = [
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     'python': ('https://docs.python.org/', None),
-    'requests': ('https://requests.readthedocs.io/en/master/', None)
+    'requests': ('https://requests.readthedocs.io/en/latest/', None)
   }

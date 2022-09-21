@@ -2,8 +2,8 @@
    sphinx-quickstart on Tue Jul 18 10:49:54 2017.
 
 .. # Links
-.. _APIs: https://support-turbonomic.force.com/TurbonomicCustomerCommunity/s/documentation
-.. _Turbonomic: https://www.turbonomic.com
+.. _APIs: https://www.ibm.com/docs/en/tarm/8.6.3?topic=api-reference
+.. _Turbonomic: https://www.ibm.com/cloud/turbonomic
 
 ==================================
 vmt-connect Documentation Contents
