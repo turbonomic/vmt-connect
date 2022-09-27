@@ -1,12 +1,12 @@
 .. # Links
 .. _CPython: https://www.python.org/
 .. _PyPi: http://pypi.org/
-.. _Requests: https://docs.python-requests.org/en/master/
+.. _Requests: https://requests.readthedocs.io/en/latest/
 .. _IronPython: http://http://ironpython.net/
 .. _GitHub: https://github.com/turbonomic/vmt-connect
 .. _releases: https://github.com/turbonomic/vmt-connect/releases
 .. _Apache 2.0: https://www.apache.org/licenses/LICENSE-2.0.txt
-.. _Turbonomic: https://www.turbonomic.com
+.. _Turbonomic: https://www.ibm.com/cloud/turbonomic
 
 ===============
 Getting Started
@@ -37,7 +37,7 @@ Python, and install the Requests_ module.
 
   - CPython_ >= 3.6
 
-* Requests_ >= 2.21.0
+* Requests_ >= 2.25.1
 
 * Turbonomic_
 
@@ -73,13 +73,14 @@ __ releases_
 Contributors
 ============
 
-Creator and Principal Author:
-  * R.A. Stern
+Current Maintainers:
+  * John Fabry
+  * Ray Mileo
 
-Contributors:
+Past Contributors:
+  * R.A. Stern (Creator)
   * Austin Portal
   * Chris Sawtelle
-  * Ray Mileo
   * Ryan Geyer
 
 
@@ -87,8 +88,9 @@ Turbonomic REST API Guides
 ==========================
 
 The following published user guides are available to aid in developing against
-the Turbonomic REST API. Additional resources are available on the `Turbonomic Documentation <https://support-turbonomic.force.com/TurbonomicCustomerCommunity/s/documentation>`_ website.
+the Turbonomic REST API. Additional resources are available on the `Turbonomic Documentation <https://www.ibm.com/docs/en/tarm/8.6.3?topic=api-reference>`_ website.
 
+  * `XL 8.6.3 <https://www.ibm.com/docs/en/tarm/8.6.3?topic=api-reference>`_
   * `XL 8.1.0 <https://docs.turbonomic.com/pdfdocs/Turbonomic_API_PRINT_8.1.0.pdf>`_
   * `XL 8.0.1 <https://docs.turbonomic.com/docApp/doc/index.html?config=8.0.json#!/MAPPED&DEFAULT_DEDICATED_XL&showToc=1>`_
   * `XL 7.22.2 <https://docs.turbonomic.com/pdfdocs/Turbonomic_User_Guide_7.21.2.pdf>`_
