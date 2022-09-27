@@ -1,6 +1,6 @@
 .. # Links
-.. _API: https://support-turbonomic.force.com/TurbonomicCustomerCommunity/s/documentation
-.. _Turbonomic: https://www.turbonomic.com
+.. _API: https://www.ibm.com/docs/en/tarm/8.6.3?topic=api-reference
+.. _Turbonomic: https://www.ibm.com/cloud/turbonomic
 
 ================
 Basic User Guide

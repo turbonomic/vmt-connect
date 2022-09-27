@@ -1,13 +1,13 @@
 .. # Links
-.. _API: https://support-turbonomic.force.com/TurbonomicCustomerCommunity/s/documentation
+.. _API: https://www.ibm.com/docs/en/tarm/8.6.3?topic=api-reference
 .. _cryptography: https://pypi.org/project/cryptography/
 .. _Fernet: https://github.com/fernet/spec/blob/master/Spec.md
 .. _jq: https://stedolan.github.io/jq/
 .. _jq python: https://pypi.org/project/jq/
 .. _jq script: https://stedolan.github.io/jq/manual/
-.. _Turbonomic: https://www.turbonomic.com
-.. _Requests: https://docs.python-requests.org/en/master/
-.. _proxies: https://docs.python-requests.org/en/master/user/advanced/#proxies
+.. _Turbonomic: https://www.ibm.com/cloud/turbonomic
+.. _Requests: https://requests.readthedocs.io/en/latest/
+.. _proxies: https://requests.readthedocs.io/en/latest/user/advanced/#proxies
 .. _RFC 2732: https://datatracker.ietf.org/doc/html/rfc2732
 
 ==============
