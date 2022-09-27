@@ -166,6 +166,9 @@ class VMTPagerError(Exception):
     """Generic pager error"""
     pass
 
+class VMTGroupValidationError(Exception):
+    """Raised when group membership addition fails due to an invalid member UUID."""
+    pass
 
 class VMTNextCursorMissingError(VMTConnectionError):
     """Raised if the paging cursor header is not provided when expected"""
@@ -1773,12 +1776,15 @@ class Connection:
 
         return self.add_group(json.dumps(dto))
 
-    def add_static_group_members(self, uuid, members=None):
+    def add_static_group_members(self, uuid, members=None, validate=False):
         """Add members to an existing static group.
 
         Args:
             uuid (str): UUID of the group to be updated.
             members (list): List of member entity UUIDs.
+            validate (bool): If `True`, newly added members are compared to the
+                response from Turbonomic. If any were invalid, membership is
+                rolled back to the original state.
 
         Returns:
             The updated group definition.
@@ -1789,7 +1795,18 @@ class Connection:
         group = self.get_group_members(uuid)
         ext = [x['uuid'] for x in group]
 
-        return self.update_static_group_members(uuid, ext + members)
+        response = self.update_static_group_members(uuid, ext + members)
+
+        try:
+            all_members = response[0]['memberUuidList']
+        except KeyError:
+            all_members = []
+
+        if validate and not set(members).issubset(all_members):
+            self.update_static_group_members(uuid, ext)
+            raise VMTGroupValidationError(f"Invalid UUID specified.")
+
+        return response
 
     def add_template(self, dto):
         """Creates a template based on the supplied DTO object.
