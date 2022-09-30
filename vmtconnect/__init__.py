@@ -1,4 +1,4 @@
-# Copyright 2017-2021 R.A. Stern
+# Copyright 2017-2022 Turbonomic Integration Team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,16 +18,14 @@ from collections import defaultdict
 from copy import deepcopy
 import datetime
 import json
-import math
 import os
 import re
 import sys
 import warnings
 
 import requests
-from urllib.parse import urlunparse, urlencode
+from urllib.parse import urlunparse
 
-from vmtconnect import security
 from vmtconnect import util
 from vmtconnect import versions
 

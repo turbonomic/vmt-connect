@@ -8,9 +8,8 @@ from setuptools import setup, find_packages
 about = {}
 here = os.path.abspath(os.path.dirname(__file__))
 requires = [
-    'cryptography>=3,<4',
     'ijson>=3.1.4,<4',
-    'requests>=2.25.1,<3'
+    'requests>=2.28.1,<3'
 ]
 
 extra_requires = {
@@ -44,11 +43,8 @@ setup(
     ],
     package_data={'': ['LICENSE', 'NOTICE']},
     include_package_data=True,
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     install_requires=requires,
     extra_require=extra_requires,
-    license=about['__license__'],
-    entry_points={
-        'console_scripts': ['turboauth=vmtconnect.command_line:cmd']
-    }
+    license=about['__license__']
 )
