@@ -11,10 +11,10 @@
 # limitations under the License.
 # libraries
 
-__title__ = 'vmtconnect'
-__description__ = 'Turbonomic API Client'
-__version__ = '3.6.2'
-__author__ = 'Turbonomic Inc.'
-__author_email__ = 'ray.mileo@ibm.com'
-__license__ = 'Apache 2.0'
-__copyright__ = 'Copyright 2017-2022 Turbonomic Inc.'
+__title__ = "vmtconnect"
+__description__ = "Turbonomic API Client"
+__version__ = "3.7.0"
+__author__ = "Turbonomic Inc."
+__author_email__ = "ray.mileo@ibm.com"
+__license__ = "Apache 2.0"
+__copyright__ = "Copyright 2017-2022 Turbonomic Inc."
