@@ -1183,7 +1183,7 @@ class Connection:
         )
         self.request_check_error(self.last_response)
 
-        if pager or "x-next-cursor" in self.last_response.headers:
+        if pager or self.last_response.headers.get("x-next-cursor"):
             res = Pager(self, self.last_response, filter, filter_float, **kwargs)
             self._clear_response(nocache)
 
