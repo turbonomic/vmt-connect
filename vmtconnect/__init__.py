@@ -2042,16 +2042,6 @@ class Connection:
 
             Search criteria list: `http://<host>/vmturbo/rest/search/criteria`
         """
-        if "uuid" in kwargs and kwargs.get("uuid") is not None:
-            uuid = kwargs["uuid"]
-            del kwargs["uuid"]
-            return self.request("search", method="GET", uuid=uuid, **kwargs)
-
-        if "dto" in kwargs and kwargs.get("dto") is not None:
-            dto = kwargs["dto"]
-            del kwargs["dto"]
-            return self.request("search", method="POST", dto=dto, **kwargs)
-
         query = {}
         remove = []
         args = [
@@ -2083,6 +2073,16 @@ class Connection:
 
         for x in remove:
             del kwargs[x]
+
+        if "uuid" in kwargs and kwargs.get("uuid") is not None:
+            uuid = kwargs["uuid"]
+            del kwargs["uuid"]
+            return self.request("search", method="GET", uuid=uuid, query=query, **kwargs)
+        if "dto" in kwargs and kwargs.get("dto") is not None:
+            dto = kwargs["dto"]
+            del kwargs["dto"]
+            return self.request("search", method="POST", dto=dto, query=query, **kwargs)
+
         return self.request("search", query=query, **kwargs)
 
     def search_by_name(
